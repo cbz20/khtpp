@@ -96,14 +96,14 @@ The main page of the documentation is \code{.sh}docs/html/index.html\endcode.
 Let us compute the Bar-Natan homology of a trefoil knot. For this, run 
 
 \code{.sh}
-./kht++ examples/knots/3_1.kht
+./kht++ examples/tests/3_1.kht
 \endcode
 
 The output should look similar to the following:
 
 \code{.sh}
 >>>
->>> Computation for 'examples/knots/3_1':
+>>> Computation for 'examples/tests/3_1':
 >>>
 1 r1	↑  ↷ 
 | y0	 ⤫  ↓ 
@@ -117,10 +117,10 @@ The complex is already loop-type.
 2) h^2 q^6 δ^1 ⬮——H—>⬮
 \endcode
 
-You can also view this output in your browser by either opening the file \c examples/knots/3_1.html directly or typing 
+You can also view this output in your browser by either opening the file \c examples/tests/3_1.html directly or typing 
 
 \code{.sh}
-./kht++ examples/knots/3_1.kht -w
+./kht++ examples/tests/3_1.kht -w
 \endcode
 
 For more details on the parameter \c -w, see \ref Web. 
@@ -134,14 +134,14 @@ Let us compute the immersed curve invariant for the (2,-3)-pretzel tangle:
 For this, run 
 
 \code{.sh}
-./kht++ examples/pretzeltangles/PT2m3.kht
+./kht++ examples/tests/PT2m3.kht
 \endcode
 
 The output should look similar to the following:
 
 \code{.sh}
 >>>
->>> Computation for 'examples/pretzeltangles/PT2m3':
+>>> Computation for 'examples/tests/PT2m3':
 >>>
 1 l1	↑  ↶ 
 | x2	↑ ↓  ⤬ 
@@ -162,7 +162,7 @@ Cleaned-up complex in 10 iterations and 0.004s.
 Again, you can view a nicely formatted output by rerunning the previous command with the option \c -w:
 
 \code{.sh}
-./kht++ examples/pretzeltangles/PT2m3.kht -w
+./kht++ examples/tests/PT2m3.kht -w
 \endcode
 
 \subsection FurtherReading Further Reading
