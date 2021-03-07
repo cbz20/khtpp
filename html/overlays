@@ -1,0 +1,12 @@
+<div id="overlay" onclick="off()" style="display: none;">
+	<div id="text">
+		<div id="overlay_title_frame">
+			<h4 id="overlay_title"></h4>
+		</div>
+		</div id="overlay_container">
+			<img id="overlay_content" src="" title=""> 
+		</div>
+	</div>
+</div>
+
+

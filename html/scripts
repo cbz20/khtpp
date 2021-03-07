@@ -1,0 +1,61 @@
+<script type='text/javascript'>
+function toggleDisplay(cl,talkid) {
+	if (document.getElementById(talkid).style.display == '') {
+		document.getElementById(talkid).style.display = 'none';
+	}
+	else {
+		document.getElementById(talkid).style.display = '';
+	}
+	update_button(cl);
+}
+</script>
+<script type='text/javascript'>
+function update_button(cl) {
+	var subtabs = document.getElementsByClassName(cl);
+	var expanded = true;
+	for (itD = 0; itD < subtabs.length; itD++) {
+		if (subtabs[itD].style.display=="none"){
+			expanded = false;
+		}
+	}
+	if (expanded){
+		document.getElementById(cl+"-all").innerHTML = "hide all " + cl;
+	}
+	else {
+		document.getElementById(cl+"-all").innerHTML = "show all " + cl;
+	}
+}
+</script>
+<script type='text/javascript'>
+        function toggleDisplayClass(cl) {
+            	var subtabs = document.getElementsByClassName(cl);
+            	var expanded = true;
+          	for (itD = 0; itD < subtabs.length; itD++) {
+          		if (subtabs[itD].style.display=="none"){
+          			expanded = false;
+          		}
+          	}
+          	if (expanded){
+          		for (itD = 0; itD < subtabs.length; itD++) {
+          			subtabs[itD].style.display="none";
+          		}
+          	}
+          	else {
+          		for (itD = 0; itD < subtabs.length; itD++) {
+          			subtabs[itD].style.display="";
+          		}
+          	}
+          	update_button(cl);
+        }
+</script>
+<script type='text/javascript'>
+	function on(file) {
+	    document.getElementById("overlay_content").src=file+".svg";
+	    document.getElementById("overlay_title").innerHTML=file;
+	    document.getElementById("overlay").style.display = "block";
+	}
+
+	function off() {
+	    document.getElementById("overlay").style.display = "none";
+	} 
+</script>

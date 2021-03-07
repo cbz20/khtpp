@@ -1,0 +1,92 @@
+
+This file is part of kht++.
+
+kht++ is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as 
+published by the Free Software Foundation, either version 3 of 
+the License, or (at your option) any later version.
+
+kht++ is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General 
+Public License along with kht++.  If not, see 
+<https://www.gnu.org/licenses/>.
+
+
+
+\mainpage Homepage for kht++
+
+kht++ is a program for calculating the Khovanov and Bar-Natan homology of links and tangles \cite Khovanov2000 \cite BarNatanKhT. 
+
+\section About
+
+kht++ was primarily written for the purpose of computing __*tangle invariants*__ in Khovanov theory, in particular the immersed multicurve invariants \f$\mathrm{\widetilde{BN}}(T)\f$ and \f$\mathrm{\widetilde{Kh}}(T)\f$ for four-ended tangles from the monograph \cite KWZ. 
+One may also use it for computing the invariants for knots and links, and any derived invariants, such as Rasmussen's \f$s\f$-invariant \cite Rasmussen_slice_genus. 
+While it is reasonably fast and resource friendly, kht++ has not been optimized as much as some other programs; if you are _only_ interested in Khovanov invariants of _knots and links_, you might want to consider one of \ref AlternativePrograms "these" programs first. 
+
+\section Directions
+
+- \ref GettingStarted "Installation Guide" and \ref Usage "Usage Documentation"
+
+- If you are curious about what the output looks like, take a look at the [examples section](../examples.html).
+
+- If you would like to get involved in the development of this software, take a look at the \ref CodeDoc "Code Documentation" and \ref Contact "get in touch". 
+
+
+
+\section OtherPages Other pages
+
+- \ref HowToCite
+- \ref sources/License.md
+- \ref sources/Contributors.md
+- \ref citelist
+- \ref todo
+- \ref Impressum
+
+\section Contact Contact
+
+For feedback, questions, and bug reports, please send an email to cbz20@posteo.net. 
+
+\page AlternativePrograms Other Programs for computing Khovanov invariants of knots and links (not tangles)
+
+There exist several programs for computing Khovanov invariants for knots and links, some of which might be better suited for your computational needs; for example:
+
+- [JavaKh2](http://katlas.org/wiki/Khovanov_Homology)
+- [knotkit](https://github.com/cseed/knotkit)
+- [KhoHo](https://github.com/AShumakovitch/KhoHo)
+
+If you know of another program that you feel is missing from this list, please \ref Contact "get in touch". 
+
+
+\dir sources 
+\brief C++ source files
+\dir headers 
+\brief C++ header files
+\dir modules 
+\brief C++ implementation files
+
+
+
+\page todo Todo list
+
+\warning This documentation is still under construction. The following list of issues that need to be fixed is not complete. 
+
+
+\page CodeDoc Code
+
+To get an overview of the core features of the program, the following might be good starting points:
+
+- <a href="files.html">source files</a>
+- <a href="annotated.html">classes</a>
+
+\page Usage
+
+- \ref GettingStarted
+- \ref Input
+- \ref Output
+- \ref Options
+
+

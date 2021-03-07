@@ -1,0 +1,329 @@
+
+/*%%%%%%%%%%%%%*/
+/* FONTS START */
+/*%%%%%%%%%%%%%*/
+
+/* Thanks to https://google-webfonts-helper.herokuapp.com/fonts/ubuntu?subsets=latin */
+
+/* ubuntu-regular - latin */
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 400;
+  src: url('fonts/ubuntu-v11-latin-regular.eot'); /* IE9 Compat Modes */
+  src: local('Ubuntu Regular'), local('Ubuntu-Regular'),
+       url('fonts/ubuntu-v11-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('fonts/ubuntu-v11-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('fonts/ubuntu-v11-latin-regular.woff') format('woff'), /* Modern Browsers */
+       url('fonts/ubuntu-v11-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('fonts/ubuntu-v11-latin-regular.svg#Ubuntu') format('svg'); /* Legacy iOS */
+}
+
+/* ubuntu-500 - latin */
+@font-face {
+  font-family: 'Ubuntu';
+  font-style: normal;
+  font-weight: 500;
+  src: url('fonts/ubuntu-v11-latin-500.eot'); /* IE9 Compat Modes */
+  src: local('Ubuntu Medium'), local('Ubuntu-Medium'),
+       url('fonts/ubuntu-v11-latin-500.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('fonts/ubuntu-v11-latin-500.woff2') format('woff2'), /* Super Modern Browsers */
+       url('fonts/ubuntu-v11-latin-500.woff') format('woff'), /* Modern Browsers */
+       url('fonts/ubuntu-v11-latin-500.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('fonts/ubuntu-v11-latin-500.svg#Ubuntu') format('svg'); /* Legacy iOS */
+}
+
+/* ubuntu-mono-regular - latin */
+@font-face {
+  font-family: 'Ubuntu Mono';
+  font-style: normal;
+  font-weight: 400;
+  src: url('../fonts/ubuntu-mono-v7-latin-regular.eot'); /* IE9 Compat Modes */
+  src: local('Ubuntu Mono'), local('UbuntuMono-Regular'),
+       url('../fonts/ubuntu-mono-v7-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('../fonts/ubuntu-mono-v7-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+       url('../fonts/ubuntu-mono-v7-latin-regular.woff') format('woff'), /* Modern Browsers */
+       url('../fonts/ubuntu-mono-v7-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('../fonts/ubuntu-mono-v7-latin-regular.svg#UbuntuMono') format('svg'); /* Legacy iOS */
+}
+
+/* ubuntu-mono-700 - latin */
+@font-face {
+  font-family: 'Ubuntu Mono';
+  font-style: normal;
+  font-weight: 700;
+  src: url('../fonts/ubuntu-mono-v7-latin-700.eot'); /* IE9 Compat Modes */
+  src: local('Ubuntu Mono Bold'), local('UbuntuMono-Bold'),
+       url('../fonts/ubuntu-mono-v7-latin-700.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+       url('../fonts/ubuntu-mono-v7-latin-700.woff2') format('woff2'), /* Super Modern Browsers */
+       url('../fonts/ubuntu-mono-v7-latin-700.woff') format('woff'), /* Modern Browsers */
+       url('../fonts/ubuntu-mono-v7-latin-700.ttf') format('truetype'), /* Safari, Android, iOS */
+       url('../fonts/ubuntu-mono-v7-latin-700.svg#UbuntuMono') format('svg'); /* Legacy iOS */
+}
+
+
+/*%%%%%%%%%%%*/
+/* FONTS END */
+/*%%%%%%%%%%%*/
+
+
+BODY{
+	font-size: 100%;
+	font-size: 15px;
+	font-family: 'Ubuntu', sans-serif;
+	font-weight: 400;
+	background: #fbfbfb url('../html/background.jpg') repeat; 
+/*  background: #30313f;*/
+	margin: 22px 32px 22px 32px;
+	cursor: default;
+	text-align:justify;
+}
+
+.code { padding: 2px 2px 2px 2px;
+	color: #AEA79F;
+	background:#2C001E;
+	border: 2px solid #77216F;
+	border-radius:3px;
+	}
+
+.code.startcode { color:#E95420;}
+
+.txtw {
+	background:#fff url('pictures/framework/background.jpg') repeat;
+	border: 1px solid #fff;
+	box-shadow: 0 0 0 14px rgba(150, 150, 150, 0.2), 0 2px 3px rgba(25, 25, 25, 0.4), 0 10px 15px rgba(200, 200, 200, 0.1) inset}
+
+.slideshow {
+    border: 1px solid #fff;
+	box-shadow: 0 0 0 2px rgba(150, 150, 150, 0.1), 0 2px 3px rgba(25, 25, 25, 0.3), 0 10px 15px rgba(200, 200, 200, 0.1) inset}
+
+.buttons{
+   position: relative;
+   top: -1px;
+   margin-bottom: -22.5px
+}
+
+.buttons img{
+   width:18px;
+   padding:6px
+}
+
+.centerimage{
+   display: block;
+   margin-left: auto;
+   margin-right: auto;
+   margin-top: 40px
+}
+
+.rightimage{
+   float:right;
+   margin-left:10pt
+}
+
+.textfloatimage{
+   float:right;
+   margin-left:10pt
+}
+
+td{
+   vertical-align:top;
+   horizontal-align:center;
+   margin-top:10px
+}
+
+P{
+	margin-top: 1pt;
+	margin-bottom: 6pt;
+	line-height: 150%;
+	font-family: 'Ubuntu', sans-serif;
+	font-weight: 400;
+	text-align: justify;
+}
+
+B{
+	line-height: 150%;
+	font-weight: 500;
+}
+
+Table{
+	margin-top: 5pt;
+	margin-bottom: 2pt;
+	line-height: 150%;
+	text-align: justify;
+	border-spacing:14px;
+}
+
+H2{
+	margin-left:10pt;
+	margin-top:10px;
+	margin-bottom: 2pt;
+	line-height: 150%;
+	font-family: 'Ubuntu', sans-serif;
+	font-weight: 500;
+	text-align: left;
+}
+
+#LanguageToggle{
+   float:right;
+}
+
+H3{
+	margin-left:10pt;
+	margin-top: 5pt;
+	margin-bottom: 6pt;
+	line-height: 150%;
+	font-family: 'Ubuntu', sans-serif;
+	font-weight: 500;
+	text-align: left;
+}
+H4{
+    padding-left: 60px;
+	margin-top: 5pt;
+	margin-bottom: 2pt;
+	line-height: 150%;
+	font-family: 'Ubuntu', sans-serif;
+	font-weight: 500;
+	text-align: left;
+	/*background-color: rgba(0,0,0, .2);*/
+}
+A:link{
+	/*font: bold 12px "arial black";*/
+	color: #0000CD;
+	text-decoration: none;
+}
+A:visited{
+	color: Navy;
+	text-decoration: none;
+}
+A:hover{
+	color: Navy;
+	text-decoration: underline;
+}
+A:active{
+	color: #1E90FF;
+	text-decoration: underline;
+}
+UL{
+	margin-top: 5pt;
+	margin-bottom: 2pt;
+}
+
+.metadata {	
+	font-family: 'Ubuntu Mono';
+	color: gray;
+}
+.metadata-button {	
+	font-family: 'Ubuntu Mono';
+	color: gray;
+}
+
+.invariants { 
+    font-family: 'Ubuntu Mono';
+}
+	
+.tangle-data { 
+    font-family: 'Ubuntu Mono';
+    overflow: hidden;
+    text-align: left;
+    word-break: break-all;
+    padding-left:10pt;
+}
+.tangle_svg_small{
+	height: 5cm;
+	float:left;
+   	margin-left:10pt
+}
+
+.title-container{
+       column-width: 200px;
+       padding-right:50pt
+}
+
+#link_to_docs{
+        background-color: #A8A8A8;
+}
+
+h2:before { 
+  content: ""; 
+  display: block; 
+  clear: both; 
+}
+
+.title {
+   	position: relative;
+   	float:inherit;
+}
+
+
+
+#rightfooter{
+   float:right;
+   font-size:11px;
+   lineheight:100%;
+   position:relative;
+   top:-1px;
+}
+
+#leftfooter{
+   float:left;
+   font-size:11px;
+   lineheight:100%;
+   position:relative;
+   top:-1px;
+}
+
+.tangle_diagram {
+    max-width:100px;
+    max-height:100px;
+    text-align:center;
+    vertical-align: middle;
+    cursor: pointer; /* Add a pointer on hover */
+}
+.component {
+    max-width:100px;
+    max-height:100px;
+    text-align:center;
+    vertical-align: middle;
+    cursor: pointer; /* Add a pointer on hover */
+}
+
+#overlay {
+  position: fixed; /* Sit on top of the page content */
+  display: none; /* Hidden by default */
+  width: 100%; /* Full width (cover the whole page) */
+  height: 100%; /* Full height (cover the whole page) */
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+  cursor: pointer; /* Add a pointer on hover */
+  text-align:center;
+  vertical-align: middle;
+}
+
+#overlay_content{
+	max-width:90%;
+	height:90%;
+}
+#overlay_container{
+	width:100%;
+	height:100%;
+}
+
+#overlay_title_frame {
+    margin-left: 0pt;
+	margin-top: 0pt;
+	margin-bottom: 0pt;
+    background-color: rgb(255,255,255); /* Black background with opacity */
+}
+#overlay_title {
+    padding: 20px 20px;
+    text-align:center;
+    margin-left: 0pt;
+	margin-top: 0pt;
+	margin-bottom: 0pt;
+    background-color: rgb(255,255,255); /* Black background with opacity */
+}
+
