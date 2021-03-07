@@ -25,46 +25,71 @@ kht++ is a command line application written in C++. It has been tested in linux 
 
 There are two installation options: You can either compile the software yourself (recommended) or download the precompiled binaries.
 
-\subsection Compiling Compiling from source
+\subsection Compiling Compiling kht++ from source
 <ol>
 <li>
-You will need a C++ compiler supporting the C++17 standard, such as clang++. On ubuntu 20.04, you can install these prerequisites by running the following command:
+You will need a C++ compiler supporting the C++17 standard, such as [clang++](https://clang.llvm.org/).
+We also recommend that you install the version control system [git](https://git-scm.com/).
+On ubuntu 20.04, you can install these prerequisites by running the following command:
 
     sudo apt install update
-    sudo apt install build-essential clang
+    sudo apt install build-essential clang git
 
-</li>
-<li>
-Download the kht++ source files following the instructions on github. 
-In the following, we will assume that the parent folder containing the file \c makefile is called \c kht.
 </li>
 <li>
 kht++ depends on the C++ Standard Template Library and the <a href="https://eigen.tuxfamily.org">Eigen Template Library</a>. The former will probably be installed on your system already, once you have installed a compiler.  To install the latter, download the tar/zip file from the <a href="https://eigen.tuxfamily.org">Eigen Website</a> and decompress it into some folder. Since Eigen is a pure template library, this is all you need to do with it. 
 </li>
 <li>
-Navigate to the folder \c kht and open the file \c makefile in a text editor. The first line should read as follows:
+Next, you need the kht++ source files. They are available from the [kht++ github repository](https://github.com/cbz20/khtpp).
+If you have a [github](https://github.com/) account, you clone the repository in the usual way:
+    
+    git clone git@github.com:cbz20/khtpp.git        # via ssh, or
+    git clone https://github.com/cbz20/khtpp.git    # via https
+
+If you do not have github account, you can clone the repository with the following command
+
+    git clone git://github.com/cbz20/khtpp.git
+
+You can also download the source files [directly](https://github.com/cbz20/khtpp/archive/main.zip), but this is not recommended. 
+</li>
+<li>
+Navigate to the folder \c khtpp
+
+    cd khtpp
+
+and open the file \c makefile in a text editor. The first line should read as follows:
 
     PATH_EIGEN = ../libraries/Eigen
 
-Replace the path \code{.sh}../libraries/Eigen\endcode as appropriate, such that it points to the folder containing the Eigen Template Library. Then, still in the folder \c kht, run
+Replace the path \code{.sh}../libraries/Eigen\endcode as appropriate, such that it points to the folder containing the Eigen Template Library. Then run 
 
     make
 
-This creates a number of binary files, of which \c kht++ is the main one. If you did not encounter any error message or warning, you are now ready to use the program.
+This creates a number of binary files, of which \c kht++ is the main one. If you did not encounter any error message or warning, you are now ready to use the program.  If you are eager to see kht++ in action, skip to the \ref Examples. 
 </li>
 </ol>
 
-\todo add instructions and link to github
 
-\subsection Binaries Binary files
-If you do not want to compile kht++ on your own, you can download the binary files here:
 
-\todo link to binary files for ubuntu 20.04
+\subsection Binaries
+
+If you prefer to use precompiled binaries, you can download them [here](https://cbz20.raspberryip.com/code/khtpp/bin/khtpp-v0.1-ubuntu-20.04). 
+They are currently only available for ubuntu 20.04. 
+
+
+
+\subsection CompilingDocs Compiling the documentation
+
+For the documentation, you need [Doxygen](https://github.com/doxygen/doxygen) (version ≥ 1.9.1) and [m.css](https://mcss.mosra.cz/documentation/doxygen/). The latter should either be installed into the directory \c docs, or you need to modify the path in the \c makefile appropriately. Then run
+
+    make docs
+
+The main page of the documentation is \code{.sh}docs/html/index.html\endcode. 
+
+
 
 
 \section Examples Basic Examples 
-
-
 
 \subsection FirstExample A first example 
 

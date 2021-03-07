@@ -1,7 +1,13 @@
 PATH_EIGEN = ../libraries/Eigen
 OBJECTS = aux_svg.o aux_sys.o Coefficients.o BNAlgebra.o Cob.o Chain.o Complex.o Tangles.o Tests.o
 LIBS = -I$(PATH_EIGEN)
+
 GIT_VERSION := "$(shell git describe --dirty --always --tags)"
+# If git is unavailable, use the version below.
+ifneq ($(.SHELLSTATUS),0)
+	GIT_VERSION = 0.1
+endif
+
 DOXYGEN_VERSION := "$(shell doxygen -v)"
 
 CXX = clang++
