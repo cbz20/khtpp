@@ -872,7 +872,7 @@ INPUT                  = docs/Home.md \
 						 docs/Options.md \
 					     docs/Installation.md \
 						 sources/Contributors.md \
-						 sources/License.md \
+						 LICENSE.md \
                          sources/main.cpp \
                          sources/headers/ \
                          sources/modules/

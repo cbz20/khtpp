@@ -40,7 +40,7 @@ While it is reasonably fast and resource friendly, kht++ has not been optimized 
 \section OtherPages Other pages
 
 - \ref HowToCite
-- \ref sources/License.md
+- \ref LICENSE.md
 - \ref sources/Contributors.md
 - \ref citelist
 - \ref todo
