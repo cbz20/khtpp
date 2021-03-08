@@ -20,6 +20,8 @@ vpath %.cpp sources
 
 kht++ : main.o $(OBJECTS) main.cpp computations.h
 	$(CXX) -o kht++ $(CPPFLAGS) -flto main.o $(OBJECTS)
+# force recompilation, so versioning is always up to date
+	rm main.o
 
 .PHONY: docs
 
