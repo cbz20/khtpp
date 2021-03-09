@@ -10,7 +10,8 @@ endif
 
 DOXYGEN_VERSION := "$(shell doxygen -v)"
 
-CXX = clang++
+CXX = clang++ # tested with clang 10.0.0-4ubuntu1
+#CXX = g++ # also tested with g++ 9.3.0-17ubuntu1~20.04
 %.o : CPPFLAGS = -std=c++17 -O3 -fPIE -Wall $(LIBS) -MD -DVERSION=\"$(GIT_VERSION)\"
 
 vpath %.h sources/headers

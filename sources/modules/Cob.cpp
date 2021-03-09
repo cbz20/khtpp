@@ -1420,7 +1420,7 @@ inline std::tuple<std::vector<CobMultHelper>,IndexL> CobMultHelperFun ( const In
 };
 
 /// helper function for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
-template<int n>
+template<unsigned int n>
 std::vector<Dots> vec_l_Generator ( )
 {
      std::vector<Dots> vec_l = {{0},{1}};
@@ -1439,7 +1439,7 @@ std::vector<Dots> vec_l_Generator ( )
 };
 
 /// helper function for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
-inline std::vector<Dots> vec_l_default ( const int &n )
+inline std::vector<Dots> vec_l_default ( const unsigned int &n )
 {
      std::vector<Dots> vec_l {{0},{1}};
      std::vector<Dots> temp;
