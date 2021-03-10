@@ -1523,6 +1523,9 @@ std::vector<Slice> to_slices (
 std::string slices_to_string ( std::vector<Slice> slices )
 {
      std::string tanglestring {};
+     if ( slices.empty() ){
+          return "";
+     };
      tanglestring += slices.front().first;
      tanglestring += std::to_string ( slices.front().second );
      for ( size_t i=1; i<slices.size(); ++i ) {
