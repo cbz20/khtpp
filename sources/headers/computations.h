@@ -133,7 +133,7 @@ if ( T0.n_ended ( 2 ) )
      cx.print (
           file.fullname() + "/cx" + fn_options,
           metadata );
-     std::cout << "Printed the computed type D structure into " << file.fullname() << "/cx.\n";
+     std::cout << "Printed the computed type D structure into " << file.fullname() << "/cx" + fn_options + ".\n";
 };
 #undef VALUE
 break;

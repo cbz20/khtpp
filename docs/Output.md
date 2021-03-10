@@ -160,7 +160,7 @@ The recognition of components of \f$\widetilde{\mathrm{Kh}}(T)\f$ is not always 
 
 \subsection MoreTangleEnds Invariants for tangles with more than four ends
 
-Complexes over the cobordism category for tangles with more than four ends are currently poorly understood. Consequently, kht++ does not know how to handle the output in a reader-friendly way. For such tangles, no data-files are generated, except for .svg-files, and the cobordism complex is printed into the terminal.  If you would like to understand this output, take a look at the code documentation for the \ref Cob.h "implementation" of Bar-Natan's universal cobordism category or \ref Contact "get in touch". 
+Complexes over the cobordism category for tangles with more than four ends are currently poorly understood. Consequently, kht++ does not know how to handle the output in a reader-friendly way. For such tangles, the cobordism complexes are stored in data files of the form \code{.sh}cx-<options>\endcode.  If you would like to understand this output, take a look at the code documentation for the \ref Cob.h "implementation" of Bar-Natan's universal cobordism category or \ref Contact "get in touch". 
 
 
 
