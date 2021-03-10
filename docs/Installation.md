@@ -28,7 +28,7 @@ There are two installation options: You can either compile the software yourself
 \subsection Compiling Compiling kht++ from source
 <ol>
 <li>
-You will need a C++ compiler supporting the C++17 standard, such as [clang++](https://clang.llvm.org/).
+You will need a C++ compiler supporting the C++17 standard, such as [clang++](https://clang.llvm.org/) or [g++](https://gcc.gnu.org/).
 We also recommend that you install the version control system [git](https://git-scm.com/).
 On ubuntu 20.04, you can install these prerequisites by running the following command:
 
@@ -61,7 +61,7 @@ and open the file \c makefile in a text editor. The first line should read as fo
 
     PATH_EIGEN = ../libraries/Eigen
 
-Replace the path \code{.sh}../libraries/Eigen\endcode as appropriate, such that it points to the folder containing the Eigen Template Library. Then run 
+Replace the path \code{.sh}../libraries/Eigen\endcode as appropriate, such that it points to the folder containing the Eigen Template Library. If you want compile using g++ instead of clang++, you also need to comment/uncomment the relevant lines in the \c makefile setting the variable \c CXX. Then run 
 
     make
 
