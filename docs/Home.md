@@ -17,7 +17,7 @@ Public License along with kht++.  If not, see
 
 
 
-\mainpage Homepage for kht++
+\mainpage kht++
 
 kht++ is a program for calculating the Khovanov and Bar-Natan homology of links and tangles \cite Khovanov2000 \cite BarNatanKhT. 
 
@@ -86,9 +86,9 @@ To get an overview of the core features of the program, the following might be g
 
 \page Usage
 
-- \ref GettingStarted
-- \ref Input
-- \ref Output
-- \ref Options
+- \subpage GettingStarted
+- \subpage Input
+- \subpage Output
+- \subpage Options
 
 
