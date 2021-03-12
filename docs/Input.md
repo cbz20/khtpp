@@ -25,11 +25,11 @@ There are three ways to tell kht++ which tangle you would like to compute the in
 
 - via an \ref Interactive "interactive dialogue" (recommended for beginners), 
 - via a \ref FileDefinition ".kht-file", or
-- from existing .kht-file by passing certain \ref NewFromOld "optional arguments". 
+- from an existing .kht-file by passing certain \ref NewFromOld "optional arguments". 
 
 \section Interactive Interactive tangle definition
 
-Run the program without any arguments:
+Run the program without any argument:
 
 \code{.sh}
 ./kht++
@@ -55,7 +55,7 @@ Specify the orientation of each strand at the top: (1=↑,0=↓)
 
 Next, you will be asked to specify a Morse presentation for your tangle. By this we mean a decomposition into tangle slices, i.e. elementary top-bottom-tangles with a single crossing, a single cap, or a single cup. Each slice is specified by a word of the form \code{.sh}<c><i>\endcode where
 
-- the  \anchor slice-type  slice-type \code{.sh}<c>\endcode is one of the following letters: \c x, \c y, \c l, \c r, and \c u. These letters are translated into elementary tangles  as follows:
+- the  \anchor slice-type  <b>slice type</b> \code{.sh}<c>\endcode is one of the following letters: \c x, \c y, \c l, \c r, and \c u. These letters are translated into elementary tangles  as follows:
 
     - \c x : ⤬ (crossing with over-strand starting at top left corner)
     - \c y : ⤫ (crossing with over-strand starting at top right corner)
@@ -63,7 +63,7 @@ Next, you will be asked to specify a Morse presentation for your tangle. By this
     - \c r : ↷ (cap, oriented to the right)
     - \c u : ∪ (cup)
 
-- The \anchor slice-index  slice-index \code{.sh}<i>\endcode is the index of the left strand in a crossing/cap/cup, counted from the left, starting at 0. 
+- The \anchor slice-index  <b>slice index</b> \code{.sh}<i>\endcode is the index of the left strand in a crossing/cap/cup, counted from the left, starting at 0. 
 
 Specify a word and press @m_class{m-label m-warning} **Enter**. Then continue with the remaining tangle slices in the same way. The tangle slices that you enter will be shown in the terminal and build up your tangle step-by-step. If you find a mistake, you can delete the previous slice by typing \c k. If you want to start from scratch, you can quit the program by typing \c q. Once you have entered the whole tangle, you type \code{.sh}.\endcode (full stop). 
 
@@ -79,7 +79,7 @@ For example, the following code specifies the rational tangle of slope 2:
 4 u1    ↓   ͝  /
 \endcode
 
-\note If you enter a slice which does not define a valid tangle (for example, if the \ref slice-index is incompatible with the number of top tangle ends), the program will complain and ask you to reconsider.  If you enter a slice that connects two tangle ends that are oriented in an incompatible way, the program will change the orientation of one of the strands so that the orientations match. 
+\note If you enter a slice which does not define a valid tangle (for example, if the \ref slice-index "slice index" is incompatible with the number of top tangle ends), the program will complain and ask you to reconsider.  If you enter a slice that connects two tangle ends that are oriented in an incompatible way, the program will change the orientation of one of the strands so that the orientations match. 
 
 The program will then compute the tangle invariants. See \ref Output for how to interpret the output. 
 
@@ -88,7 +88,7 @@ The program will then compute the tangle invariants. See \ref Output for how to 
 The interactive method of defining a tangle produces a number of files in the path previously specified. In the running example above, the folder \c examples/tests now contains
 
 - the file \c my-test-1.kht: This is a text file containing the input tangle data; more on this below.
-- the file \c my-test-1.html: it contains a summary of the input and the invariants; see \ref Output on how to interpret the latter. 
+- the file \c my-test-1.html: It contains a summary of the input and the invariants; see \ref Output on how to interpret the latter. 
 - the folder \c my-test-1; it contains several .svg-drawings of your tangle and various text files that contain the computed invariants. 
 
 Let us have a closer look at the .kht-file.  It should look something like this:

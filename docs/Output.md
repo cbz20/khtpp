@@ -26,10 +26,10 @@ When doing a computation, kht++ usually generates three kinds of output:
 - direct feedback in the terminal;
 - a summary of all computations in form of a .html-file;
 - a folder of the same name as the given \ref FileDefinition ".kht-file" (without the .kht-suffix) in the same path as the .kht-file, containing all computed data pertaining to this particular .kht-file, namely:
-    - .svg-files with pictures of the computed tangles
+    - .svg-files with pictures of the computed tangles, and
     - text files named \c cxCKh, \c cxBNr, and \c cxKhr containing any computed invariants \f$\widetilde{\mathrm{CKh}}(L)\f$, \f$\widetilde{\mathrm{BN}}(T)\f$, and \f$\widetilde{\mathrm{Kh}}(T)\f$, respectively. 
 
-The most user-friendly output is the .html-file, which can be opened directly from your terminal after a computation by re-running the previous command with the added \ref Web "Option -w". The feedback in the terminal is primarily intended for human consumption. The data files, on the other hand, are primarily intended for automatic post-processing, for example via a bash-script. Most \ref Options "optional parameters", such as the ones specifying the field of coeffiecients, are appended to the names of the data files. 
+The most user-friendly output is the .html-file, which can be opened directly from your terminal after a computation by re-running the previous command with the added \ref Web "Option -w". The feedback in the terminal is primarily intended for human consumption. The data files, on the other hand, are primarily intended for automatic post-processing, for example via a bash-script. Most \ref Options "optional parameters", such as the ones specifying the field of coefficients, are appended to the names of the data files. 
     
     
 \section UnderstandingOutput Interpreting the output
@@ -106,7 +106,7 @@ This should be read cyclically, i.e. the last arrow connects the first generator
 \warning 
 According to the classification of complexes over the algebra \f$\mathcal{B}\f$, irreducible complexes may actually carry local systems \cite KWZ; however, no example of a Conway tangle is known whose Khovanov invariants carry higher-dimensional local systems. 
 Such local systems cannot be detected by kht++. 
-More precisely, if kht++ fails to clean-up a complex for a four-ended tangle (i.e. fails to decompose it into irreducible summands), this can either mean that you need to run the computation longer, or that you have found a higher-dimensional local system. 
+More precisely, if kht++ fails to clean up a complex for a four-ended tangle (i.e. fails to decompose it into irreducible summands), this can either mean that you need to run the computation longer, or that you have found a higher-dimensional local system. 
 In any case, if this occurs, please \ref Contact "get in touch".
 
 Let us consider an example. The output for the (2,-3)-pretzel tangle 
@@ -141,16 +141,16 @@ The invariant \f$\widetilde{\mathrm{BN}}(T)\f$ is always shown first. In this ca
 
 The specified bigrading at the start of the line is the bigrading of the first generator. 
 The invariant \f$\widetilde{\mathrm{Kh}}(T)\f$ consists of two components in our example. 
-Again, only the bigrading of the first generator is given. 
+Again, only the bigradings of the first generators are given. 
 
 \subsubsection RationalVsSpecialCurves Recognition of rational and special components
 
 We expect that for any Conway tangle \f$T\f$, the components of \f$\widetilde{\mathrm{Kh}}(T)\f$ are heavily restricted.
 Up to an overall shift in bigrading, each component should belong to one of two families of components, namely rational components and special components. 
 We denote the former by \f$\mathbf{r}_n(\tfrac{p}{q})\f$ and the latter by \f$\mathbf{s}_n(\tfrac{p}{q})\f$, where \f$\tfrac{p}{q}\in\mathbb{Q}\mathrm{P}^1\f$ is called the slope and \f$n\in\mathbb{Z}\f$ the length of the component.
-Note that this dichotomy between rational and special is very reminiscent of the dichotomy for the Heegaard Floer tangle invariant \f$\mathrm{HFT}(T)\f$ \cite pqMod \cite pqSym. 
+Note that this dichotomy between rational and special curves is very reminiscent of the dichotomy for the Heegaard Floer tangle invariant \f$\mathrm{HFT}(T)\f$ \cite pqMod \cite pqSym. 
 
-In the last two lines of the output in the previous example, you may have noticed the expressions \code{.sh}r(1/2) q^-26/3 δ|^-1\endcode and \code{.sh}s2(0) q^-8 δ|^-1\endcode. These expressions tell you that kht++ identified the first component as a rational component of length 1 and slope \f$\tfrac{1}{2}\f$ and the second component as a special component of length 2 and slope 0. The following quantum gradings are averages of the quantum gradings of all generators in the respective component. The expression \code{.sh}δ|^-1\endcode signifies that the vertical \f$\delta\f$-grading both components is equal to -1; the horizontal \f$\delta\f$-grading would be denoted by \c δ_; see \cite KWZ_thin for details. 
+In the last two lines of the output in the previous example, you may have noticed the expressions \code{.sh}r(1/2) q^-26/3 δ|^-1\endcode and \code{.sh}s2(0) q^-8 δ|^-1\endcode. These expressions tell you that kht++ identified the first component as a rational component of length 1 and slope \f$\tfrac{1}{2}\f$ and the second component as a special component of length 2 and slope 0. The following quantum gradings are averages of the quantum gradings of all generators in the respective component. The expression \code{.sh}δ|^-1\endcode signifies that the vertical \f$\delta\f$-grading of both components is equal to -1; the horizontal \f$\delta\f$-grading would be denoted by \c δ_; see \cite KWZ_thin for details. 
 
 
 \warning 

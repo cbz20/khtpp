@@ -36,7 +36,7 @@ Running \code{.sh} ./khtpp --help \endcode displays \ref main "this" help file a
     - \code{.cpp} i=2,3,5,7,11\endcode : Compute over the finite field \f$\mathbb{Z}/p\f$ where \f$p=\f$\c i. 
 Support for other primes may be easily added, by setting \ref default_coeff equal to the desired prime in the source file \ref headers/constants.h and recompiling the program.
     - \code{.cpp} i=0 \endcode : Compute over the field of rational integers \f$\mathbb{Q}\f$.
-    \warning The implementation of rational number is still in an experimental state. You should not trust the output, especially for large computations, since the program does not check for integer overflows. 
+    \warning The implementation of rational numbers is still in an experimental state. You should not trust the output, especially for large computations, since the program does not check for integer overflows. 
     \todo Detect integer overflows for rational coefficients.
 
 - \c -a , \c &ndash;&ndash;allcoeff
@@ -149,4 +149,4 @@ Returns the version of the program and exits the program.
 
 Prints the tangle input and (re)compiles the output for the specified file(s) using all previously computed data. 
 No new computations of tangle invariants are made with this option. 
-If the program \c xdg-open (or \c open) is installed, this option will also open the output file for the first specified tangle using the default program for html-files. 
+If the program \c xdg-open (or \c open) is installed, this option will also open the output file for the first specified tangle using the default program for .html-files. 

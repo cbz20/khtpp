@@ -48,7 +48,7 @@ If you have a [github](https://github.com/) account, you clone the repository in
     git clone git@github.com:cbz20/khtpp.git        # via ssh, or
     git clone https://github.com/cbz20/khtpp.git    # via https
 
-If you do not have github account, you can clone the repository with the following command
+If you do not have a github account, you can clone the repository with the following command
 
     git clone git://github.com/cbz20/khtpp.git
 
@@ -63,7 +63,7 @@ and open the file \c makefile in a text editor. The first line should read as fo
 
     PATH_EIGEN = ../libraries/Eigen
 
-Replace the path \code{.sh}../libraries/Eigen\endcode as appropriate, such that it points to the folder containing the Eigen Template Library. If you want compile using g++ instead of clang++, you also need to comment/uncomment the relevant lines in the \c makefile setting the variable \c CXX. Then run 
+Replace the path \code{.sh}../libraries/Eigen\endcode as appropriate, such that it points to the folder containing the Eigen Template Library. If you want to compile using g++ instead of clang++, you also need to comment/uncomment the relevant lines in the \c makefile setting the variable \c CXX. Then run 
 
     make
 
