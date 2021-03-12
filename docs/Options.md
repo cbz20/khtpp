@@ -19,6 +19,8 @@ Public License along with kht++.  If not, see
 
 \page Options Options
 
+@m_footernavigation
+
 \section help Help
 
 - \c -h , \c &ndash;&ndash;help 

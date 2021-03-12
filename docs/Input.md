@@ -19,6 +19,8 @@ Public License along with kht++.  If not, see
 
 \page Input
 
+@m_footernavigation
+
 There are three ways to tell kht++ which tangle you would like to compute the invariants for: 
 
 - via an \ref Interactive "interactive dialogue" (recommended for beginners), 

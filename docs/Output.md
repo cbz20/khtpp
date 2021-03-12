@@ -19,6 +19,8 @@ Public License along with kht++.  If not, see
 
 \page Output
 
+@m_footernavigation
+
 When doing a computation, kht++ usually generates three kinds of output: 
 
 - direct feedback in the terminal;

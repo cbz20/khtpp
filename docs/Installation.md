@@ -19,6 +19,8 @@ Public License along with kht++.  If not, see
 
 \page GettingStarted Getting Started
 
+@m_footernavigation
+
 kht++ is a command line application written in C++. It has been tested in linux only. 
 
 \section Installation
