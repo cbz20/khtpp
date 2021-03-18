@@ -1335,8 +1335,8 @@ void interactive ( const std::string &metadata,std::vector<File> &files )
           };
      };
      std::cout << "===tangle slices===\n";
-     int number_of_lines {default_number_of_lines};
-     int number_of_lines_extra {-1};
+     int number_of_lines {default_number_of_lines-1};
+     int number_of_lines_extra {0};
      while ( slice.compare ( "." ) !=0 ) {
           std::cout << "Define a tangle slice: (type h+ENTER for help)\n";
           std::cin >> slice;
