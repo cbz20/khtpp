@@ -57,8 +57,9 @@ For feedback, questions, and bug reports, please send an email to cbz20@posteo.n
 There exist several programs for computing Khovanov invariants for knots and links, some of which might be better suited for your computational needs; for example:
 
 - [JavaKh2](http://katlas.org/wiki/Khovanov_Homology)
-- [knotkit](https://github.com/cseed/knotkit)
+- [Khoca](http://lewark.de/lukas/khoca.html)
 - [KhoHo](https://github.com/AShumakovitch/KhoHo)
+- [knotkit](https://github.com/cseed/knotkit)
 
 If you know of another program that you feel is missing from this list, please \ref Contact "get in touch". 
 
