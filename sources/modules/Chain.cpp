@@ -144,7 +144,7 @@ std::string Khr_curve::to_string () const
 {
      std::string output;
      //
-     if ( length == 1 ) {
+     if ( length == -1 ) {
           output += "r";
      } else if ( length < 0 ) {
           output += "r" + std::to_string ( -length );
