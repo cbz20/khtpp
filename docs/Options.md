@@ -99,7 +99,7 @@ wheras the invariant \f$\widetilde{\mathrm{BN}}(T)\f$ of the tangle with the ext
 
 - \c -q , \c &ndash;&ndash;quotient (see also \ref TwoBridge)
 
-Computes the invariants of the quotient tangle of a strongly invertible knot specified by a \ref StrongInversions "symmetric diagram". The quotient tangle is framed such that the closure with the rational tangle of slope 0 is the unknot and the rational closure of slope \f$\infty\f$ corresponds to surgery along the longitude for the knot. Unfortunately, this means that to make these tangles follow the (arguable better) conventions used in \cite Watson2010, \cite Watson2012, and \cite Watson2017, one needs to rotate the tangles by 90 degrees. 
+This option was developed and extensively used for the paper \cite KWZ_strong_inversions. It computes the invariants of the quotient tangle of a strongly invertible knot specified by a \ref StrongInversions "symmetric diagram". The quotient tangle is framed such that the closure with the rational tangle of slope 0 is the unknot and the rational closure of slope \f$\infty\f$ corresponds to surgery along the longitude for the knot. Unfortunately, this means that to make these tangles follow the (arguable better) conventions used in \cite Watson2010, \cite Watson2012, and \cite Watson2017, one needs to rotate the tangles by 90 degrees. 
 
 For example, the quotient of the strongly invertible knot given by the diagram
 
