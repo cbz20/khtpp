@@ -637,16 +637,16 @@ void html_summary ( const File &file )
                if ( infile.good() ) {
                     std::getline ( infile,firstline );
                };
-               html << "<h4>";
-               if ( firstline.find ( "html_summary" ) != std::string::npos ) {
-                    html << "&#128193; ";
-               };
-               html << "<a href='"
+               html << "<h4>"
+                    << "<a href='"
                     << directory.name()
                     << file_sep
                     << f.name()
-                    << ".html'>"
-                    << f.name()
+                    << ".html'>";
+               if ( firstline.find ( "html_summary" ) != std::string::npos ) {
+                    html << "&#128193; ";
+               };
+               html << f.name()
                     << "</a></h4>\n";
           };
           html << "</div>\n\n";

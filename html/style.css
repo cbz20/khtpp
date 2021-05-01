@@ -178,8 +178,8 @@ H3{
 }
 H4{
     padding-left: 60px;
-	margin-top: 5pt;
-	margin-bottom: 2pt;
+	margin-top: 0pt;
+	margin-bottom: 7pt;
 	line-height: 150%;
 	font-family: 'Ubuntu', sans-serif;
 	font-weight: 500;
@@ -235,8 +235,8 @@ UL{
 }
 
 .title-container{
-       column-width: 200px;
-       padding-right:50pt
+       column-width: 300px;
+       padding-right:50pt;
 }
 
 #link_to_docs{
