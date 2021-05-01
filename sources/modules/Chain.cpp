@@ -131,7 +131,7 @@ std::string Clink<Coeff>::to_string (
 //                  Khr_curve
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-Khr_curve::Khr_curve ( unsigned int length,int_coeff slope_p,int_coeff slope_q, Q delta, Q q ) :
+Khr_curve::Khr_curve ( int length,int_coeff slope_p,int_coeff slope_q, Q delta, Q q ) :
      length ( length ),
      slope_p ( slope_p ),
      slope_q ( slope_q ),
@@ -144,10 +144,15 @@ std::string Khr_curve::to_string () const
 {
      std::string output;
      //
-     if ( length == 0 ) {
+     if ( length == 1 ) {
           output += "r";
-     } else {
+     } else if ( length < 0 ) {
+          output += "r" + std::to_string ( -length );
+     } else if ( length > 0 ) {
           output += "s" + std::to_string ( length );
+     } else {
+          std::cerr << "ERROR: There are no Khr_curves of length 0.\n";
+          exit ( 1 );
      };
      output += "(";
      if ( slope_q == 0 ) {
@@ -402,15 +407,15 @@ Khr_curve Chain<Coeff>::to_Khr_curve () const
                     };
                };
                if ( recognized && first_idem ) {
-                    return Khr_curve ( N/4 - 1,1,0,clinks[1].object.get_delta(),q );
+                    return Khr_curve ( N/2 - 2,1,0,clinks[1].object.get_delta(),q );
                } else if ( recognized && !first_idem ) {
                     // slope 0
-                    return Khr_curve ( N/4 - 1,0,1,clinks[1].object.get_delta(),q );
+                    return Khr_curve ( N/2 - 2,0,1,clinks[1].object.get_delta(),q );
                };
           };
      };
      Q delta {0};
-     unsigned int length {0};
+     int length {-1};// default rational of length 1.
      int_coeff slope_p {0};// slope_p=#⬯
      int_coeff slope_q {0};// slope_q=#⬮
      for ( const auto &clink : clinks ) {
@@ -423,7 +428,7 @@ Khr_curve Chain<Coeff>::to_Khr_curve () const
                ++slope_p;
           };
      };
-     if ( q == 0 ) {
+     if ( slope_q == 0 ) {
           // only rational components of slope ∞ left at this stage
           delta = clinks.front().object.get_delta();
      };
@@ -434,7 +439,7 @@ Khr_curve Chain<Coeff>::to_Khr_curve () const
           slope_p /= 2;
           slope_q /= 2;
      } else if ( det % 4 == 0 ) {
-          length = det / 4;
+          length = det / 2;
           slope_p /= det;
           slope_q /= det;
      } else {

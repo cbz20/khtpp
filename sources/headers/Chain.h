@@ -98,8 +98,8 @@ public:
 class Khr_curve
 {
 private:
-    unsigned int length;
-    // (length == 0) => rational curve
+    int length;
+    // (length < 0) => rational curve of length 'length'
     // (length > 0)  => special curve of length 'length'
     int_coeff slope_p;
     int_coeff slope_q;
@@ -107,7 +107,7 @@ private:
     Q q; // 
     
 public:
-    Khr_curve ( unsigned int length,
+    Khr_curve ( int length,
                 int_coeff slope_p,
                 int_coeff slope_q,
                 Q delta = 0,
