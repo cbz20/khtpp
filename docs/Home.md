@@ -24,7 +24,7 @@ kht++ is a program for calculating the Khovanov and Bar-Natan homology of links 
 \section About
 
 kht++ was primarily written for the purpose of computing __*tangle invariants*__ in Khovanov theory, in particular the immersed multicurve invariants \f$\mathrm{\widetilde{BN}}(T)\f$ and \f$\mathrm{\widetilde{Kh}}(T)\f$ for four-ended tangles from the monograph \cite KWZ. 
-One may also use it for computing the invariants for knots and links, and any derived invariants, such as Rasmussen's \f$s\f$-invariant \cite Rasmussen_slice_genus. 
+One may also use it for computing the invariants for knots and links, and any derived invariants, such as Rasmussen's s-invariant \cite Rasmussen_slice_genus. 
 While it is reasonably fast and resource friendly, kht++ has not been optimized as much as some other programs; if you are _only_ interested in Khovanov invariants of _knots and links_, you might want to consider one of \ref AlternativePrograms "these" programs first. 
 
 \image html "homepage_example.png" width=90% 
