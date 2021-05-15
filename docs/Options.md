@@ -95,6 +95,17 @@ wheras the invariant \f$\widetilde{\mathrm{BN}}(T)\f$ of the tangle with the ext
 
 
 
+\section Suffix Appending tangle strings
+
+- \code{.sh} -p <tanglestring>\endcode , \code{.sh} --append <tanglestring>\endcode
+
+Appends a tangle string after applying any other options that modify a given tangle. 
+
+For example, to compute the invariant of a Conway tangle obtained by cutting open a Whitehead double of some knot, I only need to run the program on a (1,1)-tangle representation of this knot, combining the doubling option \ref DoubleStrands "-d" with the option \code{.sh} -p l1.y0.y2.u1\endcode.
+
+
+
+
 \section QuotientTangles Quotients of strongly invertible knots
 
 - \c -q , \c &ndash;&ndash;quotient (see also \ref TwoBridge)

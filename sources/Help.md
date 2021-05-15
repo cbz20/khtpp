@@ -14,7 +14,7 @@
                                       0       Q (experimental)
   
                           The program can also compute the invariants
-                          over k = Z/<p> for any prime <p>. For this,
+                          over k = Z/<p> for any prime <p>.  For this,
                           recompile the program after setting
   
                                   custom_coeff = <p>
@@ -27,9 +27,13 @@
     -o, --optimize        Attempts to minimize the number of generators
                           in the invariants by adding twists to the 
                           tangle ends.
+    -p <s>, --append <s>  Appends a tangle string <s>, after processing
+                          all other options.  For example, <s> = x0.x0 
+                          adds two extra twists at the bottom of the 
+                          tangle. 
     -q, --quotient        Computes the invariants of the quotient tangle 
                           of a strongly invertible knot specified by a 
-                          symmetric diagram. The tangle string in the 
+                          symmetric diagram.  The tangle string in the 
                           corresponding .kht-file should have the prefix 
                           's.'. 
     -r <name>:<p>/<q>, --rational <name>:<p>/<q> 
@@ -53,7 +57,7 @@
                                                                         
   examples:
   1) kht++ (without arguments) 
-     Allows the user to define a tangle and compute its invariants. The
+     Allows the user to define a tangle and compute its invariants.  The
      tangle is stored in a .kht-file for later use.
   
   2) kht++ -w <filename>

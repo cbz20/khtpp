@@ -65,6 +65,7 @@ int main ( int argc, char **argv )
      bool d_flag {false};// double up
      bool h_flag {false};// help flag
      bool o_flag {false};// optimize flag
+     bool p_flag {false};// append flag
      bool q_flag {false};// take quotient (of a strongly invertible knot)
      bool r_flag {false};// rationalquotient
      bool s_flag {false};// simplify flag
@@ -73,6 +74,7 @@ int main ( int argc, char **argv )
      bool w_flag {false};// web/html flag
      bool w_opened {false};// set true if website was opened
      std::vector<int> coeffs_all {2,3,5,7,custom_coeff,0};
+     std::string p_opt_suffix; // suffix to append to tangle string for p_flag
      int r_opt_p; // rational quotient numerator
      int r_opt_q; // rational quotient denominator
      std::string r_opt_n; // rational quotient name of knot
@@ -93,6 +95,7 @@ int main ( int argc, char **argv )
                {"double",    no_argument, 0, 'd'},      // Input
                {"help",      no_argument, 0, 'h'},      // Exceptional
                {"optimize",  no_argument, 0, 'o'},      // Output
+               {"append",    required_argument, 0, 'p'},// Input
                {"quotient",  no_argument, 0, 'q'},      // Input
                {"rational",  required_argument, 0, 'r'},// Input
                {"simplify",  no_argument, 0, 's'},      // Input
@@ -103,7 +106,7 @@ int main ( int argc, char **argv )
           };
           int option_index = 0;
           //
-          optresult = getopt_long ( argc, argv, "ac:dhoqr:stvw",
+          optresult = getopt_long ( argc, argv, "ac:dhop:qr:stvw",
                                     long_options, &option_index );
           if ( optresult == -1 ) {
                break;
@@ -121,6 +124,17 @@ int main ( int argc, char **argv )
                break;
           case 'o':
                o_flag = true;
+               break;
+          case 'p':
+               try {
+                    p_flag = true;
+                    p_opt_suffix = optarg;
+               } catch ( ... ) {
+                    std::cerr << "INPUT ERROR: The option '-p' needs to be followed by a\n"
+                              << "             tangle input string.\n"
+                              << "             Type 'kht++ --help' for more info.\n";
+                    return 0;
+               };
                break;
           case 'q':
                q_flag = true;
@@ -303,6 +317,9 @@ int main ( int argc, char **argv )
           if ( o_flag ) {
                global_options += "o";
           };
+          if ( p_flag ) {
+               global_options += ("p." + p_opt_suffix + ".");
+          };
           if ( q_flag ) {
                global_options += "q";
           };
@@ -316,6 +333,17 @@ int main ( int argc, char **argv )
                std::cout << "-d flag set, so doubling up tangle.\n";
                T0.doubled();
                T0.to_svg ( metadata,file.fullname() + "/" + file.name() + "-doubled" );
+          };
+          if ( p_flag ) {
+               std::cout << "Adding " << p_opt_suffix << " to the tangle.\n" << std::flush;
+               try {
+                    T0 = T0.add (p_opt_suffix);
+               } catch ( ... ) {
+                    std::cerr << "INPUT ERROR: The option '-p' needs to be followed by a\n"
+                              << "             tangle input string.\n"
+                              << "             Type 'kht++ --help' for more info.\n";
+                    return 0;
+               };
           };
           if ( s_flag ) {
                T0.simplify_diagram();
@@ -420,3 +448,4 @@ int main ( int argc, char **argv )
      };
      return 0;
 }
+
