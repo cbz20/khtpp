@@ -846,14 +846,14 @@ Chains<Coeff> Complex<BNObj,BNMor,Coeff>::to_chains () const
                if ( current != previous ) {
                     // we found a morphism, so we need to continue
                     go_on = true;
-               } else if ( this->diffs.coeff ( start,current ).is_0() == false ) {
-                    // is there a morphism current ---> start ?
+               } else if ( this->diffs.coeff ( start,current ).is_0() == false && chain.size() > 1 ) {
+                    // There a morphism  start <--- current, and this is not the whole chain.
                     morphism = this->diffs.coeff ( start,current );
                     rightarrow = true;
                     second_loop = false;
                     go_on = false;
-               } else if ( this->diffs.coeff ( current,start ).is_0() == false ) {
-                    // is there a morphism start ---> current ?
+               } else if ( this->diffs.coeff ( current,start ).is_0() == false && chain.size() > 1 ) {
+                    // There a morphism start ---> current, and this is not the whole chain.
                     morphism = this->diffs.coeff ( current,start );
                     rightarrow = false;
                     second_loop = false;
