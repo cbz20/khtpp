@@ -165,7 +165,7 @@ std::string Khr_curve::to_string () const
      output += " q^";
      output += coeff_to_string ( q );
      //
-     if (slope_q == 0){
+     if ( slope_q == 0 ) {
           output += " δ_^";
      } else {
           output += " δ|^";
@@ -196,11 +196,11 @@ std::string Chain<Coeff>::to_string (
      const bool &is_4ended
 ) const
 {
-     //! converts a single chain to a string 
-     
-     //! detailed test documentation 
+     //! converts a single chain to a string
+
+     //! detailed test documentation
      //!
-     
+
      // the output should look like
      //h^-1q^3 ●—(-1)—>○<~●~>●->●~>
      std::string output {};
@@ -388,7 +388,9 @@ Khr_curve Chain<Coeff>::to_Khr_curve () const
      } else if ( N % 2 != 0 ) {
           std::cerr << "ERROR: Failed to convert chain into Khr_curve, because the chain has odd length. This should never happen, unless the chain is non-compact, but it is not.\n";
           exit ( 1 );
-     } else if ( N > 7 ) {
+     };
+     // 1) Test for specials of slope 0 or ∞
+     if ( N > 7 ) {
           // test if special of slope 0, eg ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—
           // test if special of slope ∞, eg ⬮~~S~>⬯—>⬯~>⬯—>⬯~>⬮—>⬮<~⬯<—⬯<~⬯<—⬯<~⬮<—
           bool first_idem {clinks.front().object.get_idem() };
@@ -398,12 +400,20 @@ Khr_curve Chain<Coeff>::to_Khr_curve () const
                     && clinks[N/2-1].object.get_idem() == first_idem
                     && clinks[N/2].object.get_idem() == first_idem ) {
                bool recognized {true};
+               // test objects:
                for ( size_t iter = 0 ; iter < N; ++iter ) {
                     if ( iter != 0 && iter != N/2-1 && iter != N/2 && iter != N-1 ) {
                          if ( clinks[iter].object.get_idem() == first_idem ) {
                               recognized = false;
                               break;
                          };
+                    };
+               };
+               // test directions of arrows:
+               for ( size_t iter = 0 ; iter < N/2; ++iter ) {
+                    if ( !clinks[iter].rightarrow || clinks[N/2 + iter].rightarrow ) {
+                         recognized = false;
+                         break;
                     };
                };
                if ( recognized && first_idem ) {
@@ -414,8 +424,8 @@ Khr_curve Chain<Coeff>::to_Khr_curve () const
                };
           };
      };
+     // 2) Determine the absolute value of the slope of the curve
      Q delta {0};
-     int length {-1};// default rational of length 1.
      int_coeff slope_p {0};// slope_p=#⬯
      int_coeff slope_q {0};// slope_q=#⬮
      for ( const auto &clink : clinks ) {
@@ -428,38 +438,86 @@ Khr_curve Chain<Coeff>::to_Khr_curve () const
                ++slope_p;
           };
      };
-     if ( slope_q == 0 ) {
-          // only rational components of slope ∞ left at this stage
-          delta = clinks.front().object.get_delta();
-     };
-     // if gcd == 2,
-     auto det = gcd ( slope_p, slope_q );
-     if ( det == 2 ) {
-          // rational curve with |slope| = slope_p/slope_q
-          slope_p /= 2;
-          slope_q /= 2;
-     } else if ( det % 4 == 0 ) {
-          length = det / 2;
-          slope_p /= det;
-          slope_q /= det;
-     } else {
-          std::cerr << "ERROR: Failed to convert chain into Khr_curve.\n";
+     // 3) Compute the length of the curve
+     auto length = gcd ( slope_p, slope_q );// this should be a positive even integer.
+     if ( length % 2 != 0 ) {
+          std::cerr << "ERROR: Failed to convert chain into Khr_curve.\n"
+                    << "       The length should be an integer.\n";
           exit ( 1 );
      };
-     // determine sign of slope
-     // (∃ ⬮~>⬯ or ⬯<~⬮) => -
-     if ( slope_p != 0 && slope_q != 0 ) {
-          for ( const auto &clink : clinks ) {
-               if ( clink.morphism.get_first_type() == -1 ) {
-                    if ( ( clink.object.get_idem() && clink.rightarrow )
-                              || ( !clink.object.get_idem() && !clink.rightarrow ) ) {
-                         slope_p *= -1;
-                         break;
-                    };
+     slope_p /= length;
+     slope_q /= length;
+     length /= 2;// This is the actual length of the curve.
+     // 4) Test for rationals of slope 0 or ∞:
+     if ( slope_q == 0 || slope_p == 0) {
+          return Khr_curve ( -length,slope_p,slope_q,clinks.front().object.get_delta(),q );
+     };
+     // 5) determine sign of slope: (∃ ⬮~>⬯ or ⬯<~⬮) => -
+     for ( const auto &clink : clinks ) {
+          if ( clink.morphism.get_first_type() == -1 ) {
+               if ( ( clink.object.get_idem() && clink.rightarrow )
+                         || ( !clink.object.get_idem() && !clink.rightarrow ) ) {
+                    slope_p *= -1;
+                    break;
                };
           };
      };
-     return Khr_curve ( length,slope_p,slope_q,delta,q );
+     // 6) Work out if the curve is special or rational. 
+     // Specials of slope > 0 contain a curve segment x=⬮—>⬮~>⬯—>⬯=y such that the curve segments starting at x and y are identical (same idempotents and directions of arrows) until they meet in a fourth curve segment similar to the first. For specials of slope <0, swap ⬮ and ⬯. The first curve segment corresponds to wrapping around the special puncture, so this can tell all rationals and specials of slope ≠ 0,∞ apart. 
+     //
+     // first take care of 'short' curves; they are always rational:
+     if ( N < 9 ) {
+          return Khr_curve ( -length,slope_p,slope_q,clinks.front().object.get_delta(),q );
+     };
+     //
+     int length_sign = -1;// default rational
+     for ( size_t iter = 0 ; iter < N/2; ++iter ) {
+          // find first curve segment it is one of the following two, depending on the slope: 
+          // slope < 0: x=⬮—>⬮~>⬯—>⬯=y or x=⬯<—⬯<~⬮<—⬮=y
+          // slope > 0: x=⬯—>⬯~>⬮—>⬮=y or x=⬮<—⬮<~⬯<—⬯=y
+          // The fourth curve segment is the other one. 
+          // iter corresponds to x, iter+3 (cyclically) to y
+          bool first_idem {clinks[iter].object.get_idem() };
+          bool rightarrow {clinks[iter].rightarrow };
+          if ( first_idem == clinks[(iter + 1) % N].object.get_idem() &&
+               first_idem != clinks[(iter + 2) % N].object.get_idem() &&
+               first_idem != clinks[(iter + 3) % N].object.get_idem() &&
+               rightarrow == clinks[(iter + 1) % N].rightarrow &&
+               rightarrow == clinks[(iter + 2) % N].rightarrow &&
+               first_idem != clinks[(N/2 + iter + 0) % N].object.get_idem() &&
+               first_idem != clinks[(N/2 + iter + 1) % N].object.get_idem() &&
+               first_idem == clinks[(N/2 + iter + 2) % N].object.get_idem() &&
+               first_idem == clinks[(N/2 + iter + 3) % N].object.get_idem() &&
+               rightarrow != clinks[(N/2 + iter + 0) % N].rightarrow &&
+               rightarrow != clinks[(N/2 + iter + 1) % N].rightarrow &&
+               rightarrow != clinks[(N/2 + iter + 2) % N].rightarrow){
+               // found first and fourth segment. Now check if the other two curve segments stay parallel:
+               bool is_special {true};
+               for ( size_t run = 0 ; run < N/2-4; ++run ) {
+                    // compare idempotents of generators; there are N-8 of these, so N/2-4 pairs to check.
+                    if ( clinks[(N + iter - run -1) % N].object.get_idem() !=
+                         clinks[(iter + 4 + run) % N].object.get_idem() ){
+                         is_special = false;
+                         break;
+                    };
+               };
+               if ( is_special ){
+                    for ( size_t run = 0 ; run < N/2-3; ++run ) {
+                         // compare arrow; there is one more pair of arrows than pairs of generators.
+                         if ( clinks[(N + iter - run -1) % N].rightarrow ==
+                              clinks[(iter + 3 + run) % N].rightarrow){
+                              is_special = false;
+                              break;
+                         };
+                    };
+               };
+               if ( is_special ){
+                    length_sign = 1;
+                    break;
+               };
+          };
+     };
+     return Khr_curve ( length_sign*length,slope_p,slope_q,delta,q );
 };
 
 
@@ -533,10 +591,10 @@ std::string Chains<Coeff>::to_string ( const bool &is_4ended, const bool &is_Khr
      max_gr_str max_gr { max_h,max_q,max_delta };
      //
      size_t counter {0};
-     size_t max_counter {std::to_string(chains.size()).size()};
+     size_t max_counter {std::to_string ( chains.size() ).size() };
      for ( const Chain<Coeff> &chain : this->chains ) {
           counter++;
-          std::string counter_str {std::to_string(counter)};
+          std::string counter_str {std::to_string ( counter ) };
           for ( size_t i = counter_str.size(); i<max_counter; ++i ) {
                output+= " ";
           };

@@ -132,7 +132,7 @@ Cleaned-up complex in 10 iterations and 0.001s.
 1) h^-2 q^-7 δ^-3/2 ⬮<—D——⬮<~⬯<—⬯~>⬮—>⬮~>⬮—>⬮~>⬯
 Cleaned-up complex in 10 iterations and 0.004s.
 1) h^-5 q^-11 δ^-1/2 ⬯~~S~>⬮—>⬮~>⬮<—⬮<~⬯<—     r(1/2) q^-26/3 δ|^-1
-2) h^-6 q^-13 δ^-1/2 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—     s2(0) q^-8 δ|^-1
+2) h^-6 q^-13 δ^-1/2 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—     s4(0) q^-8 δ|^-1
 \endcode
 
 The invariant \f$\widetilde{\mathrm{BN}}(T)\f$ is always shown first. In this case, it is equal to a linear chain
@@ -145,19 +145,14 @@ Again, only the bigradings of the first generators are given.
 
 \subsubsection RationalVsSpecialCurves Recognition of rational and special components
 
-We expect that for any Conway tangle \f$T\f$, the components of \f$\widetilde{\mathrm{Kh}}(T)\f$ are heavily restricted.
-Up to an overall shift in bigrading, each component should belong to one of two families of components, namely rational components and special components. 
+The components of \f$\widetilde{\mathrm{Kh}}(T)\f$ are heavily restricted for any Conway tangle \f$T\f$, at least when working over the field \f$\mathbb{F}_2\f$ of two elements. 
+Up to an overall shift in bigrading, each component belongs to one of two families of components, namely rational components and special components \cite KWZ_thin. 
 We denote the former by \f$\mathbf{r}_n(\tfrac{p}{q})\f$ and the latter by \f$\mathbf{s}_n(\tfrac{p}{q})\f$, where \f$\tfrac{p}{q}\in\mathbb{Q}\mathrm{P}^1\f$ is called the slope and \f$n\in\mathbb{Z}\f$ the length of the component.
-Note that this dichotomy between rational and special curves is very reminiscent of the dichotomy for the Heegaard Floer tangle invariant \f$\mathrm{HFT}(T)\f$ \cite pqMod \cite pqSym. 
+We expect this result to hold over all fields.
+Note that the dichotomy between rational and special curves is very reminiscent of the dichotomy for the Heegaard Floer tangle invariant \f$\mathrm{HFT}(T)\f$ \cite pqMod \cite pqSym. 
 
-In the last two lines of the output in the previous example, you may have noticed the expressions \code{.sh}r(1/2) q^-26/3 δ|^-1\endcode and \code{.sh}s2(0) q^-8 δ|^-1\endcode. These expressions tell you that kht++ identified the first component as a rational component of length 1 and slope \f$\tfrac{1}{2}\f$ and the second component as a special component of length 2 and slope 0. The following quantum gradings are averages of the quantum gradings of all generators in the respective component. The expression \code{.sh}δ|^-1\endcode signifies that the vertical \f$\delta\f$-grading of both components is equal to -1; the horizontal \f$\delta\f$-grading would be denoted by \c δ_; see \cite KWZ_thin for details. 
-
-
-\warning 
-The recognition of components of \f$\widetilde{\mathrm{Kh}}(T)\f$ is not always correct, because kht++ presently does not know about rational components of length greater than 1. 
-
-\todo Implement identification of rational components of arbitrary length. 
-
+In the last two lines of the output in the previous example, you may have noticed the expressions \code{.sh}r(1/2) q^-26/3 δ|^-1\endcode and \code{.sh}s4(0) q^-8 δ|^-1\endcode.
+The first of these expressions indicates that kht++ identified the first component as a rational curve of slope \f$\tfrac{1}{2}\f$ and length 1; the length is always suppressed from notation if it is equal to 1. The second component was recognized as a special component of length 4 and slope 0. The following quantum gradings are averages of the quantum gradings of all generators in the respective component. The expression \code{.sh}δ|^-1\endcode signifies that the vertical \f$\delta\f$-grading of both components is equal to -1; the horizontal \f$\delta\f$-grading would be denoted by \c δ_; see \cite KWZ_thin for details. 
 
 
 \subsection MoreTangleEnds Invariants for tangles with more than four ends

@@ -92,14 +92,13 @@ public:
 /// implements components of \f$\widetilde{\mathrm{Kh}}\f$
 
 /// According to the geography result for components of \f$\widetilde{\mathrm{Kh}}\f$ from \cite KWZ_thin, all such components are either special or rational components, that are completely determined by their lenght, slope, and bigrading (and potentially local system for rationals).
-/// \todo implement longer rationals
 /// \todo handle gradings more gracefully
 /// \todo implement local systems (if necessary)
 class Khr_curve
 {
 private:
     int length;
-    // (length < 0) => rational curve of length 'length'
+    // (length < 0) => rational curve of length '|length|'
     // (length > 0)  => special curve of length 'length'
     int_coeff slope_p;
     int_coeff slope_q;

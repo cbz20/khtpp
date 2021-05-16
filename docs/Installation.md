@@ -158,7 +158,7 @@ Cleaned-up complex in 10 iterations and 0.001s.
 1) h^-2 q^-7 δ^-3/2 ⬮<—D——⬮<~⬯<—⬯~>⬮—>⬮~>⬮—>⬮~>⬯
 Cleaned-up complex in 10 iterations and 0.004s.
 1) h^-5 q^-11 δ^-1/2 ⬯~~S~>⬮—>⬮~>⬮<—⬮<~⬯<—     r(1/2) q^-26/3 δ|^-1
-2) h^-6 q^-13 δ^-1/2 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—     s2(0) q^-8 δ|^-1
+2) h^-6 q^-13 δ^-1/2 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—     s4(0) q^-8 δ|^-1
 \endcode
 
 Again, you can view a nicely formatted output by rerunning the previous command with the option \c -w:
