@@ -62,6 +62,11 @@ int main ( int argc, char **argv )
      // Options Interpreter
      //
      bool a_flag {false};// allcoeff flag
+     bool b_flag {false};// braid input
+     std::string b_opt_name; // braid name
+     std::vector<int> b_opt_braid; // braid input (-=y,+=x)
+     std::vector<bool> b_opt_top_orient; // number of strands at the top
+     std::string b_opt_comment; // comment
      bool d_flag {false};// double up
      bool h_flag {false};// help flag
      bool o_flag {false};// optimize flag
@@ -73,7 +78,7 @@ int main ( int argc, char **argv )
      bool v_flag {false};// version flag
      bool w_flag {false};// web/html flag
      bool w_opened {false};// set true if website was opened
-     std::vector<int> coeffs_all {2,3,5,7,custom_coeff,0};
+     std::vector<int> coeffs_all {2,3,5,7,custom_coeff};
      std::string p_opt_suffix; // suffix to append to tangle string for p_flag
      int r_opt_p; // rational quotient numerator
      int r_opt_q; // rational quotient denominator
@@ -91,6 +96,7 @@ int main ( int argc, char **argv )
 
           static struct option long_options[] = {
                {"allcoeff",  no_argument, 0, 'a'},      // Input
+               {"braid",     required_argument, 0, 'b'},// Input
                {"coeff",     required_argument, 0, 'c'},// Input
                {"double",    no_argument, 0, 'd'},      // Input
                {"help",      no_argument, 0, 'h'},      // Exceptional
@@ -106,7 +112,7 @@ int main ( int argc, char **argv )
           };
           int option_index = 0;
           //
-          optresult = getopt_long ( argc, argv, "ac:dhop:qr:stvw",
+          optresult = getopt_long ( argc, argv, "ab:c:dhop:qr:stvw",
                                     long_options, &option_index );
           if ( optresult == -1 ) {
                break;
@@ -115,6 +121,67 @@ int main ( int argc, char **argv )
           switch ( optresult ) {
           case 'a':
                a_flag = true;
+               break;
+          case 'b':
+               try {
+                    b_flag = true;
+                    std::string input = optarg;
+                    auto i {input.find_first_of ( ',' ) };
+                    b_opt_name = input.substr ( 0,i );
+                    input = input.substr ( i+1 );
+                    i = input.find_first_of ( ']' );
+                    auto j {input.find_first_of ( '[' ) }; 
+                    if ( i<j ){
+                         throw "input error";
+                    };
+                    auto b_opt_top_orient_str { input.substr ( j+1,i-j-1 ) };
+                    input = input.substr ( i+1 );
+                    i = input.find_first_of ( ']' );
+                    j = input.find_first_of ( '[' );
+                    if ( i<j ){
+                         throw "input error";
+                    };
+                    auto b_opt_braid_str { input.substr ( j+1,i-j-1 ) };
+                    input = input.substr ( i+1 );
+                    i = input.find_first_of ( ',' );
+                    b_opt_comment = input.substr ( i+1 );
+                    // now deal with the lists
+                    bool cont {true};
+                    while ( cont ){
+                         i = b_opt_top_orient_str.find_first_of ( ',' );
+                         int entry {0};
+                         if ( i == std::string::npos ){
+                              entry = std::stoi(b_opt_top_orient_str);
+                              cont = false;
+                         } else {
+                              entry = std::stoi(b_opt_top_orient_str.substr(0,i));
+                              b_opt_top_orient_str = b_opt_top_orient_str.substr ( i+1 );
+                         };
+                         if ( entry == 0 ){
+                              b_opt_top_orient.push_back (0);
+                         } else {
+                              b_opt_top_orient.push_back (1);
+                         };
+                    };
+                    cont = true;
+                    while ( cont ){
+                         i = b_opt_braid_str.find_first_of ( ',' );
+                         int entry {0};
+                         if ( i == std::string::npos ){
+                              entry = std::stoi(b_opt_braid_str);
+                              cont = false;
+                         } else {
+                              entry = std::stoi(b_opt_braid_str.substr(0,i));
+                              b_opt_braid_str = b_opt_braid_str.substr ( i+1 );
+                         };
+                         b_opt_braid.push_back (entry);
+                    };
+               } catch ( ... ) {
+                    std::cerr << "INPUT ERROR: The option '-b'/'--braid' needs to be followed by an.\n"
+                              << "             expression of the form '<name>,[<b_opt_top_orient>],[<b_opt_braid>],<comment>'.\n"
+                              << "             Type 'kht++ --help' for more info.\n";
+                    return 0;
+               };
                break;
           case 'd':
                d_flag = true;
@@ -262,6 +329,45 @@ int main ( int argc, char **argv )
                               r_opt_n,
                               metadata,
                               files );
+     } else if ( b_flag ) {
+          std::string tanglestring;
+          int min {0};
+          int max {0};
+          for ( auto const &e : b_opt_braid ){
+               if (e < min){
+                    min = e;
+               } else if ( e> max ) {
+                    max = e;
+               };
+          };
+          if ( -min > max ){
+               max = -min;
+          };
+          for ( int i = b_opt_top_orient.size(); i < max+1; ++i){
+               tanglestring += "r" + std::to_string(i) + ".";
+          };
+          for ( auto const &e : b_opt_braid ){
+               if ( e < 0 ){
+                    tanglestring += "y" + std::to_string(-e-1) + ".";
+               } else {
+                    tanglestring += "x" + std::to_string(e-1) + ".";
+               };
+          };
+          for ( int i = max; i > b_opt_top_orient.size()-1; --i){
+               tanglestring += "u" + std::to_string(i) + ".";
+          };
+          tanglestring.pop_back();
+          tanglestring = simplify(tanglestring,b_opt_top_orient.size() );
+          Tangle T {tanglestring,b_opt_top_orient,true};
+          File file {"examples/braids/" + b_opt_name};
+          file.parent().create_directories();
+          T.to_file(file);
+          conditional_append (file.fullname()+".kht",
+                              "% generated from braid " + stringL(b_opt_braid));
+          conditional_append (file.fullname()+".kht",
+                              "% " + b_opt_comment );
+          files.push_back ( file );
+          
      } else if ( files.empty() ) {
           interactive ( metadata,files );
      };
