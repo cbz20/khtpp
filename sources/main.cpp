@@ -243,7 +243,7 @@ int main ( int argc, char **argv )
                     c_opt = std::stoi ( optarg );
                     if ( std::find ( std::begin ( coeffs_all ),
                                      std::end ( coeffs_all ),
-                                     c_opt ) == std::end ( coeffs_all ) ) {
+                                     c_opt ) == std::end ( coeffs_all ) && c_opt!=0 ) {
                          std::cerr << "INPUT ERROR: The option '-c"
                                    << optarg
                                    << "' is unknown.\n"
