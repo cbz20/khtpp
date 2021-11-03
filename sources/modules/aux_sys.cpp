@@ -590,6 +590,67 @@ void to_html ( const File &file )
                html << "<br>\n";
           };
      };
+     // list Rasmussen's s-invariants:
+     if ( !cxCKhs.empty() ) {
+          html << "\n\n\n<h2>\n"
+               << "Rasmussen's s-invariant"
+               << "\n</h2>\n";
+     };
+     for ( const auto &f : cxCKhs ) {
+          std::fstream fs ( f.fullname(), std::fstream::in );
+          if ( fs ) { // Check if the opening has not failed
+               bool is_first {true};
+               std::string line;
+               html << "\n<h4>\n"
+                    << "<span onclick=\"toggleDisplay('invariants','s-"
+                    << f.name()
+                    << "');\"\n"
+                    << "      title='click to show tangle invariants'>\n"
+                    << "options "
+                    << f.name().substr ( 5 )
+                    << "\n</span>\n"
+                    << "<span onClick=\"on('"
+                    << file.name() + file_sep + file.name() + f.name().substr ( 5 )
+                    << "');\" \n"
+                    << "      class='metadata-button'\n"
+                    << "      title='click to show tangle diagram'>\n"
+                    << "(diagram)\n"
+                    << "</span>\n"
+                    << "<span onclick=\"toggleDisplay('metadata','meta-s-"
+                    << f.name()
+                    << "');\" \n"
+                    << "      title='click to show metadata'\n"
+                    << "      class='metadata-button'>\n(metadata)\n</span>\n"
+                    << "</h4>\n";
+               while ( std::getline ( fs, line ) ) {
+                    if ( is_first ) {
+                         html << "<div class='metadata' id='meta-s-"
+                              << f.name()
+                              << "' style='display:none'>\n"
+                              << line
+                              << "\n</div>\n"
+                              << "<div class='invariants' id='s-"
+                              << f.name()
+                              << "' style='display:none'>\n";
+                         is_first = false;
+                    } else {
+                         if ( line.find_first_of("H") == std::string::npos ){
+                              // remove anything before and including "q^"
+                              line = line.substr(line.find_first_of("q")+2);
+                              // remove any leading spaces
+                              line = line.substr(line.find_first_not_of(" "));
+                              // cut after the integer
+                              line = line.substr(0,line.find_first_of(" "));
+                              html << line << "<br>\n";
+                         };
+                    };
+               }
+               html << "</div>\n";
+               fs.close();
+          }
+          html << "<br>\n";
+     };
+     
      html << "\n";
      html << "</body>\n";
      html.close();
