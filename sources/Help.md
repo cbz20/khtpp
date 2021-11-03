@@ -27,10 +27,19 @@
     -o, --optimize        Attempts to minimize the number of generators
                           in the invariants by adding twists to the 
                           tangle ends.
+    -P <s>,<o>, --prepend <s>,<o> 
+                          Prepends a tangle string <s> with orientation
+                          information <o> for the top tangle ends, after 
+                          processing all other options.  For example, 
+                          setting  <s> = r1  and  <o> = 1,1  adds a cup 
+                          at the top of a tangle which will then have 
+                          two upwards oriented tangle ends at the top. 
+                          This option can only be called once. 
     -p <s>, --append <s>  Appends a tangle string <s>, after processing
                           all other options.  For example, <s> = x0.x0 
                           adds two extra twists at the bottom of the 
-                          tangle. 
+                          tangle. This option can be called any number
+                          of times. 
     -q, --quotient        Computes the invariants of the quotient tangle 
                           of a strongly invertible knot specified by a 
                           symmetric diagram.  The tangle string in the 

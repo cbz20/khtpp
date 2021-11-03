@@ -578,7 +578,7 @@ std::string Complex<CobObj,CobMor,Coeff>::optimize ( const std::vector<bool> &bo
                     << tanglestring
                     << "' to complex "
                     << std::flush;
-          *this = Tangle ( tanglestring ).CobComplex<Coeff> ( *this,false );
+          *this = Tangle ( tanglestring,bot_orient ).CobComplex<Coeff> ( *this,false );
           std::cout << "\33[2K\rAdded specified tangle '"
                     << tanglestring
                     << "' to complex.\n"
