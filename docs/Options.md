@@ -51,7 +51,9 @@ Support for other fields of coefficients may be easily added, since the implemen
 
 - \c -d , \c &ndash;&ndash;double
 
-This doubles all tangle strands before computing any invariants. For example, for the trefoil
+This doubles all tangle strands before computing any invariants. 
+For 1-1-knots, the framing of the resulting cap-trivial tangle is chosen such that the linking number between the two strands is 0. 
+For example, for the trefoil
 
 \image html "3_1-c2.svg" width=3cm
 

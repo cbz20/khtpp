@@ -1075,6 +1075,18 @@ void Tangle::doubled ()
                break;
           }
      };
+     // if we started with a 1-1-knot, make sure that the linking number between the two strands is 0.
+     if ( this->top_orient().size() == 1 && this->bot_orient().size() == 1 ) {
+          int n {this->writhe()};
+          std::string s {"x0.x0."};
+          if (n<0){
+               s = "y0.y0.";
+               n *= -1;
+          };
+          for ( int i=0; i<n; ++i){
+               tanglestring += s;
+          };
+     };
      if ( tanglestring.empty() == false ) {
           tanglestring.pop_back();
      };
