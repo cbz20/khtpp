@@ -101,10 +101,26 @@ wheras the invariant \f$\widetilde{\mathrm{BN}}(T)\f$ of the tangle with the ext
 
 - \code{.sh} -p <tanglestring>\endcode , \code{.sh} --append <tanglestring>\endcode
 
-Appends a tangle string after applying any other options that modify a given tangle. 
+Appends a tangle string after applying any other options that modify a given tangle. When this option is used multiple times, the tangle strings are appended separately. 
 
 For example, to compute the invariant of a Conway tangle obtained by cutting open a Whitehead double of some knot, I only need to run the program on a (1,1)-tangle representation of this knot, combining the doubling option \ref DoubleStrands "-d" with the option \code{.sh} -p l1.y0.y2.u1\endcode.
 
+
+
+\section Prefix Prepending tangle strings
+
+- \code{.sh} -P <tanglestring>,<new top orientation>\endcode , \code{.sh} --prepend <tanglestring>,<new top orientation>\endcode
+
+Prepends a tangle string after applying any other options that modify a given tangle. \code{.sh}<new top orientation>\endcode is a comma separated list of \c 0 and \c 1 . The option \ref Prefix "-P" can only be used at most once. 
+
+For example, in conjunction with the options \ref DoubleStrands "-d" and \ref Suffix "-p", the option \ref Prefix "-P" can be used to effectively compute Rasmussen invariants of twisted satellite knots, such as the following ten cables of the trefoil knot: 
+
+\code{.sh}
+./kht++ examples/tests/3_1.kht -d -Pr1,1 -px0.u1 -px0.x0.x0.u1 \
+-px0.x0.x0.x0.x0.u1 -px0.x0.x0.x0.x0.x0.x0.u1 -px0.x0.x0.x0.x0.x0.x0.x0.x0.u1 \
+-py0.u1 -py0.y0.y0.u1 -py0.y0.y0.y0.y0.u1 -py0.y0.y0.y0.y0.y0.y0.y0.y0.u1 \
+-py0.y0.y0.y0.y0.y0.y0.u1
+\endcode
 
 
 
