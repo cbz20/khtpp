@@ -15,6 +15,8 @@ DOXYGEN_VERSION := "$(shell doxygen -v)"
 CXX = clang++ # tested with clang 10.0.0-4ubuntu1
 #CXX = g++ # tested with g++ 9.3.0-17ubuntu1~20.04
 %.o : CPPFLAGS = -std=c++17 -O3 -fPIE -Wall $(LIBS) -MD -DVERSION=\"$(GIT_VERSION)\"
+# for debugging:
+#%.o : CPPFLAGS = -std=c++17 -ggdb -fPIE -Wall $(LIBS) -MD -DVERSION=\"$(GIT_VERSION)\"
 
 vpath %.h sources/headers
 vpath %.h sources/specialization
