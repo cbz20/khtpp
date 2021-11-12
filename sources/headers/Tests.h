@@ -35,6 +35,9 @@
 
 /// test for coefficients (Coefficients.h)
 template<typename Coeff>
+bool Test_ChainConversion(const int &details=0);
+
+template<typename Coeff>
 bool Test_Coefficients(const int &details=0);
 
 /// test for cobordism category (Cob.h)

@@ -57,6 +57,7 @@ public:
           BNMor<Coeff> morphism,
           bool rightarrow );///< standard constructor
      friend Chain<Coeff>;///< friend (Chain)
+     Clink ( const std::string &str );///< convert output of Clink::to_string() back into chain; there is an ambiguity in the output, we cannot distinguish between an arrow S and S^2 if there is no label, unless we know what the next object is. This needs to be checked in Chain::Chain ( std::string ); The default is S.
 
      //                     //
      // getters and setters //
@@ -127,7 +128,9 @@ private:
 
 public:
      Chain ( std::vector<Clink<Coeff>> clinks );///< standard constructor
-
+     
+     Chain ( const std::string str );///< convert output of Chain::to_string() back into chain
+     
      //                     //
      // getters and setters //
      //                     //
@@ -181,6 +184,7 @@ private:
 
 public:
      Chains ( std::vector<Chain<Coeff>> chains);///< standard constructor
+//      Chains ( std::string str );///< convert output of Chains::to_string() back into chains
 
      //                          //
      // output and sanity checks //

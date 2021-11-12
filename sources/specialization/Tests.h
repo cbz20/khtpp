@@ -17,7 +17,7 @@
 //
 
 
-
+template bool Test_ChainConversion<VALUE>(const int &details);
 template bool Test_Cob<VALUE>(const int &details);
 template bool Test_Complex<VALUE>(const int &details);
 template bool Test_PrecomputedAlgebra<VALUE>(const int &details);

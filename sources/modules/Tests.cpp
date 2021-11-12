@@ -39,6 +39,44 @@ void test ( std::string msg, bool exp )
      };
 };
 
+template<typename Coeff>
+bool Test_ChainConversion( const int &details ){
+     //0 means terse output
+     //1 means more details
+     std::cout << "\n"
+               "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+               "%%% BEGIN Test_ChainConversion %%%\n"
+               "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
+               "\n";
+     std::string in {"h^6 q^18 δ^3 ⬯~~S~>"};
+     auto i1 {Clink<Coeff>( in )};
+     in = "h^-6 q^-21 δ^3 ⬮——D—>";
+     auto i2 {Clink<Coeff>( in )};
+     in = "h^-6 q^-21 δ^-9/2 ⬮~~(-S^3)~>";
+     auto i3 {Clink<Coeff>( in )};
+     in = "h^-6 q^-21 δ^-9/2 ⬮<—(-43.D^3)——";
+     auto i4 {Clink<Coeff>( in )};
+     in = "h^-6 q^-21 δ^-9/2 ⬮~~(-43.S)~>";
+     auto i5 {Clink<Coeff>( in )};
+     in = "h^-6 q^-21 δ^-9/2 ⬮~>";
+     auto i6 {Clink<Coeff>( in )};
+     in = "h^-6 q^-21 δ^-9/2 ⬮<~";
+     auto i7 {Clink<Coeff>( in )};
+     in = "h^-6 q^-21 δ^-9/2 ⬮—>";
+     auto i8 {Clink<Coeff>( in )};
+     in = "h^-6 q^-21 δ^-9/2 ⬮<—";
+     auto i9 {Clink<Coeff>( in )};
+     in = "h^-6 q^-21 δ^-9/2 ⬮";
+     auto i10 {Clink<Coeff>( in )};
+     
+     in = "h^ 5 q^18 δ^   4 ⬮~~S^2~>⬮—>⬮~>⬯<—⬯<~⬮<—";
+     auto i11 {Chain<Coeff>( in )};
+     in = "h^ -2 q^ -4 δ^  0 ⬯~~S^4~>⬯—>⬯~>⬮—>⬮<~S^3~~⬯<—⬯";
+     auto i12 {Chain<Coeff>( in )};
+     
+     return true;
+};
+
 //bool CobNonZero (const int& row, const int& col, const CobMor& value) {
 //  return value.nonZero();
 //};

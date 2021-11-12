@@ -42,6 +42,165 @@ Clink<Coeff>::Clink ( BNObj object, BNMor<Coeff> morphism, bool rightarrow )
 {
 }
 
+template<typename Coeff>
+Clink<Coeff>::Clink ( const std::string &s ){
+     std::string str {s};
+     // 
+     // determine object:
+     //
+     Idem idem {true}; 
+     Grading h {0};
+     Grading q {0};
+     std::string search_str {"h^"};
+     auto i {str.find ( search_str )};
+     if (i != std::string::npos ){
+          try {
+               // so there are gradings; we assume the format is:
+               // h^\ *-?[0-9]* q^\ *-?[0-9]* δ^\ *-?[0-9]*
+               str = str.substr(i+2);// cut after 'h^'
+               search_str = "q^";
+               i = str.find ( search_str );
+               h = std::stoi (str.substr(0,i));// cut before 'q^'
+               str = str.substr(i+2);// cut after 'q^'
+               search_str = "δ^";
+               i = str.find ( search_str );
+               q = std::stoi (str.substr(0,i));// cut before 'δ^'
+          } catch ( ... ) {
+               std::cerr << "ERROR (Clink::Clink()): "
+                    << "invalid grading format in string '" 
+                    << s 
+                    << "'."
+                    << std::flush;
+          };
+     };
+     // Idem: true = 1 = ● (= b = ⦁ = ⬮) and false = 0 = ○ (= c = ∘ = ⬯).
+     search_str = "⬮";//3 bytes long
+     i=str.find ( search_str );
+     if (i == std::string::npos ){
+          search_str = "⬯";//3 bytes long
+          i = str.find ( search_str );
+          idem = false;
+     };
+     if (i == std::string::npos ){
+          std::cerr << "ERROR (Clink::Clink()): "
+                    << "Could not find any object"
+                    << " ⬮ and ⬯ in the string '" 
+                    << s 
+                    << "'."
+                    << std::flush;
+     };
+     object = BNObj(idem, h, q);
+     str = str.substr(i+3);// ⬯ and ⬮ are 3 bytes long
+//      std::cout << "1)" << str << " of size " << str.size() << "\n" << std::flush;
+     //
+     // determine rightarrow
+     //
+     search_str = ">";
+     i = str.find ( search_str );
+     rightarrow = true;
+     if (i == std::string::npos ){
+          search_str = "<";
+          rightarrow = false;
+          i = str.find ( search_str );
+     };
+     //
+     // morphism
+     //
+     int type {1};
+     Coeff coeff {1};
+     try {
+          // test if morphism is zero
+          if ( str.empty() || i == std::string::npos ){
+               morphism = BNMor<Coeff>(object, object, {});
+          } else {
+               // morphism is non-zero; now determine for sign of type
+               if ( rightarrow ){
+                    search_str = "~";// S-arrow
+                    if ( str.substr(0,1) == search_str ){
+                         type=-1;
+                         str = str.substr(2);// remove leading '~~' and '~>'
+                    } else {
+                         str = str.substr(3);// remove leading '—'
+                         search_str = ">";
+                         if ( str.substr(0,1) == search_str ){
+                              str = str.substr(1);// remove leading '>'
+                         } else {
+                              str = str.substr(3);// remove leading '—'
+                         };
+                    };
+               } else {
+                    str = str.substr(1);// remove leading '<'
+                    search_str = "~";// S-arrow
+                    if ( str.substr(0,1) == search_str ){
+                         type=-1;
+                         str = str.substr(1);// remove leading '~'
+                    } else {
+                         str = str.substr(3);// remove leading '—'
+                    };
+               };
+               if ( !str.empty() ){
+                    // there is a label on the arrowstring
+                    // remove trailing '<—', '<~', '—>', '~>', '~~', and '——':
+                    if ( type < 0 ){
+                         search_str = "~";
+                    } else {
+                         search_str = "—";
+                    };
+                    i = str.find ( search_str );
+                    str = str.substr(0,i);
+//                     std::cout << "2)" << str << "\n" << std::flush;
+                    // remove parentheses, if any exist
+                    search_str = "(";
+                    if ( str.substr(0,1) == search_str ){
+                         str = str.substr(1);
+                    };
+                    search_str = ")";
+                    i = str.find ( search_str );
+                    str = str.substr(0,i);
+//                     std::cout << "3)" << str << "\n" << std::flush;
+                    // detect if morphism has negative coefficient
+                    search_str = "-";
+                    i = str.find ( search_str );
+                    if (i != std::string::npos ){
+                         coeff = -1;
+                         str = str.substr( i+1 );
+                    };
+//                     std::cout << "4)" << str << "\n" << std::flush;
+                    // detect if morphism has coeff ≠ ±1. 
+                    search_str = ".";
+                    i = str.find ( search_str );
+                    if (i != std::string::npos ){
+                         coeff *= std::stoi(str.substr(0,i));
+                         str = str.substr( i+1 );
+                    };
+//                     std::cout << "5)" << str << "\n" << std::flush;
+                    // determine type:
+                    // if stringlabel is S or D, type remains the same
+                    // if morphism is S^2, but there is no stringlabel, this needs to be fixed later in Chain::Chain( std::string).
+                    search_str = "^";
+                    i = str.find ( search_str );
+                    if (i != std::string::npos ){
+                         type *= std::stoi(str.substr(i+1));
+                    };
+               };
+               auto back {object};
+               if ( type < 0 && ((type-1) % 2 == 0)){
+                    back = BNObj(!idem, h, q);
+               };
+               //
+               morphism = BNMor<Coeff>(object, back, {Label(type, coeff)});
+          };
+     } catch (...){
+          std::cerr << "ERROR (Clink::Clink()): "
+                    << "invalid arrow format in the string '" 
+                    << s 
+                    << "'."
+                    << std::flush;
+     };     
+//      std::cout << this->to_string() << "\n" << std::flush;
+//      std::cout << s << "\n\n" << std::flush;
+}
+
 //                     //
 // getters and setters //
 //                     //
@@ -85,17 +244,13 @@ std::string Clink<Coeff>::to_string (
           if ( rightarrow ) {
                output += line;
           } else {
-               if ( mor > 0 ) {
-                    output += "<";//←
-               } else {
-                    output += "<";//⇠
-               };
+               output += "<";//⇠
           };
           bool override_label = false;
           if ( ( mor > 1 )
                     || ( mor < -2 )
                     || ( is_id ( morphism.get_first_coeff() ) == false )
-                    || ( morphism.get_labels().size() > 1 )
+                    || ( morphism.get_labels().size()> 1 )
              ) {
                // the last check is just for debugging purposes; there should only be one label anyway
                override_label = true;
@@ -113,11 +268,7 @@ std::string Clink<Coeff>::to_string (
                output += line;
           };
           if ( rightarrow ) {
-               if ( mor > 0 ) {
-                    output += ">";//→
-               } else {
-                    output += ">";//⇢
-               };
+               output += ">";//⇢
           } else {
                output += line;
           };
@@ -185,6 +336,44 @@ Chain<Coeff>::Chain ( std::vector<Clink<Coeff>> clinks )
      clinks ( clinks )
 {
 }
+
+template<typename Coeff>
+Chain<Coeff>::Chain ( const std::string s )
+     :
+     clinks ( {} ) 
+{
+     std::string str {s};
+     const std::string DotB {"⬮"};
+     const std::string DotW {"⬯"};
+     auto i { str.find( DotB ) };
+     if ( i > str.find( DotW ) ) {
+          i = str.find( DotW );
+     };
+     ++i;
+     while ( true ){
+          std::cout << str << "\n" << std::flush;
+          auto ii { str.find( DotB, i ) };
+          if ( ii > str.find( DotW, i ) ) {
+               ii = str.find( DotW, i );
+          };
+          i = 1;
+          clinks.push_back( {str.substr( 0 , ii )} );
+          if ( ii != std::string::npos ){
+               str = str.substr( ii );
+          } else {
+               break;
+          };
+     };
+     // TODO:
+     // go through clinks to fix ambiguity S vs S²
+     
+     // deduce gradings of objects from the first
+     
+     // run some sanity checks like alternating S- and D-arrows.
+     
+     std::cout << this->to_string() << "\n";
+     std::cout << s << "\n\n" << std::flush;
+};
 
 //                          //
 // output and sanity checks //
