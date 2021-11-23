@@ -81,6 +81,10 @@ bool Test_ChainConversion( const int &details ){
      std::cout << c1.to_string() << "\n";
      std::cout << "compacts:\n" << c1.compacts().to_string();
      std::cout << "non-compacts:\n" << c1.non_compacts().to_string();
+     
+     auto cx = Complex<BNObj,BNMor,Coeff>(c1);
+     std::cout << cx.to_chains().to_string();
+     
      return true;
 };
 

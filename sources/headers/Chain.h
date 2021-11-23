@@ -37,32 +37,24 @@
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //                  Clink
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-template<typename Coeff> class Chain;
+template<typename Coeff> struct Chain;
 
 /// a single link a Chain 
 
 /// consists of an object (BNObj), a morphism (BNMor), and a boolean value \c rightarrow which is true if the morphism starts at the specified generator. The morphism should consist of a single label or no label (in which case \c rightarrow is undefined). 
 ///
-template<typename Coeff> class Clink
+template<typename Coeff> struct Clink
 {
-private:
      BNObj object; // x
      BNMor<Coeff> morphism; // a
      bool rightarrow; //true x--(a)-> 
      // 'rightarrow' is undefined if morphism.is_0().
 
-public:
      Clink (
           BNObj object,
           BNMor<Coeff> morphism,
           bool rightarrow );///< standard constructor
-     friend Chain<Coeff>;///< friend (Chain)
      Clink ( const std::string &str );///< convert output of Clink::to_string() back into chain; there is an ambiguity in the output, we cannot distinguish between an arrow S and S^2 if there is no label, unless we know what the next object is. This needs to be checked in Chain::Chain ( std::string ); The default is S.
-
-     //                     //
-     // getters and setters //
-     //                     //
-     void set_coeff ( const Coeff &coeff );///< assign a new coefficient to the Clink
 
      //                          //
      // output and sanity checks //
@@ -84,6 +76,7 @@ public:
           const bool &with_label = true,
           const bool &is_4ended = true ) const;
 };
+
 
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -113,7 +106,6 @@ public:
                 Q delta = 0,
                 Q q = 0);///< standard constructor
     std::string to_string () const;///< string representative of a Khr_curve
-    
 };
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -121,20 +113,17 @@ public:
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// list of clinks (Clink), representing a single indecomposable summand  of a loop-type complex. If the morphism of the last Clink is non-zero, the chain corresponds to a compact curve; otherwise it corresponds to a non-compact one. 
-template<typename Coeff> class Chain
+template<typename Coeff> struct Chain
 {
-private:
      std::vector<Clink<Coeff>> clinks;
 
 public:
      Chain ( std::vector<Clink<Coeff>> clinks );///< standard constructor
-     
      Chain ( const std::string str );///< convert output of Chain::to_string() back into chain
      
      //                     //
      // getters and setters //
      //                     //
-     BNObj get_first_object() const;///< object of the first Clink
      bool is_compact() const;///< true if chain is compact, ie if the last clink has an arrow.
 
      //                          //
@@ -144,6 +133,7 @@ public:
           const max_gr_str &max_gr = {},
           const bool &is_4ended = true
      ) const;///< string representative of chain; the options are the same as Clink::to_string
+     size_t size() const;
 
      //              //
      // main methods //
@@ -178,9 +168,8 @@ public:
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /// list of chains (Chain)
-template<typename Coeff> class Chains
+template<typename Coeff> struct Chains
 {
-private:
      std::vector<Chain<Coeff>> chains;
 
 public:
@@ -194,7 +183,7 @@ public:
      std::string to_string (
           const bool &is_4ended = true,
           const bool &is_Khr = false ) const;///< string representative of chain; the options are the same as Clink::to_string
-
+    
      //              //
      // main methods //
      //              //

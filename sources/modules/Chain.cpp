@@ -66,11 +66,7 @@ Clink<Coeff>::Clink ( const std::string &s ){
                i = str.find ( search_str );
                q = std::stoi (str.substr(0,i));// cut before 'δ^'
           } catch ( ... ) {
-               std::cerr << "ERROR (Clink::Clink()): "
-                    << "invalid grading format in string '" 
-                    << s 
-                    << "'."
-                    << std::flush;
+               throw std::invalid_argument( "Invalid grading format in string '" + s + "'.\n");
           };
      };
      // Idem: true = 1 = ● (= b = ⦁ = ⬮) and false = 0 = ○ (= c = ∘ = ⬯).
@@ -82,11 +78,7 @@ Clink<Coeff>::Clink ( const std::string &s ){
           idem = false;
      };
      if (i == std::string::npos ){
-          std::cerr << "ERROR (Clink::Clink()): "
-                    << "Could not find any object"
-                    << " ⬮ or ⬯ in the string '" 
-                    << s 
-                    << "'.";
+          throw std::invalid_argument( "Could not find any object ⬮ or ⬯ in the string '" + s + "'.\n");
      };
      object = BNObj(idem, h, q);
      str = str.substr(i+3);// ⬯ and ⬮ are 3 bytes long
@@ -190,25 +182,11 @@ Clink<Coeff>::Clink ( const std::string &s ){
                morphism = BNMor<Coeff>(object, back, {Label(type, coeff)});
           };
      } catch (...){
-          std::cerr << "ERROR (Clink::Clink()): "
-                    << "invalid arrow format in the string '" 
-                    << s 
-                    << "'."
-                    << std::flush;
+          throw std::invalid_argument( "Invalid arrow format in the string '" + s + "'.\n");
      };     
 //      std::cout << this->to_string() << "\n" << std::flush;
 //      std::cout << s << "\n\n" << std::flush;
 }
-
-//                     //
-// getters and setters //
-//                     //
-
-template<typename Coeff>
-void Clink<Coeff>::set_coeff ( const Coeff &coeff )
-{
-     morphism.set_coeff ( coeff );
-};
 
 //                          //
 // output and sanity checks //
@@ -350,7 +328,7 @@ Chain<Coeff>::Chain ( const std::string s )
      };
      ++i;
      while ( true ){
-          std::cout << str << "\n" << std::flush;
+//           std::cout << str << "\n" << std::flush;
           auto ii { str.find( DotB, i ) };
           if ( ii > str.find( DotW, i ) ) {
                ii = str.find( DotW, i );
@@ -433,9 +411,8 @@ Chain<Coeff>::Chain ( const std::string s )
                std::cerr << "ERROR: The homological gradings of the first and last objects in the chain are inconsistent.";
           };
      };
-     //
-     std::cout << "understood: " << this->to_string() << "\n";
-     std::cout << "original: " << s << "\n\n" << std::flush;
+//      std::cout << "original: " << s << "\n" << std::flush;
+//      std::cout << "understood: " << this->to_string() << "\n";
 };
 
 //                          //
@@ -468,17 +445,16 @@ std::string Chain<Coeff>::to_string (
      return output;
 };
 
+template<typename Coeff>
+size_t Chain<Coeff>::size() const {
+     return clinks.size();
+};
+
 
 
 //                     //
 // getters and setters //
 //                     //
-
-template<typename Coeff>
-BNObj Chain<Coeff>::get_first_object() const
-{
-     return clinks.front().object;
-};
 
 template<typename Coeff>
 bool Chain<Coeff>::is_compact() const
@@ -857,13 +833,28 @@ Chains<Coeff>::Chains ( const File &file )
           if ( cPos != std::string::npos ){
                c = c.substr( cPos + 1 );
           };   
-          std::cout << c <<"\n";
      };
+     std::cout << "Reading in chain from file '"
+               << file.fullname()
+               << "'...\n";
      for ( const auto &c : vec ){
           if ( !c.empty() ){
                try {
-                    chains.push_back( Chain<Coeff>( c ) );
-               } catch (...){};
+                    auto x {Chain<Coeff>( c )};
+                    chains.push_back( x );
+                    std::cout << "...understood:" 
+                              << x.to_string() 
+                              << "\n";
+               } catch (std::invalid_argument const& ex){
+                    std::cerr << "WARNING: Could not understand the following input line from file " 
+                              << file.fullname()
+                              << ":\n"
+                              << c
+                              << "\nError message: "
+                              << ex.what()
+                              << "I am going to ignore this input line.\n" 
+                              << std::flush;
+               };
           };
      };
 };
@@ -881,17 +872,17 @@ std::string Chains<Coeff>::to_string ( const bool &is_4ended, const bool &is_Khr
      size_t max_delta {0};
      size_t cur_gr {0};
      for ( const Chain<Coeff> &chain : chains ) {
-          cur_gr = std::to_string ( chain.get_first_object().get_h() ).size();
+          cur_gr = std::to_string ( chain.clinks.front().object.get_h() ).size();
           if ( cur_gr>max_h ) {
                max_h = cur_gr;
           };
           //
-          cur_gr = std::to_string ( chain.get_first_object().get_q() ).size();
+          cur_gr = std::to_string ( chain.clinks.front().object.get_q() ).size();
           if ( cur_gr>max_q ) {
                max_q = cur_gr;
           };
           //
-          cur_gr = coeff_to_string ( chain.get_first_object().get_delta() ).size();
+          cur_gr = coeff_to_string ( chain.clinks.front().object.get_delta() ).size();
           if ( cur_gr>max_delta ) {
                max_delta = cur_gr;
           };

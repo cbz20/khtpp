@@ -18,8 +18,8 @@
 
 
 
-template class Clink<VALUE>;
-template class Chain<VALUE>;
-template class Chains<VALUE>;
+template struct Clink<VALUE>;
+template struct Chain<VALUE>;
+template struct Chains<VALUE>;
 
 #undef VALUE

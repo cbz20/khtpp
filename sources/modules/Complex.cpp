@@ -792,6 +792,46 @@ void Complex_Base<Obj,Mor,Coeff>::isotopy (
 };
 
 template<typename Coeff>
+Complex<BNObj,BNMor,Coeff>::Complex ( const Chains<Coeff> chains ) 
+{
+     size_t base_count {0};// counts # generators in previous chains
+     size_t current_count {0};// counts # generators in current chains
+     size_t row;// row
+     size_t col;// column
+     //
+     this->objects = {};
+     std::vector<Eigen::Triplet<BNMor<Coeff>>> triplets {};
+     //
+     for ( const auto &chain : chains.chains ){
+          for ( const auto &clink : chain.clinks ){
+               this->objects.push_back( clink.object );
+               if ( !clink.morphism.is_0() ){
+                    if ( clink.rightarrow ){
+                         row = ( current_count + 1 ) % chain.size();
+                         col = current_count;
+                    } else {
+                         row = current_count;
+                         col = ( current_count + 1 ) % chain.size();
+                    };
+                    triplets.push_back ( 
+                         Eigen::Triplet<BNMor<Coeff>> ( base_count + row,
+                                                        base_count + col, 
+                                                        clink.morphism ) 
+                                       );
+               };
+               ++current_count;
+          };
+          base_count += chain.size();
+          current_count = 0;
+     };
+     //
+     this->diffs = Eigen::SparseMatrix<BNMor<Coeff>>( base_count,base_count );
+     this->diffs.setFromTriplets ( triplets.begin(),triplets.end() );
+     this->cancelled_indices={};
+};
+
+
+template<typename Coeff>
 Chains<Coeff> Complex<BNObj,BNMor,Coeff>::to_chains () const
 {
      std::vector<Chain<Coeff>> chains {};
