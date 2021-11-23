@@ -135,6 +135,7 @@ public:
      // getters and setters //
      //                     //
      BNObj get_first_object() const;///< object of the first Clink
+     bool is_compact() const;///< true if chain is compact, ie if the last clink has an arrow.
 
      //                          //
      // output and sanity checks //
@@ -184,7 +185,8 @@ private:
 
 public:
      Chains ( std::vector<Chain<Coeff>> chains);///< standard constructor
-//      Chains ( std::string str );///< convert output of Chains::to_string() back into chains
+     Chains (const File &file);///< construct chains from a file; this file should have the same format as 'Complex::print(...)'
+
 
      //                          //
      // output and sanity checks //
@@ -199,6 +201,8 @@ public:
      void fix_shorts();///< apply Chain::fix_shorts() to all components
      void sort();///< apply Chain::sort() to all components
      void concentrate_local_systems(); ///< apply Chain::concentrate_local_system() to all components
+     Chains<Coeff> non_compacts();///< create new Chains from old by forgetting all compact chains. 
+     Chains<Coeff> compacts();///< create new Chains from old by forgetting all non-compact chains. 
 };
 
 

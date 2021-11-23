@@ -84,10 +84,9 @@ Clink<Coeff>::Clink ( const std::string &s ){
      if (i == std::string::npos ){
           std::cerr << "ERROR (Clink::Clink()): "
                     << "Could not find any object"
-                    << " ⬮ and ⬯ in the string '" 
+                    << " ⬮ or ⬯ in the string '" 
                     << s 
-                    << "'."
-                    << std::flush;
+                    << "'.";
      };
      object = BNObj(idem, h, q);
      str = str.substr(i+3);// ⬯ and ⬮ are 3 bytes long
@@ -364,15 +363,79 @@ Chain<Coeff>::Chain ( const std::string s )
                break;
           };
      };
-     // TODO:
+     // check for zero morphisms that are not at the end
+     for ( size_t i = 0; i < clinks.size()-1; ++i ){
+          if ( clinks[i].morphism.is_0() ){
+               std::cerr << "ERROR: Chain contains zero morphism in its interior.";
+          };
+     };
      // go through clinks to fix ambiguity S vs S²
-     
+     for ( size_t i = 0; i < clinks.size(); ++i ){
+          // compare current object to next, but cyclically
+          if (clinks[i].object==clinks[(i+1)% clinks.size()].object ){
+               if (clinks[i].morphism.get_first_type()==-1){
+                    clinks[i].morphism = BNMor<Coeff>(clinks[i].object, clinks[i].object, {Label(-2, clinks[i].morphism.get_coeff(false))});
+               };
+          };
+     };
      // deduce gradings of objects from the first
-     
-     // run some sanity checks like alternating S- and D-arrows.
-     
-     std::cout << this->to_string() << "\n";
-     std::cout << s << "\n\n" << std::flush;
+     int sign_rightarrow {-1};
+     int type {0};
+     for ( size_t i = 0; i < clinks.size()-1; ++i ){
+          if (clinks[i].rightarrow){
+               sign_rightarrow = 1;
+          } else {
+               sign_rightarrow = -1;
+          };
+          clinks[i+1].object.set_h( clinks[i].object.get_h() + sign_rightarrow );
+          //
+          type = clinks[i].morphism.get_first_type();
+          if ( type > 0 ){
+               type *= 2;
+          } else {
+               type *= -1;
+          };
+          clinks[i+1].object.set_q( clinks[i].object.get_q() + sign_rightarrow*type );
+     };
+     // run some sanity checks
+     // 1) S- and D-arrows should alternate.
+     type = clinks.front().morphism.get_first_type();
+     if ( !clinks.back().morphism.is_0() ){
+          // Compare first and last only for compact chains
+          if ( type*clinks.back().morphism.get_first_type() > 0 ){
+               std::cerr << "ERROR: The first and last morphism in the chain are either both S-arrows or both D-arrows.";
+          };
+     };
+     for ( size_t i = 1; i < clinks.size(); ++i ){
+          if (type * clinks[i].morphism.get_first_type() > 0 ){
+               std::cerr << "ERROR: Morphisms in chain do not alternate between S- and D-arrows.";
+          };
+          type = clinks[i].morphism.get_first_type();
+     };
+     // 2) Gradings of first and last objects should be consistent, if chain is compact
+     if ( !clinks.back().morphism.is_0() ){
+          if (clinks.back().rightarrow){
+               sign_rightarrow = 1;
+          } else {
+               sign_rightarrow = -1;
+          };
+          if ( clinks.front().object.get_h() != clinks.back().object.get_h() + sign_rightarrow){
+               std::cerr << "ERROR: The homological gradings of the first and last objects in the chain are inconsistent.";
+          };
+          //
+          type = clinks.back().morphism.get_first_type();
+          if ( type > 0 ){
+               type *= 2;
+          } else {
+               type *= -1;
+          };
+          if (clinks.front().object.get_q() != clinks.back().object.get_q() + sign_rightarrow*type ){
+               std::cerr << "ERROR: The homological gradings of the first and last objects in the chain are inconsistent.";
+          };
+     };
+     //
+     std::cout << "understood: " << this->to_string() << "\n";
+     std::cout << "original: " << s << "\n\n" << std::flush;
 };
 
 //                          //
@@ -417,6 +480,11 @@ BNObj Chain<Coeff>::get_first_object() const
      return clinks.front().object;
 };
 
+template<typename Coeff>
+bool Chain<Coeff>::is_compact() const
+{
+     return !clinks.back().morphism.is_0();
+};
 
 
 //              //
@@ -749,6 +817,57 @@ Chains<Coeff>::Chains ( std::vector<Chain<Coeff>> chains )
 {
 }
 
+template<typename Coeff>
+Chains<Coeff>::Chains ( const File &file )
+     :
+     chains ( {} )
+{
+     std::ifstream ifs ( file.fullname() );
+     if ( ifs.good() != true ) {
+          std::cerr << "I cannot read the file '" <<  file.fullname() << "'.\nPlease make sure it exists \n" ;
+          exit ( 1 );
+     };
+     std::string content (
+          ( std::istreambuf_iterator<char> ( ifs ) ),
+          ( std::istreambuf_iterator<char>() ) );
+     // remove commented lines (everything after '%')
+     while ( true ) {
+          size_t cPos = content.find ( "%" );
+          if ( cPos + 1 ) {
+               size_t lbPos = content.find ( '\n', cPos );
+               content.erase ( cPos, lbPos - cPos );
+          } else {
+               break;
+          };
+     };
+     //
+     std::vector<std::string> vec {};
+     while ( true ) {
+          size_t cPos = content.find ( "\n" );
+          vec.push_back(content.substr(0,cPos));
+          if ( cPos == std::string::npos ){
+               break;
+          } else {
+               content = content.substr( cPos + 1 );
+          };
+     };
+     // try to read line by line and interpret it as a chain
+     for ( auto &c : vec ){
+          size_t cPos = c.find ( ")" );
+          if ( cPos != std::string::npos ){
+               c = c.substr( cPos + 1 );
+          };   
+          std::cout << c <<"\n";
+     };
+     for ( const auto &c : vec ){
+          if ( !c.empty() ){
+               try {
+                    chains.push_back( Chain<Coeff>( c ) );
+               } catch (...){};
+          };
+     };
+};
+
 //                          //
 // output and sanity checks //
 //                          //
@@ -825,6 +944,30 @@ void Chains<Coeff>::concentrate_local_systems ()
      for ( Chain<Coeff> &chain : this->chains ) {
           chain.concentrate_local_system ();
      };
+};
+
+template<typename Coeff>
+Chains<Coeff> Chains<Coeff>::non_compacts ()
+{
+     std::vector<Chain<Coeff>> vec;
+     for ( auto &chain : this->chains ) {
+          if ( !chain.is_compact() ){
+               vec.push_back( chain );
+          };
+     };
+     return vec;
+};
+
+template<typename Coeff>
+Chains<Coeff> Chains<Coeff>::compacts ()
+{
+     std::vector<Chain<Coeff>> vec;
+     for ( auto &chain : this->chains ) {
+          if ( chain.is_compact() ){
+               vec.push_back( chain );
+          };
+     };
+     return vec;
 };
 
 

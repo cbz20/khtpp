@@ -798,7 +798,8 @@ Chains<Coeff> Complex<BNObj,BNMor,Coeff>::to_chains () const
      //
      if ( this->is_loop_type() ==false ) {
           std::cerr << "complex is not loop-type, so I cannot compute the corresponding chains. Returning empty Chains.\n";
-          return Chains<Coeff> ( {} );
+          std::vector<Chain<Coeff>> vec {};
+          return Chains<Coeff> ( vec );
      };
      //
      std::vector<long int> remaining {};

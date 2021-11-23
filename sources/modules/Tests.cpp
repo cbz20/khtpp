@@ -49,31 +49,38 @@ bool Test_ChainConversion( const int &details ){
                "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
                "\n";
      std::string in {"h^6 q^18 δ^3 ⬯~~S~>"};
-     auto i1 {Clink<Coeff>( in )};
-     in = "h^-6 q^-21 δ^3 ⬮——D—>";
-     auto i2 {Clink<Coeff>( in )};
-     in = "h^-6 q^-21 δ^-9/2 ⬮~~(-S^3)~>";
-     auto i3 {Clink<Coeff>( in )};
-     in = "h^-6 q^-21 δ^-9/2 ⬮<—(-43.D^3)——";
-     auto i4 {Clink<Coeff>( in )};
-     in = "h^-6 q^-21 δ^-9/2 ⬮~~(-43.S)~>";
-     auto i5 {Clink<Coeff>( in )};
-     in = "h^-6 q^-21 δ^-9/2 ⬮~>";
-     auto i6 {Clink<Coeff>( in )};
-     in = "h^-6 q^-21 δ^-9/2 ⬮<~";
-     auto i7 {Clink<Coeff>( in )};
-     in = "h^-6 q^-21 δ^-9/2 ⬮—>";
-     auto i8 {Clink<Coeff>( in )};
-     in = "h^-6 q^-21 δ^-9/2 ⬮<—";
-     auto i9 {Clink<Coeff>( in )};
-     in = "h^-6 q^-21 δ^-9/2 ⬮";
-     auto i10 {Clink<Coeff>( in )};
+//      auto i1 {Clink<Coeff>( in )};
+//      in = "h^-6 q^-21 δ^3 ⬮——D—>";
+//      auto i2 {Clink<Coeff>( in )};
+//      in = "h^-6 q^-21 δ^-9/2 ⬮~~(-S^3)~>";
+//      auto i3 {Clink<Coeff>( in )};
+//      in = "h^-6 q^-21 δ^-9/2 ⬮<—(-43.D^3)——";
+//      auto i4 {Clink<Coeff>( in )};
+//      in = "h^-6 q^-21 δ^-9/2 ⬮~~(-43.S)~>";
+//      auto i5 {Clink<Coeff>( in )};
+//      in = "h^-6 q^-21 δ^-9/2 ⬮~>";
+//      auto i6 {Clink<Coeff>( in )};
+//      in = "h^-6 q^-21 δ^-9/2 ⬮<~";
+//      auto i7 {Clink<Coeff>( in )};
+//      in = "h^-6 q^-21 δ^-9/2 ⬮—>";
+//      auto i8 {Clink<Coeff>( in )};
+//      in = "h^-6 q^-21 δ^-9/2 ⬮<—";
+//      auto i9 {Clink<Coeff>( in )};
+//      in = "h^-6 q^-21 δ^-9/2 ⬮";
+//      auto i10 {Clink<Coeff>( in )};
+//      
+//      in = "h^ 5 q^18 δ^   4 ⬮~>⬮—>⬮~>⬯<—⬯<~⬮<—";
+//      auto i11 {Chain<Coeff>( in )};
+//      in = "h^ 5 q^18 δ^   4 ⬯~>⬮—>⬮~>⬯<—⬯<~⬮<—";
+//      auto i12 {Chain<Coeff>( in )};
+//      in = "h^ -2 q^ -4 δ^  0 ⬯~~S^4~>⬯—>⬯~>⬮—>⬮<~S^3~~⬯<—⬯";
+//      auto i13 {Chain<Coeff>( in )};
      
-     in = "h^ 5 q^18 δ^   4 ⬮~~S^2~>⬮—>⬮~>⬯<—⬯<~⬮<—";
-     auto i11 {Chain<Coeff>( in )};
-     in = "h^ -2 q^ -4 δ^  0 ⬯~~S^4~>⬯—>⬯~>⬮—>⬮<~S^3~~⬯<—⬯";
-     auto i12 {Chain<Coeff>( in )};
+     auto c1 {Chains<Coeff> (File("examples/tests/3_1/cxBNr-c2-d"))};
      
+     std::cout << c1.to_string() << "\n";
+     std::cout << "compacts:\n" << c1.compacts().to_string();
+     std::cout << "non-compacts:\n" << c1.non_compacts().to_string();
      return true;
 };
 
