@@ -33,10 +33,11 @@
 /// \file Tests.h
 /// \brief declares some tests for checking some features of the program
 
-/// test for coefficients (Coefficients.h)
+/// test for converting chains back into complexes (Chain.h)
 template<typename Coeff>
 bool Test_ChainConversion(const int &details=0);
 
+/// test for coefficients (Coefficients.h)
 template<typename Coeff>
 bool Test_Coefficients(const int &details=0);
 

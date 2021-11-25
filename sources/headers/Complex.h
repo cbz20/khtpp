@@ -167,11 +167,12 @@ public:
      using Complex_Base<BNObj,BNMor,Coeff>::Complex_Base;
 
 //      Precurve<Coeff> to_precurve() const;
-     Complex (const Chains<Coeff> chains);//< constructor from Chains
+     Complex (const Chains<Coeff> chains);///< constructor from Chains
      
      
      Chains<Coeff> to_chains() const;///< Chains corresponding to the complex over the Bar-Natan algebra, see Chains.h for details.
      Complex<BNObj,BNMor,Coeff> cone ( const int &n ) const;///< cone of the endomorphism on the complex defined by \f$H^n\cdot\mathrm{id}\f$. For example, \f$\widetilde{\mathrm{Kh}}(T)\f$ is the cone of \f$H\cdot\mathrm{id}\f$ on the complex \f$\widetilde{\mathrm{BN}}(T)\f$. If \f$n = 0\f$, this acts like the identity; \f$n<0\f$ raises an exception.
+     Complex<BNObj,BNMor,Coeff> operator+ ( const Complex<BNObj,BNMor,Coeff> &cx2) const;///< Take the tensor product between two complexes corresponding to taking the (vertical) tangle sum, ie stack two 2-2-tangles. cx2 is the lower one. 
      void print (
           const std::string &name = "",
           const std::string &metadata = "",

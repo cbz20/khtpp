@@ -337,6 +337,18 @@ BNMor<Coeff>::BNMor (
 // getters and setters //
 //                     //
 template<typename Coeff>
+BNObj BNMor<Coeff>::get_front ( ) const
+{
+     return this->front;
+};
+
+template<typename Coeff>
+BNObj BNMor<Coeff>::get_back ( ) const
+{
+     return this->back;
+};
+
+template<typename Coeff>
 int BNMor<Coeff>::get_type ( const bool &faceD ) const
 {
      for ( const Label<Coeff> &label : labels ) {

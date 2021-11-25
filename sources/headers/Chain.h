@@ -45,10 +45,9 @@ template<typename Coeff> struct Chain;
 ///
 template<typename Coeff> struct Clink
 {
-     BNObj object; // x
-     BNMor<Coeff> morphism; // a
-     bool rightarrow; //true x--(a)-> 
-     // 'rightarrow' is undefined if morphism.is_0().
+     BNObj object; ///< object x of a clink 
+     BNMor<Coeff> morphism; ///< morphism a of a clink
+     bool rightarrow; ///< true if x--(a)->, false if x<-(a)-- , undefined if morphism.is_0().
 
      Clink (
           BNObj object,
@@ -115,7 +114,7 @@ public:
 /// list of clinks (Clink), representing a single indecomposable summand  of a loop-type complex. If the morphism of the last Clink is non-zero, the chain corresponds to a compact curve; otherwise it corresponds to a non-compact one. 
 template<typename Coeff> struct Chain
 {
-     std::vector<Clink<Coeff>> clinks;
+     std::vector<Clink<Coeff>> clinks;///< vector of clinks that make up a chain
 
 public:
      Chain ( std::vector<Clink<Coeff>> clinks );///< standard constructor
@@ -133,7 +132,7 @@ public:
           const max_gr_str &max_gr = {},
           const bool &is_4ended = true
      ) const;///< string representative of chain; the options are the same as Clink::to_string
-     size_t size() const;
+     size_t size() const;///< length (=\#objects) of chain
 
      //              //
      // main methods //
@@ -170,7 +169,7 @@ public:
 /// list of chains (Chain)
 template<typename Coeff> struct Chains
 {
-     std::vector<Chain<Coeff>> chains;
+     std::vector<Chain<Coeff>> chains;///< list of chains
 
 public:
      Chains ( std::vector<Chain<Coeff>> chains);///< standard constructor

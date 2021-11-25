@@ -599,6 +599,13 @@ bool Complex_Base<Obj,Mor,Coeff>::check() const
           for ( typename Eigen::SparseMatrix<Mor<Coeff>>::InnerIterator it ( this->diffs,k ); it; ++it ) {
                if ( it.value().check ( this->objects[it.col()],
                                        this->objects[it.row()] ) !=true ) {
+                    std::cerr << "Warning: The morphism "
+                              << it.value().to_string()
+                              << " from "
+                              << it.col()
+                              << " to "
+                              << it.row()
+                              << " has the wrong start and/or end object.";
                     return false;
                };
           };
@@ -608,7 +615,7 @@ bool Complex_Base<Obj,Mor,Coeff>::check() const
      d_squared.prune ( NonZero<Mor<Coeff>> );
      if ( d_squared.nonZeros() !=0 ) {
           std::cerr << "Warning: the differential does not satisfy d²=0."
-                    << "\nERROR: d²is not 0.\n\n"
+                    << "\nERROR: d² is not 0. Here is the d²-matrix:\n\n"
                     << Complex_Base<Obj,Mor,Coeff> ( objects,d_squared ).to_string();
           return false;
      }
@@ -751,7 +758,7 @@ void Complex_Base<Obj,Mor,Coeff>::isotopy (
      const Mor<Coeff> &mor )
 {
      if ( diffs.coeff ( start,end ).is_0() == false ) {
-          std::cerr <<"Error: This isotopy might not be legit and may change the homotopy class of the complex.";
+          std::cerr <<"Error: This isotopy might not be legit and may change the homotopy class of the complex.\n";
      } else {
           // performing isotopy via start ---mor.to_string()---> end
           // add all start------>end------>x
@@ -784,9 +791,15 @@ void Complex_Base<Obj,Mor,Coeff>::isotopy (
           diffs.prune ( NonZero<Mor<Coeff>> );
      };
      if ( this->check() == false ) {
+          this->check();
           std::cerr << "d² no longer satisfied. "
-                    << "Component end_isotopy ->start_isotopy"
-                    << this->diffs.coeff ( start,end ).to_string();
+                    << "Component end_isotopy ("
+                    << end 
+                    << ") -> start_isotopy ("
+                    << start 
+                    << ") = "
+                    << this->diffs.coeff ( start,end ).to_string()
+                    << ".\n";
           exit ( 1 );
      };
 };
@@ -1013,6 +1026,467 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::cone ( const int &n ) con
      Eigen::SparseMatrix<BNMor<Coeff>> new_diffs ( new_objects.size(),new_objects.size() );
      new_diffs.setFromTriplets ( triplets.begin(),triplets.end() );
      return Complex<BNObj,BNMor,Coeff> ( new_objects,new_diffs );
+};
+
+template<typename Coeff>
+Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex<BNObj,BNMor,Coeff> &cx2) const {
+     
+     std::vector<BNObj> new_objects {};
+     std::vector<Eigen::Triplet<BNMor<Coeff>>> triplets {};
+     // indices[iT,iB] = index of the (first) new generator
+     Eigen::Matrix<int,Eigen::Dynamic,Eigen::Dynamic> indices( this->objects.size(),cx2.objects.size() );
+     //
+     int counter {0};
+     int row {0};
+     int col {0};
+     for ( const auto &objT : this->objects ){
+          col = 0;
+          for ( const auto &objB : cx2.objects ){
+               indices(row,col) = counter;
+               if ( objT.get_idem() ){
+                    if ( objB.get_idem() ){
+                         new_objects.push_back(objT);
+                         new_objects.back().set_h(objB.get_h()+objT.get_h());
+                         new_objects.back().set_q(objB.get_q()+objT.get_q()-1);
+                         new_objects.push_back(objT);
+                         new_objects.back().set_h(objB.get_h()+objT.get_h());
+                         new_objects.back().set_q(objB.get_q()+objT.get_q()+1);
+                         ++counter;
+                    } else {
+                         new_objects.push_back(objT);
+                         new_objects.back().set_h(objB.get_h()+objT.get_h());
+                         new_objects.back().set_q(objB.get_q()+objT.get_q());
+                    };
+               } else {
+                    new_objects.push_back(objB);
+                    new_objects.back().set_h(objB.get_h()+objT.get_h());
+                    new_objects.back().set_q(objB.get_q()+objT.get_q());
+               };
+               ++counter;
+               ++col;
+          };
+          ++row;
+     };   
+     // add morphisms from morphisms at the top
+     BNMor<Coeff> mor {};
+     int n {0};
+     for ( int k=0; k<this->diffs.outerSize(); ++k ) {
+          for ( typename Eigen::SparseMatrix<BNMor<Coeff>>::InnerIterator it ( this->diffs,k ); it; ++it ) {
+               for ( size_t iB = 0; iB < cx2.objects.size(); ++iB ){
+                    if ( cx2.objects[iB].get_idem() ){
+                         // objB == ⬮
+                         if ( this->objects[ it.col() ].get_idem() && 
+                              !this->objects[ it.row() ].get_idem() ){
+                              // ⬮~~S^(2n-1)~>⬯
+                              for ( const auto &l : it.value().get_labels() ){
+                                   n = l.get_type();
+                                   if ( n < 0 ){
+                                        n = (1-n)/2;// n from formula
+                                        // arrow (1)--->.
+                                        row = indices(it.row(),iB);
+                                        col = indices(it.col(),iB);
+                                        if ( n % 2 == 0 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n,l.get_coeff()},
+                                                                  {-2*n,l.get_coeff()}}
+                                                               );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n,-l.get_coeff()},
+                                                                  {-2*n,l.get_coeff()}}
+                                                               );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                        // arrow (2)--->.
+                                        row = indices(it.row(),iB);
+                                        col = indices(it.col(),iB)+1;
+                                        if ( n == 1 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{0,l.get_coeff()}}
+                                                               );
+                                        } else if ( n % 2 == 0 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,-l.get_coeff()},
+                                                                  {2-2*n,l.get_coeff()}}
+                                                               );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,l.get_coeff()},
+                                                                  {2-2*n,l.get_coeff()}}
+                                                               );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                   };
+                              };
+                         };
+                         if ( !this->objects[ it.col() ].get_idem() && 
+                              this->objects[ it.row() ].get_idem() ){
+                              // ⬯~~S^(2n-1)~>⬮
+                              for ( const auto &l : it.value().get_labels() ){
+                                   n = l.get_type();
+                                   if ( n < 0 ){
+                                        n = (1-n)/2;// n from formula
+                                        // arrow .--->(1)
+                                        row = indices(it.row(),iB);
+                                        col = indices(it.col(),iB);
+                                        if ( n == 1 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{0,l.get_coeff()}}
+                                                               );
+                                        } else if ( n % 2 == 0 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,-l.get_coeff()},
+                                                                  {2-2*n,l.get_coeff()}}
+                                                               );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,l.get_coeff()},
+                                                                  {2-2*n,l.get_coeff()}}
+                                                               );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                   };
+                              };
+                         }; 
+                         if ( this->objects[ it.col() ].get_idem() && 
+                              this->objects[ it.row() ].get_idem() ){
+                              for ( const auto &l : it.value().get_labels() ){
+                                   n = l.get_type();
+                                   if ( n > 0 ){
+                                        // ⬮——D^n—>⬮
+                                        // arrow (2)--->(1)
+                                        row = indices(it.row(),iB);
+                                        col = indices(it.col(),iB)+1;
+                                        if ( n == 1 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{0,l.get_coeff()}}
+                                                               );
+                                        } else if ( n % 2 == 0 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,l.get_coeff()},
+                                                                  {2-2*n,-l.get_coeff()}}
+                                                               );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,l.get_coeff()},
+                                                                  {2-2*n,l.get_coeff()}}
+                                                               );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                        // arrow (2)--->(2)
+                                        row = indices(it.row(),iB)+1;
+                                        col = indices(it.col(),iB)+1;
+                                        if ( n % 2 == 0 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n,l.get_coeff()},
+                                                                  {-2*n,l.get_coeff()}}
+                                                               );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n,l.get_coeff()},
+                                                                  {-2*n,-l.get_coeff()}}
+                                                               );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                   } else {
+                                        // ⬮——S^(2n)—>⬮
+                                        n = -n/2;// n from formula
+                                        // arrow (1)--->(1)
+                                        row = indices(it.row(),iB);
+                                        col = indices(it.col(),iB);
+                                        if ( n % 2 == 0 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n,l.get_coeff()},
+                                                                  {-2*n,l.get_coeff()}}
+                                                               );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n,-l.get_coeff()},
+                                                                  {-2*n,l.get_coeff()}}
+                                                               );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                        // arrow (2)--->(1)
+                                        row = indices(it.row(),iB);
+                                        col = indices(it.col(),iB)+1;
+                                        if ( n == 1 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{0,l.get_coeff()}}
+                                                               );
+                                        } else if ( n % 2 == 0 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,-l.get_coeff()},
+                                                                  {2-2*n,l.get_coeff()}}
+                                                               );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,l.get_coeff()},
+                                                                  {2-2*n,l.get_coeff()}}
+                                                               );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                   };
+                              };
+                         };
+                         if ( !this->objects[ it.col() ].get_idem() && 
+                              !this->objects[ it.row() ].get_idem() ){
+                              // ⬯~~S^(2n)~>⬯
+                              for ( const auto &l : it.value().get_labels() ){
+                                   n = l.get_type();
+                                   if ( n < 0 ){
+                                        n = -n/2;// n from formula
+                                        row = indices(it.row(),iB);
+                                        col = indices(it.col(),iB);
+                                        if ( n % 2 == 0 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n,l.get_coeff()},
+                                                                  {-2*n,l.get_coeff()}}
+                                                               );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n,-l.get_coeff()},
+                                                                  {-2*n,l.get_coeff()}}
+                                                               );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                   };
+                              };
+                         };
+                    } else {
+                         // objB == ⬯
+                         triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> (         
+                              indices(it.row(),iB),
+                              indices(it.col(),iB),
+                              it.value() ) );
+                    };
+               };
+          };
+     };
+     // add morphisms from morphisms at the bottom
+     for ( int k=0; k<cx2.diffs.outerSize(); ++k ) {
+          for ( typename Eigen::SparseMatrix<BNMor<Coeff>>::InnerIterator it ( cx2.diffs,k ); it; ++it ) {
+               for ( size_t iT = 0; iT < this->objects.size(); ++iT ){
+                    if ( this->objects[iT].get_idem() ){
+                         // objT == ⬮
+                         if ( cx2.objects[ it.col() ].get_idem() && 
+                              !cx2.objects[ it.row() ].get_idem() ){
+                              // ⬮~~S^(2n-1)~>⬯
+                              for ( const auto &l : it.value().get_labels() ){
+                                   n = l.get_type();
+                                   if ( n < 0 ){
+                                        n = (1-n)/2;// n from formula
+                                        // arrow (1)--->.
+                                        row = indices(iT,it.row());
+                                        col = indices(iT,it.col());
+                                        mor = BNMor<Coeff>( new_objects[row],
+                                                            new_objects[col],
+                                                            {{-2*n,l.get_coeff()}}
+                                                          );
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                        // arrow (2)--->.
+                                        row = indices(iT,it.row());
+                                        col = indices(iT,it.col())+1;
+                                        if ( n == 1 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{0,l.get_coeff()}}
+                                                               );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,l.get_coeff()},
+                                                                  {2-2*n,l.get_coeff()}}
+                                                               );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                        
+                                   };
+                              };
+                         };
+                         if ( !cx2.objects[ it.col() ].get_idem() && 
+                              cx2.objects[ it.row() ].get_idem() ){
+                              // ⬯~~S^(2n-1)~>⬮
+                              for ( const auto &l : it.value().get_labels() ){
+                                   n = l.get_type();
+                                   if ( n < 0 ){
+                                        n = (1-n)/2;// n from formula
+                                        // arrow .--->(1)
+                                        row = indices(iT,it.row());
+                                        col = indices(iT,it.col());
+                                        if ( n == 1 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{0,l.get_coeff()}}
+                                                               );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,l.get_coeff()},
+                                                                  {2-2*n,l.get_coeff()}}
+                                                               );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                        // arrow .--->(2)
+                                        row = indices(iT,it.row())+1;
+                                        col = indices(iT,it.col());
+                                        mor = BNMor<Coeff>( new_objects[row],
+                                                            new_objects[col],
+                                                            {{n,l.get_coeff()}}
+                                                          );
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                   };
+                              };
+                         }; 
+                         if ( cx2.objects[ it.col() ].get_idem() && 
+                              cx2.objects[ it.row() ].get_idem() ){
+                              for ( const auto &l : it.value().get_labels() ){
+                                   n = l.get_type();
+                                   if ( n > 0 ){
+                                        // ⬮——D^n—>⬮
+                                        // arrow (1)--->(1)
+                                        row = indices(iT,it.row());
+                                        col = indices(iT,it.col());
+                                        if ( n % 2 == 0){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n,-l.get_coeff()}}
+                                                            );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n,l.get_coeff()}}
+                                                            );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                        // arrow (2)--->(2)
+                                        row = indices(iT,it.row())+1;
+                                        col = indices(iT,it.col())+1;
+                                        if ( n % 2 == 0){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{-2*n,-l.get_coeff()}}
+                                                            );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{-2*n,l.get_coeff()}}
+                                                            );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                        // arrow (2)--->(1)
+                                        row = indices(iT,it.row());
+                                        col = indices(iT,it.col())+1;
+                                        if ( n == 1 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{0,-l.get_coeff()}}
+                                                               );
+                                        } else if ( n % 2 == 0 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,l.get_coeff()},
+                                                                  {2-2*n,l.get_coeff()}}
+                                                               );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,-l.get_coeff()},
+                                                                  {2-2*n,-l.get_coeff()}}
+                                                               );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                   } else {
+                                        // ⬮——S^(2n)—>⬮
+                                        n = -n/2;// n from formula
+                                        // arrow (1)--->(1)
+                                        row = indices(iT,it.row());
+                                        col = indices(iT,it.col());
+                                        mor = BNMor<Coeff>( new_objects[row],
+                                                            new_objects[col],
+                                                            {{-2*n,l.get_coeff()}}
+                                                          );
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                        // arrow (2)--->(2)
+                                        row = indices(iT,it.row())+1;
+                                        col = indices(iT,it.col())+1;
+                                        mor = BNMor<Coeff>( new_objects[row],
+                                                            new_objects[col],
+                                                            {{n,l.get_coeff()}}
+                                                          );
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                        // arrow (2)--->(1)
+                                        row = indices(iT,it.row());
+                                        col = indices(iT,it.col())+1;
+                                        if ( n == 1 ){
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{0,l.get_coeff()}}
+                                                               );
+                                        } else {
+                                             mor = BNMor<Coeff>( new_objects[row],
+                                                                 new_objects[col],
+                                                                 {{n-1,l.get_coeff()},
+                                                                  {2-2*n,l.get_coeff()}}
+                                                               );
+                                        };
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                   };
+                              };
+                         };
+                         if ( !cx2.objects[ it.col() ].get_idem() && 
+                              !cx2.objects[ it.row() ].get_idem() ){
+                              // ⬯~~S^(2n)~>⬯
+                              for ( const auto &l : it.value().get_labels() ){
+                                   n = l.get_type();
+                                   if ( n < 0 ){
+                                        n = -n/2;// n from formula
+                                        row = indices(iT,it.row());
+                                        col = indices(iT,it.col());
+                                        mor = BNMor<Coeff>( new_objects[row],
+                                                            new_objects[col],
+                                                            {{n,l.get_coeff()},
+                                                             {-2*n,l.get_coeff()}}
+                                                          );
+                                        triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
+                                   };
+                              };
+                         };
+                    } else {
+                         // objT == ⬯
+                         triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> (         
+                              indices(iT,it.row()),
+                              indices(iT,it.col()),
+                              it.value() ) );
+                    };
+               };
+          };
+     };
+     
+     
+     
+     Eigen::SparseMatrix<BNMor<Coeff>> new_diffs ( new_objects.size(),new_objects.size() );
+     new_diffs.setFromTriplets ( triplets.begin(),triplets.end() );
+     return Complex<BNObj,BNMor,Coeff>( new_objects,new_diffs );
 };
 
 

@@ -58,6 +58,24 @@
                                                                    
     -s, --simplify        Attempts to simplify the diagram before
                           computing any invariants.
+    --sum <s1>:<s2>       Computes the complex of the tangle sum of two 
+                          Conway tangles (ie the tangle obtained by 
+                          stacking the first tangle on top of the other)
+                          from previously computed curves. 
+                          <s1> and <s2> specify the full relative paths 
+                          of the text file containing the curves for the 
+                          first and second tangle, respectively. Such
+                          files are stored by the program in separate 
+                          folders next to the standard .kht-files. 
+                          However, any text file can be used, as long as 
+                          its format agrees with the output format for 
+                          curves; see 'Output' in the documentation.
+    --sumnc <s1>:<s2>     Same as '--sum <s1>:<s2>', except that only 
+                          the non-compact curves are taken as input. 
+                          This option is useful if one is only interested
+                          in the non-compact curve of a tangle sum, since
+                          it runs much faster than '--sum <s1>:<s2>' if 
+                          the input curves contain many compact curves.
     -t, --test            Runs some tests.
     -v, --version         Returns the version of the program and exits.
     -w, --web             Prints the tangle input, (re)compiles and opens

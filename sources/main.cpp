@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <string>
 #include <getopt.h>
+#include <Eigen/Core>
 #include <Eigen/SparseCore>
 #include "headers/aux_sys.h"
 #include "headers/Complex.h"
@@ -74,6 +75,10 @@ int main ( int argc, char **argv )
      bool q_flag {false};// take quotient (of a strongly invertible knot)
      bool r_flag {false};// rationalquotient
      bool s_flag {false};// simplify flag
+     static int sum_flag {false};// tangle sum flag
+     static int sum_non_compact_flag {false};// tangle sum flag for ignoring compact input curves
+     std::string summand1 {};// relative file name for first summand
+     std::string summand2 {};// relative file name for second summand
      bool t_flag {false};// test flag
      bool v_flag {false};// version flag
      bool w_flag {false};// web/html flag
@@ -108,6 +113,8 @@ int main ( int argc, char **argv )
                {"quotient",  no_argument, 0, 'q'},      // Input
                {"rational",  required_argument, 0, 'r'},// Input
                {"simplify",  no_argument, 0, 's'},      // Input
+               {"sum",       required_argument, 0,  2 },// Exceptional
+               {"sumnc",     required_argument, 0,  1 },// Exceptional
                {"test",      no_argument, 0, 't'},      // Exceptional
                {"version",   no_argument, 0, 'v'},      // Exceptional
                {"web",       no_argument, 0, 'w'},      // Output
@@ -122,6 +129,22 @@ int main ( int argc, char **argv )
           };
           //
           switch ( optresult ) {
+          case 1: 
+               sum_non_compact_flag = true;
+          case 2: 
+               sum_flag = true;
+               try {
+                    std::string input = optarg;
+                    auto i {input.find_first_of ( ':' ) };
+                    summand1 = input.substr ( 0,i );
+                    summand2 = input.substr ( i+1 );
+               } catch ( ... ) {
+                    std::cerr << "INPUT ERROR: The option '--sum'/'--sumnc' needs to be followed by an.\n"
+                              << "             expression of the form '<summand1>:<summand2>.\n"
+                              << "             Type 'kht++ --help' for more info.\n";
+                    return 0;
+               };
+               break;
           case 'a':
                a_flag = true;
                break;
@@ -291,7 +314,19 @@ int main ( int argc, char **argv )
                return 0;
           };
      };
+     
 
+     
+     //
+     // Process coefficients
+     //
+     if ( coeffs.empty() ) {
+          coeffs.push_back ( default_coeff );
+     }
+     if ( a_flag ) {
+          coeffs = coeffs_all;
+     };
+     
 
 
      //
@@ -318,7 +353,7 @@ int main ( int argc, char **argv )
           //Test_Precurves<int>();
 //           Test_PrecomputedAlgebra<Z_mod<2>>();
           Test_ChainConversion<Z_mod<2>>();
-          Test_ChainConversion<Z_mod<5>>();
+//           Test_ChainConversion<Z_mod<5>>();
           return 0;
      };
      if ( v_flag ) {
@@ -330,6 +365,48 @@ int main ( int argc, char **argv )
                     << file_to_string("sources"+file_sep+"License-short.md");
           return 0;
      };
+     if ( sum_flag ){
+          switch ( coeffs.front() ) {
+               {
+               case 2:
+#define VALUE Z_mod<2>
+#include "headers/tanglesums.h"
+               }
+               {
+               case 3:
+#define VALUE Z_mod<3>
+#include "headers/tanglesums.h"
+               }
+               {
+               case 5:
+#define VALUE Z_mod<5>
+#include "headers/tanglesums.h"
+               }
+               {
+               case 7:
+#define VALUE Z_mod<7>
+#include "headers/tanglesums.h"
+               }
+               {
+               case custom_coeff:
+#define VALUE Z_mod<custom_coeff>
+#include "headers/tanglesums.h"
+               }
+               {
+               case 0:
+#define rationals
+#define VALUE Q
+#include "headers/tanglesums.h"
+#undef rationals
+               }
+               {
+               default:
+#define VALUE Z_mod<default_coeff>
+#include "headers/tanglesums.h"
+               }
+          };
+          return 0;
+     }; 
 
 
 
@@ -398,18 +475,6 @@ int main ( int argc, char **argv )
           
      } else if ( files.empty() ) {
           interactive ( metadata,files );
-     };
-
-
-     
-     //
-     // Process coefficients
-     //
-     if ( coeffs.empty() ) {
-          coeffs.push_back ( default_coeff );
-     }
-     if ( a_flag ) {
-          coeffs = coeffs_all;
      };
 
 

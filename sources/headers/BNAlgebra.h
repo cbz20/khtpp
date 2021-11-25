@@ -188,7 +188,9 @@ public:
      //                     //
      // getters and setters //
      //                     //
+     BNObj get_front() const;///< front objects of the morphism
      
+     BNObj get_back() const;///< back objects of the morphism
      /// type of same type as faceD and 0 if there is none.
      
      /// results in undefined behaviour unless the morphism is homogeneous of non-zero quantum grading, so that there is:

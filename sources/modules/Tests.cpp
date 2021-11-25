@@ -76,15 +76,43 @@ bool Test_ChainConversion( const int &details ){
 //      in = "h^ -2 q^ -4 δ^  0 ⬯~~S^4~>⬯—>⬯~>⬮—>⬮<~S^3~~⬯<—⬯";
 //      auto i13 {Chain<Coeff>( in )};
      
-     auto c1 {Chains<Coeff> (File("examples/tests/3_1/cxBNr-c2-d"))};
+     auto c1 {Chains<Coeff> (File("chains_test_input1"))};
+     auto cx1 = Complex<BNObj,BNMor,Coeff>(c1.non_compacts());
+     std::cout << cx1.to_chains().to_string();
+     auto c2 {Chains<Coeff> (File("chains_test_input2"))};
+     auto cx2 = Complex<BNObj,BNMor,Coeff>(c2.non_compacts());
+     std::cout << cx2.to_chains().to_string();
+//      for (auto &clink : c1.chains.front().clinks ){
+//           std::cout << clink.to_string()
+//                     << ": morphism goes from "
+//                     << clink.morphism.get_front().to_string()
+//                     << " to "
+//                     << clink.morphism.get_back().to_string()
+//                     << ".\n";
+//                     
+//      };
+//      for (auto &clink : c2.chains.front().clinks ){
+//           std::cout << clink.to_string()
+//                     << ": morphism goes from "
+//                     << clink.morphism.get_front().to_string()
+//                     << " to "
+//                     << clink.morphism.get_back().to_string()
+//                     << ".\n";
+//                     
+//      };
+//      std::cout << c1.to_string() << "\n";
+//      std::cout << "compacts:\n" << c1.compacts().to_string();
+//      std::cout << "non-compacts:\n" << c1.non_compacts().to_string();
      
-     std::cout << c1.to_string() << "\n";
-     std::cout << "compacts:\n" << c1.compacts().to_string();
-     std::cout << "non-compacts:\n" << c1.non_compacts().to_string();
-     
-     auto cx = Complex<BNObj,BNMor,Coeff>(c1);
-     std::cout << cx.to_chains().to_string();
-     
+     auto cx3 = cx1+cx2;
+//      std::cout << cx3.to_string();
+     cx3.check();
+     cx3.cancel();
+     cx3.check();
+//      std::cout << cx3.to_string();
+     cx3.clean_up();
+     std::cout << cx3.to_chains().to_string();
+
      return true;
 };
 

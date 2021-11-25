@@ -174,12 +174,17 @@ Clink<Coeff>::Clink ( const std::string &s ){
                          type *= std::stoi(str.substr(i+1));
                     };
                };
+               auto front {object};
                auto back {object};
                if ( type < 0 && ((type-1) % 2 == 0)){
-                    back = BNObj(!idem, h, q);
+                    if ( rightarrow ){
+                         back = BNObj(!idem, h, q);
+                    } else {
+                         front = BNObj(!idem, h, q);
+                    };
                };
                //
-               morphism = BNMor<Coeff>(object, back, {Label(type, coeff)});
+               morphism = BNMor<Coeff>(front, back, {Label(type, coeff)});
           };
      } catch (...){
           throw std::invalid_argument( "Invalid arrow format in the string '" + s + "'.\n");
@@ -837,8 +842,11 @@ Chains<Coeff>::Chains ( const File &file )
      std::cout << "Reading in chain from file '"
                << file.fullname()
                << "'...\n";
+     std::string test_for_empty {};
      for ( const auto &c : vec ){
-          if ( !c.empty() ){
+          test_for_empty = c;
+          test_for_empty.erase(std::remove(test_for_empty.begin(), test_for_empty.end(), ' '), test_for_empty.end());
+          if ( !test_for_empty.empty() ){
                try {
                     auto x {Chain<Coeff>( c )};
                     chains.push_back( x );

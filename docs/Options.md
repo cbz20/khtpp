@@ -157,6 +157,63 @@ Attempts to simplify the diagram before computing any invariants by doing some i
 
 
 
+\section TangleSums Tangle sums/tensor products of multicurves
+
+- \code{.sh} --sum <s1>:<s2>\endcode , \code{.sh} --sumnc <s1>:<s2> \endcode
+
+The first variant \code{.sh} --sum <s1>:<s2>\endcode computes the tensor product of two multicurves. This corresponds to taking the tangle sum of two Conway tangles (ie stacking the first tangle on top of the other). \code{.sh} <s1>\endcode and \code{.sh} <s2>\endcode specify the full relative paths of the text files containing the curves for the first and second tangle, respectively. Such files are stored by the program in separate folders next to the standard .kht-files.
+
+For example, after running \code{.sh} ./kht++ examples/pretzeltangles/PT2m3.kht\endcode, the folder \c examples/pretzeltangles/PT2m3/ contains a file \c cxBNr-c2 , which (apart from metadata) consists of the following line: 
+
+\code{.sh}
+1) h^-2 q^-7 δ^-3/2 ⬮<—D——⬮<~⬯<—⬯~>⬮—>⬮~>⬮—>⬮~>⬯
+\endcode
+
+After running \code{.sh} ./kht++ -d examples/tests/3_1.kht\endcode, the folder \c examples/tests/3_1/ contains a file \c cxBNr-c2-d :
+
+\code{.sh}
+1) h^6 q^12 δ^  0 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—
+2) h^0 q^ 1 δ^1/2 ⬮——D—>⬮~>⬮—>⬮~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯
+\endcode 
+
+So running
+
+\code{.sh}
+./kht++ --sum examples/pretzeltangles/PT2m3/cxBNr-c2:examples/tests/3_1/cxBNr-c2-d 
+\endcode 
+
+computes the tensor product of this curve with itself and produces the following output:
+
+\code{.sh}
+Reading in chain from file 'examples/pretzeltangles/PT2m3/cxBNr-c2'...
+...understood:h^-2 q^-7 δ^-3/2 ⬮<—D——⬮<~⬯<—⬯~>⬮—>⬮~>⬮—>⬮~>⬯
+Reading in chain from file 'examples/tests/3_1/cxBNr-c2-d'...
+...understood:h^6 q^12 δ^0 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—
+...understood:h^0 q^1 δ^1/2 ⬮——D—>⬮~>⬮—>⬮~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯
+First summand:
+1) h^-2 q^-7 δ^-3/2 ⬮<—D——⬮<~⬯<—⬯~>⬮—>⬮~>⬮—>⬮~>⬯
+Second summand:
+1) h^6 q^12 δ^  0 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—
+2) h^0 q^ 1 δ^1/2 ⬮——D—>⬮~>⬮—>⬮~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯
+Computing the tangle sum. The resulting complex has 441 generators. Now cancelling.
+Cleaned-up complex in 30 iterations and 0.278s.
+Tangle sum:
+1) h^ 6 q^ 8 δ^  -2 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—
+2) h^ 1 q^ 0 δ^  -1 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—
+3) h^ 2 q^ 2 δ^  -1 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—
+4) h^ 3 q^ 4 δ^  -1 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—
+5) h^-1 q^-2 δ^   0 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—
+6) h^-5 q^-8 δ^   1 ⬯~~S~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯<—
+7) h^-2 q^-5 δ^-1/2 ⬮——D—>⬮~>⬮—>⬮~>⬮—>⬮~>⬯—>⬯<~⬮<—⬮<~⬮<—⬮<~⬯
+\endcode
+ 
+The second variant \code{.sh} --sumnc <s1>:<s2>\endcode does the same as the first, except that only the non-compact components of the multicurves are considered in the input. In the example above, this would have the effect of ignoring the first component of the second multicurve. If the input curves contain many compact curves, this makes the computation run much faster than \code{.sh} --sum <s1>:<s2>\endcode. This option is useful if one is only interested in the non-compact curve of a tangle sum. 
+
+Any pair of input files can be used in these options, as long as the multicurves are stored in the standard output format for multicurves (see \ref Output).
+
+\warning This option produces the wrong result if one works with any coefficients other than \f$\mathbb{Z}/2\f$. 
+\todo Make this option work for all coefficients (ie add signs from tensor product sign rule).
+
 \section Tests Tests
 
 - \c -t , \c &ndash;&ndash;tests
