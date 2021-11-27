@@ -24,6 +24,7 @@
 #include <vector>
 #include <algorithm> 
 #include <list>
+#include <Eigen/Core>
 #include "aux_sys.h"
 #include "Coefficients.h"
 #include "BNAlgebra.h"
@@ -208,7 +209,7 @@ public:
 // Forward declare templates for friends of CobMor:
 //template<typename Coeff> CobMor<Coeff> to_coeffs(const CobMor<int> cob);
 // template <typename Coeff>
-// using Decos = typename std::list<Deco<Coeff>>;
+// using Decos = typename std::vector<Deco<Coeff>>;
 
 /// morphism in the cobordism category 
 
@@ -220,19 +221,19 @@ template<typename Coeff> class CobMor
 private:
      CobObj front;
      CobObj back;
-     std::list<Deco<Coeff>> decos;
+     std::vector<Deco<Coeff>> decos;// using lists here instead makes the program marginally faster (219sec vs 223sec). 
      IndexLL comps;
 
 public:
      CobMor (
           CobObj front,
           CobObj back,
-          std::list<Deco<Coeff>> decos,
+          std::vector<Deco<Coeff>> decos,
           IndexLL comps );///< standard constructor, specifying the components; only to be used if the components are known to be in the correct order
      CobMor (
           CobObj front,
           CobObj back,
-          std::list<Deco<Coeff>> decos);///< constructor, which generates the list of components automatically; this is slower than the standard constructor
+          std::vector<Deco<Coeff>> decos);///< constructor, which generates the list of components automatically; this is slower than the standard constructor
      CobMor ( int i );///< constructor for the zero-cobordism (needed by the Eigen Template Library)
      CobMor();///< constructor for the zero-cobordism (needed by the Eigen Template Library)
 
@@ -325,6 +326,18 @@ bool CobNonZero (
      const int& col,
      const CobMor<Coeff> &value );///< true if morphism is zero; this function is needed by the Eigen Template Library
 
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//                  BoolVec
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+/// Wrapper class for some precomputed data needed for the multiplication of CobMor
+
+struct BoolVec
+{
+     static std::vector<std::vector<Dots>> vec;///< the ith entry is a list of all possible instances of Dots of length i, except the instance with 1 in all entries.
+     static std::vector<std::vector<int>> vec_sum;///< vec_sum[i][j] = number of 1s in vec[i][j]. 
+     static int max; ///< always equal to vec.size()-1 (and vec_sum.size()-1)
+};
 
 /// compute new order for comp_names
 

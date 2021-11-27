@@ -462,7 +462,7 @@ Deco<Coeff> Deco<Coeff>::operator* (
      // making a copy
      new_dots.insert ( new_dots.end(),deco2.dots.begin(),deco2.dots.end() );
      // concatenate dot-vectors (deco2 comes second)
-     return Deco<Coeff> ( hpower+deco2.hpower,new_dots,coeff*deco2.coeff );
+     return Deco<Coeff> ( hpower+deco2.hpower,new_dots,coeff*(deco2.coeff) );
 }
 
 
@@ -493,7 +493,7 @@ template<typename Coeff>
 CobMor<Coeff>::CobMor (
      CobObj front,
      CobObj back,
-     std::list<Deco<Coeff>> decos,
+     std::vector<Deco<Coeff>> decos,
      IndexLL comps )
      :
      front ( front ),
@@ -507,7 +507,7 @@ template<typename Coeff>
 CobMor<Coeff>::CobMor (
      CobObj front,
      CobObj back,
-     std::list<Deco<Coeff>> decos )
+     std::vector<Deco<Coeff>> decos )
      :
      front ( front ),
      back ( back ),
@@ -680,12 +680,12 @@ CobMor<Coeff> CobMor<Coeff>::simplify()
      // We may now assume that the list of decos is non-empty.
      //  1) order decos using the overloaded operation< on decos
      //
-     //std::sort ( decos.begin(),decos.end() );
-     //old version with decos an instance of std::vector<Decos>.
-     decos.sort();
+     std::sort(decos.begin(),decos.end());
+     // alternative with decos = std::list<Deco>: 
+     // decos.sort() // Could be marginally faster
      //  2) for each deco, except the first, check if it is equal to the
      //  predecessor except for the coefficient.
-     std::list<Deco<Coeff>> new_decos {decos.front() };
+     std::vector<Deco<Coeff>> new_decos {decos.front() };
      decos.erase ( decos.begin() );
      for ( const auto &deco : decos ) {
           if ( deco == new_decos.back() ) {
@@ -702,9 +702,6 @@ CobMor<Coeff> CobMor<Coeff>::simplify()
           new_decos.pop_back();
      };
      decos = new_decos;
-     //std::cout << this->to_string() << std::flush;
-     //CobMor<Coeff> cob =*this;
-     //std::cout << "flush" << std::flush;
      return *this;
 }
 
@@ -785,7 +782,7 @@ template<typename New_Coeff>
 CobMor<New_Coeff> CobMor<Z_mod<integer_simulant>>::to_coeffs() const
 {
      //std::cout << << "Converting from Z to " << which_coeff ( New_Coeff ( 0 ) );
-     std::list<Deco<New_Coeff>> new_decos;
+     std::vector<Deco<New_Coeff>> new_decos;
      for ( const auto &deco : decos ) {
           New_Coeff new_coeff = deco.coeff.n;
           if ( coeff_is_0 ( new_coeff ) != true ) {
@@ -865,7 +862,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCup22 (
      //updating the coefficient according to the following three cases:
      auto old_decos {decos};//make copy
      // 0--->0:
-     std::list<Deco<Coeff>> new_decos;
+     std::vector<Deco<Coeff>> new_decos;
      if ( from == 0 && to == 0 ) {
           for ( auto &deco : old_decos ) {
                // dot == 0  == > 1
@@ -981,7 +978,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCupMixed (
      // updating the corresponding entry of deco.dots in all decos and
      // updating the coefficient according to the following three cases:
      auto old_decos = decos;//make copy
-     std::list<Deco<Coeff>> new_decos;
+     std::vector<Deco<Coeff>> new_decos;
      // 0--->.( = 0):
      if ( from == 0 ) {
           for ( auto &deco : old_decos ) {
@@ -1078,7 +1075,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCup11 (
      IndexLL new_comps = start.components_to ( end );
      // Update the decos:
      auto old_decos = decos;//make copy
-     std::list<Deco<Coeff>> new_decos;
+     std::vector<Deco<Coeff>> new_decos;
      //
      if ( comp_i0 == comp_i1 ) {
           // Cupping this morphism adds another boundary component, so we
@@ -1224,7 +1221,7 @@ bool CobMor<Coeff>::operator  == ( const CobMor<Coeff> &cob2 ) const
      if ( decos.size() != cob2.decos.size() ) {
           return false;
      };
-     std::list<Deco<Coeff>> temp {cob2.decos};
+     std::vector<Deco<Coeff>> temp {cob2.decos};
      for ( const auto &deco : decos ) {
           // testing if the two decorations are equal as sets. We assume
           // that 'cob1' and 'cob2' are fully simplified.
@@ -1257,9 +1254,9 @@ template<typename Coeff>
 CobMor<Coeff> CobMor<Coeff>::operator- () const
 {
      // multiply the cobordism by -1;
-     std::list<Deco<Coeff>> new_decos {decos};
+     std::vector<Deco<Coeff>> new_decos {decos};
      for ( auto &deco : new_decos ) {
-          deco.coeff = -1*deco.coeff;
+          deco.coeff = -deco.coeff;
      };
      return CobMor<Coeff> ( front,back,new_decos,comps );
 }
@@ -1378,14 +1375,14 @@ CobMultHelper::CobMultHelper ( IndexL partition1,
 /// helper function for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
 inline std::tuple<std::vector<CobMultHelper>,IndexL> CobMultHelperFun ( const IndexLL &new_comps, const Arcs &arcs, const IndexLL &comps0, const IndexLL &comps1 )
 {
-     std::vector<CobMultHelper> output;
+     std::vector<CobMultHelper> output {};
      IndexLL partition { partitionGenerator ( new_comps,arcs ) };
      //std::cout << "partition: " << stringLL ( partition ) << std::flush ;
      output.reserve ( partition.size() );
-     IndexL new_order;
-     IndexL part1;
-     IndexL part2;
-     IndexL comp; //'old_comp'
+     IndexL new_order {};
+     IndexL part1 {};
+     IndexL part2 {};
+     IndexL comp {}; //'old_comp'
 
      // part1/2: indices of components of cob1/cob2 that are from
      // the intersection of cob1/cob2 with the old component
@@ -1419,84 +1416,47 @@ inline std::tuple<std::vector<CobMultHelper>,IndexL> CobMultHelperFun ( const In
      return { output,new_order };
 };
 
-/// helper function for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
-template<unsigned int n>
-std::vector<Dots> vec_l_Generator ( )
-{
-     std::vector<Dots> vec_l = {{0},{1}};
-     while ( vec_l.front().size() < n ) {
-          std::vector<Dots> temp = vec_l;
-          for ( auto &vec:temp ) {
-               vec.push_back ( 1 );
-          };
-          for ( auto &vec:vec_l ) {
-               vec.push_back ( 0 );
-          };
-          vec_l.insert ( vec_l.end(),temp.begin(),temp.end() );
-     };
-     vec_l.pop_back(); // delete the constant 1 dot-vector
-     return vec_l;
-};
+int BoolVec::max {1};
+std::vector<std::vector<Dots>> BoolVec::vec {{},{{0}}};
+std::vector<std::vector<int>> BoolVec::vec_sum {{},{0}};
+// the first entry of vec will not be used, but it is needed to get the indexing right. The same applies to vec_sum.
 
-/// helper function for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
-inline std::vector<Dots> vec_l_default ( const unsigned int &n )
-{
-     std::vector<Dots> vec_l {{0},{1}};
-     std::vector<Dots> temp;
-     while ( vec_l.front().size() < n ) {
-          temp = vec_l;
-          for ( auto &vec:temp ) {
-               vec.push_back ( 1 );
-          };
-          for ( auto &vec:vec_l ) {
-               vec.push_back ( 0 );
-          };
-          vec_l.insert ( vec_l.end(),temp.begin(),temp.end() );
-     };
-     vec_l.pop_back(); // delete the constant 1 dot-vector
-     return vec_l;
-};
 
-/// helper function for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
-inline std::vector<Dots> vec_l ( const int &m )
-{
-     // attempt to precompute this at compile time.
-     switch ( m ) {
-     case 1:
-          return vec_l_Generator<1>();
-          break;
-     case 2:
-          return vec_l_Generator<2>();
-          break;
-     case 3:
-          return vec_l_Generator<3>();
-          break;
-     case 4:
-          return vec_l_Generator<4>();
-          break;
-     case 5:
-          return vec_l_Generator<5>();
-          break;
-     case 6:
-          return vec_l_Generator<6>();
-          break;
-     case 7:
-          return vec_l_Generator<7>();
-          break;
-     case 8:
-          return vec_l_Generator<8>();
-          break;
-     case 9:
-          return vec_l_Generator<9>();
-          break;
-     case 10:
-          return vec_l_Generator<10>();
-          break;
-     case 11:
-          return vec_l_Generator<11>();
-          break;
-     default:
-          return vec_l_default ( m );
+/// computes more entries for BoolVec::vec if BoolVec::max < n
+void expand_vec ( const int &n ){
+     std::vector<Dots> temp {};
+     std::vector<int> temp_sum {};
+     for (int current_max = BoolVec::max; current_max < n; ++current_max ) {
+          // create temporary copy of last entry of vec to append 1s
+          ++BoolVec::max;
+          temp = BoolVec::vec.back();
+          temp_sum = BoolVec::vec_sum.back();
+          for ( auto &v : temp ) {
+               v.push_back ( 1 );
+          };
+          for ( auto &v : temp_sum ) {
+               ++v;
+          };
+          // copy the last entry of vec and append dots_all_1 to it 
+          Dots dots_all_1 {};
+          for ( int j = 0; j < current_max; ++j ){
+               dots_all_1.push_back(1);
+          };
+          BoolVec::vec.push_back( BoolVec::vec.back() );
+          BoolVec::vec_sum.push_back( BoolVec::vec_sum.back() );
+          // append 0s to all Dots in new last entry of vec
+          BoolVec::vec.back().push_back( dots_all_1 );
+          BoolVec::vec_sum.back().push_back( current_max );
+          for ( auto &v : BoolVec::vec.back() ) {
+               v.push_back ( 0 );
+          };
+          // append temporary vector to last entry of vec
+          BoolVec::vec.back().insert ( BoolVec::vec.back().end(),
+                                       temp.begin(),
+                                       temp.end() );
+          BoolVec::vec_sum.back().insert ( BoolVec::vec_sum.back().end(),
+                                           temp_sum.begin(),
+                                           temp_sum.end() );
      };
 };
 
@@ -1522,52 +1482,70 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
      IndexL new_order { std::get<1> ( X ) };
 
      // temporary variables neded below
-     std::list<Deco<Coeff>> new_decos {};
-     std::vector<std::list<Deco<Coeff>>> part_decos {};
-     std::list<Deco<Coeff>> new_part_decos {};
-     std::list<Deco<Coeff>> more_decos {};
-     std::list<Deco<Coeff>> temp {};
+     std::vector<Deco<Coeff>> new_decos {};
+     std::vector<std::vector<Deco<Coeff>>> part_decos {};
+     std::vector<Deco<Coeff>> new_part_decos {};
+     std::vector<Deco<Coeff>> more_decos {};
+     std::vector<Deco<Coeff>> temp {};
      unsigned int sum {0};
      unsigned int n {0};
      unsigned int g {0};
      int r {0};
-     //auto vec_l_vec = vec_l_vec_Generator ( N );// TODO: this should be computed at compile time
-
-     for ( const auto &deco1 : cob1.decos ) {
-          for ( const auto &deco2 : decos ) {
+     
+//      std::vector<int> r1 {};
+//      r1.reserve( cobMultVec.size() );
+//      Eigen::Matrix<int,Eigen::Dynamic,Eigen::Dynamic> r2( decos.size(),
+//                                                           cobMultVec.size() );
+//      for ( int j = 0; j < decos.size(); ++j ) {
+//           for ( int k = 0; k < cobMultVec.size(); ++k ) {
+//                r = 0;// total #dots on this old component
+//                for ( const auto &l : cobMultVec[k].partition2 ) {
+//                     r +=  decos[j].dots[l];
+//                };
+//                r2.coeffRef(j,k) = r;
+//           };
+//      };
+     for ( int i=0; i < cob1.decos.size(); ++i ) {
+//           r1.clear();
+//           for ( const auto &c : cobMultVec ) {
+//                r = 0;// total #dots on this old component
+//                for ( const auto &l : c.partition1 ) {
+//                     r +=  cob1.decos[i].dots[l];
+//                };
+//                r1.push_back( r );
+//           };
+          for ( int j=0; j < decos.size(); ++j ) {
                part_decos.clear();
                // for each element of the partition, compute the partial
                // decorations on the new components corresponding to that
                // element; a partial decoration is of type 'Deco', but the
                // length of the dot-vectors are equal to the length of the
                // partition element.
-               for ( const auto &e : cobMultVec ) {
-                    r = 0;// total #dots on this old component
-                    for ( const auto &j : e.partition1 ) {
-                         r +=  deco1.dots[j];
+               for ( int k = 0; k < cobMultVec.size(); ++k ) {
+//                     r = r1[k]+r2.coeff(j,k);// total #dots on this old component
+                    r = 0;
+                    for ( const auto &l : cobMultVec[k].partition1 ) {
+                         r +=  cob1.decos[i].dots[l];
                     };
-                    for ( const auto &j : e.partition2 ) {
-                         r +=  deco2.dots[j];
+                    for ( const auto &l : cobMultVec[k].partition2 ) {
+                         r +=  decos[j].dots[l];
                     };
-                    n = e.partitionLength;
-                    g = e.genus;
+                    n = cobMultVec[k].partitionLength;
+                    g = cobMultVec[k].genus;
                     new_part_decos.clear();
                     if ( r > 0 ) {
                          new_part_decos.push_back ( Deco<Coeff> ( g+r-1,Dots ( n,1 ),1 ) );
                     } else {
-                         // precompute this
-                         for ( auto &vec : vec_l ( n ) ) {
-                              sum = 0;
-                              for ( const bool &v : vec ) {
-                                   if ( v ) {
-                                        sum++;
-                                   };
-                              };
+                         // make sure, CobMor::vec[n] is already computed.
+                         if ( n > BoolVec::max ){
+                              expand_vec( n );
+                         };
+                         for ( int v=0; v < BoolVec::vec[n].size(); ++v ) {
                               // coefficients/signs for the deco of each dot_vector
                               if ( ( g+n-sum ) %2 == 0 ) {
-                                   new_part_decos.push_back ( Deco<Coeff> ( g+n-sum-1,vec,-1 ) );
+                                   new_part_decos.push_back ( Deco<Coeff> ( g+n-BoolVec::vec_sum[n][v]-1,BoolVec::vec[n][v],-1 ) );
                               } else {
-                                   new_part_decos.push_back ( Deco<Coeff> ( g+n-sum-1,vec,1 ) );
+                                   new_part_decos.push_back ( Deco<Coeff> ( g+n-BoolVec::vec_sum[n][v]-1,BoolVec::vec[n][v],1 ) );
                               };
                          };
                          if ( g%2 == 1 ) { //genus odd
@@ -1596,9 +1574,9 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
                // now:
                for ( auto &deco : more_decos ) {
                     deco = deco*Deco<Coeff> (
-                                deco1.hpower+deco2.hpower,
+                                cob1.decos[i].hpower+decos[j].hpower,
                                 {},
-                                deco1.coeff*deco2.coeff );
+                                cob1.decos[i].coeff*decos[j].coeff );
                };
                new_decos.insert ( new_decos.end(),more_decos.begin(),more_decos.end() );
           };
@@ -1613,7 +1591,7 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
 template<typename Coeff>
 CobMor<Coeff> CobMor<Coeff>::operator+ (
      const CobMor<Coeff> &cob2 ) const
-{
+{     
      if ( decos.empty() ) {
           // cob1 = 0, so returning cob2
           return cob2;
@@ -1621,8 +1599,8 @@ CobMor<Coeff> CobMor<Coeff>::operator+ (
      if ( cob2.decos.empty() ) {
           //  cob2 = 0, so returning cob1
           return *this;
-     };
-     std::list<Deco<Coeff>> new_decos = decos;// concatenate decos1 and decos2
+     };     
+     std::vector<Deco<Coeff>> new_decos = decos;// concatenate decos1 and decos2
      new_decos.insert ( new_decos.end(), cob2.decos.begin(), cob2.decos.end() );
      return CobMor<Coeff> ( front, back, new_decos, comps ).simplify();
 }
