@@ -450,7 +450,7 @@ bool Deco<Coeff>::operator< ( const Deco<Coeff> &deco2 ) const
           };
           i++;
      }
-     return hpower <= deco2.hpower;
+     return hpower < deco2.hpower;
 }
 
 template<typename Coeff>
