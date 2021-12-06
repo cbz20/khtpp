@@ -1487,7 +1487,6 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
      std::vector<Deco<Coeff>> new_part_decos {};
      std::vector<Deco<Coeff>> more_decos {};
      std::vector<Deco<Coeff>> temp {};
-     unsigned int sum {0};
      unsigned int n {0};
      unsigned int g {0};
      int r {0};
@@ -1542,7 +1541,7 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
                          };
                          for ( int v=0; v < BoolVec::vec[n].size(); ++v ) {
                               // coefficients/signs for the deco of each dot_vector
-                              if ( ( g+n-sum ) %2 == 0 ) {
+                              if ( ( g+n-BoolVec::vec_sum[n][v] ) %2 == 0 ) {
                                    new_part_decos.push_back ( Deco<Coeff> ( g+n-BoolVec::vec_sum[n][v]-1,BoolVec::vec[n][v],-1 ) );
                               } else {
                                    new_part_decos.push_back ( Deco<Coeff> ( g+n-BoolVec::vec_sum[n][v]-1,BoolVec::vec[n][v],1 ) );
