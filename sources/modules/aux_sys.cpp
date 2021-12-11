@@ -194,7 +194,7 @@ std::string stringL ( const T &List )
      };
      std::string str="[";
      for ( const int &i : List ) {
-          str+=std::to_string ( i )+",";
+          str+=std::to_string ( int(i) )+",";
      };
      str.pop_back();
      str+="]";

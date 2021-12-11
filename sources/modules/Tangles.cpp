@@ -642,7 +642,7 @@ Complex<CobObj,CobMor,Coeff> Tangle::CobComplex ( Complex<CobObj,CobMor,Coeff> c
           std::vector<CobObj> objects{CobObj ( top ) };
           Eigen::SparseMatrix<CobMor<Coeff>> diffs ( 1,1 );
           cx = { objects,diffs };
-     } else if ( top != cx.get_objects().front().get_bot() ) {
+     } else if ( top != 2 * cx.get_objects().front().get_strands() -cx.get_objects().front().get_top() ) {
           // sanity checks
           std::cerr << "unable to add tangle to complex, since the number of tangle ends do not match.";
           exit ( 1 );
@@ -707,15 +707,15 @@ Complex<CobObj,CobMor,Coeff> Tangle::CobComplex ( Complex<CobObj,CobMor,Coeff> c
                // Case l or r : ↶ or ↷
                cx.AddCap ( i+top );
           };
-//           if (cx.check()==false){
-//                std::cerr << "Failed d²=0 before cancellation.";
-//                exit(1);
-//           };
+          if (cx.check()==false){
+               std::cerr << "Failed d²=0 before cancellation.";
+               exit(1);
+          };
           cx.cancel();
-//           if (cx.check()==false){
-//                std::cerr << "Failed d²=0 after cancellation.";
-//                exit(1);
-//           };
+          if (cx.check()==false){
+               std::cerr << "Failed d²=0 after cancellation.";
+               exit(1);
+          };
      };
      if ( with_feedback ) {
           std::cout << "\33[2K\rComputed cobordism complex with "

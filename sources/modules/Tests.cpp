@@ -168,11 +168,11 @@ bool Test_Cob ( const int &details )
                "%%%%%%%%%%%%%%%%%%%%%%\n"
                "\n";
 
-
+/*
 
      // basic objects
-     std::cout << "******basic (1,3)-tangles\n";
-     if ( details==1 ) {
+    if ( details==1 ) {
+          std::cout << "******basic (1,3)-tangles\n";
           std::cout << "\n***b.print():\n";
           b1.print();
           std::cout << "\n***c.print():\n";
@@ -183,8 +183,87 @@ bool Test_Cob ( const int &details )
           std::cout << "\n***c_hqq.print():\n";
           c_hqq.print();
      };
+     */
+     int number_of_strands {4};
+     std::cout << "Testing init of PCA::vec:" << PCA::vec.size() << std::flush;
+     expand_vec_if_needed( number_of_strands );
+     std::cout << "arcs representing all tangles with up to "
+               << number_of_strands
+               << " strands: \n";
 
+     for ( auto a : PCA::vec ){
+          std::cout << "[";
+          for (auto b : a ){
+               std::cout << "[ ";
+               for ( auto c : b ){
+                    std::cout << int(c) << " ";
+               };
+               std::cout << "]";
+          };
+          std::cout << "]\n\n";    
+     };
+     std::cout << "vec_sum lookup-tables:\n";
+     for ( auto a : PCA::vec_sum ){
+          std::cout << "[";
+          for (auto b : a ){
+               std::cout << b << " ";
+          };
+          std::cout << "]\n\n";    
+     };
+     std::cout << "Testing init of gens:" << PCA::gens.size() << std::flush;
+     expand_gens_if_needed( number_of_strands );
+     std::cout << "arcs representing all tangles with up to "
+               << number_of_strands
+               << " strands: \n";
 
+     for ( auto a : PCA::gens ){
+          std::cout << "[";
+          for (auto b : a ){
+               std::cout << "[ ";
+               for ( auto c : b.arcs ){
+                    std::cout << int(c) << " ";
+               };
+               std::cout << "]";
+          };
+          std::cout << "]\n\n";    
+     };
+     
+     std::cout << " addCup lookup-tables:\n";
+     for ( auto strands_no : PCA::addCup ){
+          std::cout << "[";
+          for (auto cap_no : strands_no ){
+               std::cout << "[ ";
+               for ( auto e : cap_no ){
+                    std::cout << e << " ";
+               };
+               std::cout << "]";
+          };
+          std::cout << "]\n\n";    
+     };
+     std::cout << " AddCupGivesClosedComponent lookup-tables:\n";
+     for ( auto a : PCA::addCupGCC ){
+          std::cout << stringLL(a) << "\n\n";
+     };
+     std::cout << " addCap lookup-tables:\n";
+     for ( auto strands_no : PCA::addCap ){
+          std::cout << "[";
+          for (auto cap_no : strands_no ){
+               std::cout << "[ ";
+               for ( auto e : cap_no ){
+                    std::cout << e << " ";
+               };
+               std::cout << "]";
+          };
+          std::cout << "]\n\n";
+     };
+     
+     auto arcs = Arcs(5);
+     arcs.print();
+     arcs.rotate( 5 );
+     arcs.print();
+     auto parallel = CobObj(1);
+     parallel.print();
+     
 
      // basic morphisms
      Deco<Coeff> deco0 {0,{0},1};
@@ -193,23 +272,24 @@ bool Test_Cob ( const int &details )
      Deco<Coeff> deco3 {0,{1,0},1};
 
 
-
      std::vector<Deco<Coeff>> decos {deco2, deco1, deco3};
      CobMor<Coeff> zero_mor = CobMor<Coeff> ( 1 );
-     CobMor<Coeff> S_bc=CobMor<Coeff> ( b1,c1, {deco0} );
-     CobMor<Coeff> S_cb=CobMor<Coeff> ( c1,b1, {deco0} );
+     CobMor<Coeff> S_bc=CobMor<Coeff> ( 2,2,0,1, {deco0} );
+     CobMor<Coeff> S_cb=CobMor<Coeff> ( 2,2,1,0, {deco0} );
      //  S_bc.print();
      //  S_cb.print();
      std::cout << "\n******multiplication in Cob\n"  <<std::flush;
      CobMor<Coeff> SS = S_bc * S_cb;
      std::cout << "\n****** after multiplication in Cob\n" <<std::flush;
-     CobMor<Coeff> ExpectedResult = CobMor<Coeff> ( c1,c1,decos );
+     CobMor<Coeff> ExpectedResult = CobMor<Coeff> ( 2,2,1,1,decos );
      test ( "saddle*saddle",SS==ExpectedResult );
      if ( details==1 ) {
+          S_bc.print();
+          S_cb.print();
           SS.print();
      };
 
-
+/*
 
      CobMor<Coeff> D=CobMor<Coeff> ( b1,b1, {deco2} );
      CobObj clt1 {1,5,{1,0,3,2,5,4},0,0};
@@ -232,7 +312,7 @@ bool Test_Cob ( const int &details )
      test ( "-cob1",cob4==ExpectedResult );
      if ( details==1 ) {
           cob4.print();
-     };
+     };*/
 
 //      std::cout << "\nTesting AddCup/AddCap:\n";
 //      std::cout << "b1:\n";
@@ -350,6 +430,8 @@ bool Test_Complex ( const int &details )
 {
      //0 means terse output
      //1 means more details
+     
+     /*
      std::cout << "\n"
                "%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
                "%%% BEGIN Test_Complex %%%\n"
@@ -400,6 +482,7 @@ bool Test_Complex ( const int &details )
      if ( details==1 ) {
           cx2.print();
      };
+     */
 //      std::cout << "Testing AddCap(1)\n";
 //      auto cx2AddCap1 = cx2.AddCap( 0 );
 //      if ( details==1 ) {
@@ -852,17 +935,17 @@ bool Test_PrecomputedAlgebra ( const int &details )
                "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"
                "\n";
 
-     std::cout << "\n\n   Catalan tangles\n\n";
-     std::vector<std::vector<CobObj>> Catalantangles;
-     std::vector<CobObj> temp;
-     for ( TE i = 1; i < 10 ; ++i ) {
-          temp = {};
-          std::cout << CatalanTangles ( i ).size() << "\n";
-          for ( const auto &e : CatalanTangles ( i ) ) {
-               temp.push_back ( CobObj ( 2*i,0,e ) );
-          };
-          Catalantangles.push_back ( temp );
-     };
+//      std::cout << "\n\n   Catalan tangles\n\n";
+//      std::vector<std::vector<CobObj>> Catalantangles;
+//      std::vector<CobObj> temp;
+//      for ( TE i = 1; i < 10 ; ++i ) {
+//           temp = {};
+//           std::cout << CatalanTangles ( i ).size() << "\n";
+//           for ( const auto &e : CatalanTangles ( i ) ) {
+//                temp.push_back ( CobObj ( 2*i,0,e ) );
+//           };
+//           Catalantangles.push_back ( temp );
+//      };
      
      std::cout << "\n"
                "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n"

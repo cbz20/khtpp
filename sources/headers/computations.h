@@ -39,6 +39,8 @@ if ( coeffs.size() > 1 )
 };
 #endif
 
+cx.check();
+
 for ( auto s : p_opt_suffix ) {
     auto cxs {cx};
     auto T0s {T0};

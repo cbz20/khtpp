@@ -26,46 +26,398 @@
 #endif
 
 
+
 /// \file Cob.cpp
 /// \brief implements the universal cobordism category from \cite BarNatanKhT
+
+
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//                  Precomputed Algebra
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+// int PCA::max_strands {1};
+std::vector<std::vector<Arcs>> PCA::gens {};
+std::vector<std::vector<std::vector<size_t>>> PCA::addCup;
+std::vector<std::vector<std::vector<bool>>> PCA::addCupGCC;
+std::vector<std::vector<std::vector<size_t>>> PCA::addCap;
+
+/// computes more entries for PCA::gens if PCA::max_strands < n  
+void expand_gens_if_needed ( const int &n ){
+     while ( PCA::gens.size() < n+1 ) {
+          if ( PCA::gens.size() < 2 ){
+               PCA::gens = {{Arcs({})},{Arcs({1,0})}};
+               PCA::addCup = {{},{{0}}};
+               PCA::addCupGCC = {{},{{true}}};
+               PCA::addCap = {{{0}}};
+          } else {
+               std:: cout << "\nExpanding generators to "
+                         << PCA::gens.size()
+                         << "="
+                         << PCA::addCup.size()
+                         << "="
+                         << PCA::addCupGCC.size()
+                         << "="
+                         << (PCA::addCap.size()+1)
+                         << " strands.\n\n";
+               if ( n > maximum_number_of_tangle_strands ){
+                    std::cerr << "There are "
+                              << n
+                              << " tangle strands, which is too many."
+                              << " Try inceasing the value of 'maximum_number_of_tangle_strands' in 'sources/headers/constants.h'. ";
+               };
+               std::vector<Arcs> new_gens;
+               std::vector<Arcs> first;
+               std::vector<Arcs> second;
+               for ( TE x = 0; x < PCA::gens.size(); ++x ) {                    
+                    first = PCA::gens[x]; 
+                    second = PCA::gens[PCA::gens.size()-1-x];
+                    for ( auto &v : first ) {
+                         for ( TE &e : v.arcs ) {
+                              e += 1;
+                         };
+                         v.arcs.insert ( v.arcs.begin(),TE ( 2*x+1 ) );
+                         v.arcs.insert ( v.arcs.begin()+2*x+1,TE ( 0 ) );
+                    };
+                    for ( auto &v : second ) {
+                         for ( TE &e : v.arcs ) {
+                              e += 2*x+2;
+                         };
+                    };
+                    for ( auto &v1 : first ) {
+                         for ( auto v2 : second ) {
+                              v2.arcs.insert ( v2.arcs.begin(),v1.arcs.begin(),v1.arcs.end() );
+                              new_gens.push_back ( v2.arcs );
+                         };
+                    };
+               };
+               //
+               std::vector<std::vector<size_t>> new_addCupCap;
+               std::vector<std::vector<bool>> new_addCupGCC;
+               std::vector<size_t> temp {};
+               std::vector<bool> temp_bool {};
+               for ( auto gen : new_gens){
+                    auto temp_gen {gen};
+                    for ( size_t k=0; k < 2*PCA::gens.size()-1; ++k ){
+                         temp_gen = gen;
+                         temp_bool.push_back(temp_gen.addCupGCC( k ));
+                         temp_gen.addCup( k );
+                         temp.push_back( std::find (
+                                             PCA::gens.back().begin(),
+                                             PCA::gens.back().end(),
+                                             temp_gen ) -
+                                        PCA::gens.back().begin() );
+                    };
+                    new_addCupCap.push_back( temp );
+                    temp.clear();
+                    new_addCupGCC.push_back( temp_bool );
+                    temp_bool.clear();
+               };
+               PCA::addCup.push_back( new_addCupCap );
+               PCA::addCupGCC.push_back( new_addCupGCC );
+               //
+               new_addCupCap.clear();// recycle old container
+//                std::cout << PCA::gens.back().size() << " length gens back.\n" ;
+               for ( auto gen : PCA::gens.back()){
+                    auto temp_gen {gen};
+                    for ( size_t k=0; k < 2*PCA::gens.size()-1   ; ++k ){
+//                          std::cout << " addCap: " << k << std::flush;
+                         temp_gen = gen;
+                         temp_gen.addCap( k );
+                         temp.push_back( std::find ( 
+                                             new_gens.begin(),
+                                             new_gens.end(),
+                                             temp_gen ) - 
+                                        new_gens.begin() );
+                    };
+//                     std::cout << "\n" << std::flush;
+                    new_addCupCap.push_back( temp );
+                    temp.clear();
+               };
+               PCA::addCap.push_back( new_addCupCap );
+               //
+               PCA::gens.push_back( new_gens );
+          };
+     };
+};
+
+
+std::vector<std::vector<Dots>> PCA::vec;
+std::vector<std::vector<int>> PCA::vec_sum;
+// the first entry of vec will not be used, but it is needed to get the indexing right. The same applies to vec_sum.
+
+/// computes more entries for PCA::vec if PCA::max < n
+inline void expand_vec_if_needed ( const int &n ){
+     while ( PCA::vec.size() < n+1 ) {
+          if ( PCA::vec.size() < 2 ){
+               PCA::vec = {{},{{0}}};
+               PCA::vec_sum = {{},{0}};
+          } else {
+               // Create new vectors of length 'PCA::vec.size()'
+               if ( n > maximum_number_of_tangle_strands ){
+                    std::cerr << "There are "
+                              << n
+                              << " tangle strands, which is too many."
+                              << " Try inceasing the value of 'maximum_number_of_tangle_strands' in 'sources/headers/constants.h'. ";
+               };
+               // create temporary copy of last entry of vec to append 1s
+               std::vector<Dots> temp {PCA::vec.back()};
+               std::vector<int> temp_sum {PCA::vec_sum.back()};
+               for ( auto &v : temp ) {
+                    v.push_back ( 1 );
+               };
+               for ( auto &v : temp_sum ) {
+                    ++v;
+               };
+               // copy the last entry of vec and append dots_all_1 to it 
+               Dots dots_all_1 {};
+               for ( int j = 0; j < PCA::vec.size()-1; ++j ){
+                    dots_all_1.push_back(1);
+               };
+               PCA::vec.push_back( PCA::vec.back() );
+               PCA::vec_sum.push_back( PCA::vec_sum.back() );
+               // append 0s to all Dots in new last entry of vec
+               PCA::vec.back().push_back( dots_all_1 );
+               PCA::vec_sum.back().push_back( PCA::vec.size()-2 );
+               for ( auto &v : PCA::vec.back() ) {
+                    v.push_back ( 0 );
+               };
+               // append temporary vector to last entry of vec
+               PCA::vec.back().insert ( PCA::vec.back().end(),
+                                        temp.begin(),
+                                        temp.end() );
+               PCA::vec_sum.back().insert ( PCA::vec_sum.back().end(),
+                                             temp_sum.begin(),
+                                             temp_sum.end() );
+          };
+     };
+};
+
+
+
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+//                  Arcs
+// %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+Arcs::Arcs ( std::vector<TE> arcs ) :
+     arcs ( arcs )
+{
+}
+
+Arcs::Arcs ( TE size ){
+     arcs.reserve ( 2 * size );
+     for ( size_t k = 0; k < 2 * size; ++k ) {
+          arcs.push_back ( 2 * size - 1 - k );
+     };
+}
+
+//                          //
+// output and sanity checks //
+//                          //
+
+Pairs Arcs::pairs() const
+{
+     // converts arc-format into pair-format
+     Pairs pairs;
+     for ( std::size_t i = 0; i < arcs.size(); ++i ) {
+          if ( i < arcs[i] ){
+               pairs.push_back ( {i,arcs[i]} );
+          };
+     };
+     return pairs;
+}
+
+void Arcs::print() const
+{
+     std::cout << this->to_string();
+}
+
+
+std::string Arcs::to_string() const
+{
+     std::string output {};
+     //
+//      output +=  "arcs: ";
+//      for ( auto e : arcs ){
+//           output += std::to_string( e );
+//           output += ",";
+//      };
+//      output.pop_back();
+     for ( const auto &pair : this->pairs() ) {
+          output +=  std::to_string ( pair.first );
+          output +=  "–";
+          output +=  std::to_string ( pair.second );
+          output +=  " ";
+     };
+     //
+     return output;
+}
+
+bool Arcs::check() const
+{
+     for ( std::size_t i = 0; i < arcs.size(); ++i ) {
+          // validate if CobObj defines a tangle
+          // (ie is involution of {0,...,arcs.size()-1})
+          if ( arcs[i] >=  arcs.size() ||
+                    arcs[i] < 0 ||
+                    i == arcs[i] ||
+                    i !=  arcs[arcs[i]] ) {
+               return false;
+          };
+     };
+     return true;
+}
+
+
+
+//              //
+// main methods //
+//              //
+
+void Arcs::rotate ( const TE &top ){
+     TE temp;
+     for ( std::size_t i = 0; 2*i+1 < top ; ++i ) {
+          // reverse the order of the first 'top' entries
+          // eg if top=3, [1,4,3,2,5,0] -> [3,4,1,2,5,0]
+          // and if top=4, [1,4,3,2,5,0] -> [2,3,4,1,5,0].
+          temp = arcs[i];
+          arcs[i] = arcs[top-1-i];
+          arcs[top-1-i] = temp;
+     };
+     for (auto &a : arcs ){
+          // relabel the entries if they are less than 'top'
+          if ( a < top ) {
+               a = top - 1 - a;
+          };
+     };
+};
+
+void Arcs::addCap( const TE &i ){
+     for ( auto &entry : arcs ) {
+          if ( entry >= i ) {
+               entry += 2;
+          };
+     };
+     Arcs new_arcs ({static_cast<TE>(i+1),i});
+     arcs.insert ( arcs.begin()+i,new_arcs.arcs.begin(),new_arcs.arcs.end() );
+};
+
+void Arcs::addCup( const TE &i ){
+     arcs[arcs[i]] = arcs[i+1];
+     arcs[arcs[i+1]] = arcs[i];
+     // This join the arcs starting at i and i+1.  If (i)---(i+1), only
+     // arcs[i] and arcs[i+1] change, but they are erased next anyway.
+     arcs.erase ( arcs.begin() + i,arcs.begin() + i + 2 );
+     for ( auto &entry : arcs ) {
+          if ( entry > i ) {
+               entry -=   2;
+          };
+     };
+};
+
+bool Arcs::addCupGCC( const TE &i ) const {
+     // 1 if the two ends were connected ( = new closed component)
+     // 0 if the two ends belonged to different arcs
+     return (arcs[i] == i+1);
+};
+
+IndexLL Arcs::components_to ( const Arcs &a2 ) const
+{
+     // components from this to obj; a component is a list of TEIs,
+     // starting with the lowest TEI.  A component always has an even
+     // number of TEIs.  The components are ordered by their lowest TEI
+     // (ie the first entry of the component).
+     IndexLL allcomponents;
+     auto arcs2 = a2.arcs;
+     TE strands {static_cast<TE>(arcs.size()/2)};
+     // output list that will get populated by this method
+     IndexL done;
+     done.reserve ( 2 * strands );
+     // list of TEIs which have already been sorted into components
+     for ( TE i = 0; i < 2 * strands; ++i ) {
+          //find component for ith tangle end
+          if ( std::find ( done.begin(), done.end(), i ) == done.end() ) {
+               //continue if we don't already have a component; otherwise move
+               //on; equivalent to "i not in done"
+               IndexL component;
+               TE cur {i};
+               int overflow {0};
+               do {
+                    if (overflow>100){
+                         std::cerr << "ERROR overflow in components_to" << std::flush;
+                         abort();
+                    };
+                    ++overflow;
+                    done.push_back ( cur );
+                    component.push_back ( cur );
+                    cur = arcs[cur];
+                    done.push_back ( cur );
+                    component.push_back ( cur );
+                    cur = arcs2[cur];
+               } while ( cur !=  i );
+               allcomponents.push_back ( component );
+          };
+     };
+     return allcomponents;
+}
+
+
+
+//                      //
+// overloaded operators //
+//                      //
+bool Arcs::operator== ( const Arcs &arcs2 ) const
+{
+     // ignore gradings
+     return ( arcs == arcs2.arcs );
+};
+
+bool Arcs::operator!= ( const Arcs &arcs2 ) const
+{
+     // ignore gradings
+     return ( arcs != arcs2.arcs );
+};
+
+
+
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //                  CobObj
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-CobObj::CobObj ( TE top, TE bot, Arcs arcs, Grading h, Grading q ) :
+CobObj::CobObj ( TE strands, TE top, size_t index, Grading h, Grading q ) :
+     strands ( strands ),
      top ( top ),
-     bot ( bot ),
-     arcs ( arcs ),
+     index ( index ),
      h ( h ),
      q ( q )
 {
+     expand_gens_if_needed( strands );
 }
 
-CobObj::CobObj ( TE size ) :
-     top ( size ),
-     bot ( size )
+CobObj::CobObj ( TE strands, TE top, Arcs arcs, Grading h, Grading q ) :
+     strands ( strands ),
+     top ( top ),
+     h ( h ),
+     q ( q )
 {
-     arcs.reserve ( 2 * size );
-     for ( size_t k = 0; k < size; ++k ) {
-          arcs.push_back ( size+k );
-     };
-     for ( size_t k = 0; k < size; ++k ) {
-          arcs.push_back ( k );
-     };
+     expand_gens_if_needed( strands );
+     arcs.rotate( top );
+     index = std::find( PCA::gens[strands].begin(),
+                      PCA::gens[strands].end(),
+                      arcs ) - PCA::gens[strands].begin();
+}
+
+CobObj::CobObj ( TE strands ) :
+     strands ( strands ),
+     top ( strands )
+{
+     expand_gens_if_needed( strands );
+     Arcs arcs ( strands );
+     index = std::find( PCA::gens[strands].begin(),
+                      PCA::gens[strands].end(),
+                      arcs ) - PCA::gens[strands].begin();
      h = 0;
      q = 0;
-}
-
-Pairs CobObj::pairs() const
-{
-     // converts arc-format into pair-format
-     Pairs pairs;
-     for ( std::size_t i = 0; i < arcs.size(); ++i ) {
-          if ( i < arcs[i] )
-               pairs.push_back ( {i,arcs[i]} );
-     };
-     return pairs;
 }
 
 
@@ -76,17 +428,23 @@ TE CobObj::get_top() const
 {
      return top;
 };
-TE CobObj::get_bot() const
+size_t CobObj::get_index() const
 {
-     return bot;
+     return index;
+};
+TE CobObj::get_strands() const
+{
+     return strands;
 };
 TE CobObj::ends() const
 {
-     return top+bot;
+     return 2 * strands;
 };
-Arcs CobObj::get_arcs() const
+std::vector<TE> CobObj::arcs() const
 {
-     return arcs;
+//      expand_gens_if_needed( strands );
+     Arcs arcs {PCA::gens[strands][index]};
+     return arcs.arcs;
 };
 Grading CobObj::get_h() const
 {
@@ -129,30 +487,33 @@ void CobObj::print() const
 
 std::string CobObj::to_string() const
 {
-     std::string output = "";
+     std::string output = "CobObj (h=";
+     output += std::to_string( h );
+     output += ", q=";
+     output += std::to_string( q );
+     output += ", index=";
+     output += std::to_string( index );
+     output += "):\n";
      //
-     output +=  "tangle ends top:   ";
+     output +=  "    top:   ";
      for ( TE i = 0; i < top; ++i ) {
           output +=  std::to_string ( i );
           output +=  " ";
      };
-     output +=  "\ntangle ends bot:   ";
-     for ( TE i = 0; i < bot; ++i ) {
+     output +=  "\n    bot:   ";
+     for ( TE i = 0; i < 2 * strands - top; ++i ) {
           output +=  std::to_string ( top+i );
           output +=  " ";
      };
-     output +=  "\n           arcs:   ";
-     Pairs pairs = this->pairs();
-     for ( const auto &pair : pairs ) {
+     output +=  "\n    arcs:  ";
+     Arcs arcs {PCA::gens[strands][index]};
+     arcs.rotate( top );     
+     for ( const auto &pair : arcs.pairs() ) {
           output +=  std::to_string ( pair.first );
           output +=  "–";
           output +=  std::to_string ( pair.second );
           output +=  " ";
      };
-     output +=  "\n homological gr:   ";
-     output +=  std::to_string ( h );
-     output +=  "\n     quantum gr:   ";
-     output +=  std::to_string ( q );
      output +=  "\n";
      //
      return output;
@@ -160,6 +521,7 @@ std::string CobObj::to_string() const
 
 bool CobObj::check() const
 {
+     auto arcs {this->arcs()};
      for ( std::size_t i = 0; i < arcs.size(); ++i ) {
           // validate if CobObj defines a tangle
           // (ie is involution of {0,...,arcs.size()-1})
@@ -171,10 +533,10 @@ bool CobObj::check() const
           };
      };
      // test if tangle is crossingless
-     for ( const auto &pair1 : this->OneSided().pairs() ) {
+     for ( const auto &pair1 : Arcs(this->OneSided().arcs()).pairs() ) {
           TE p1 {pair1.first};
           TE p2 {pair1.second};
-          for ( const auto &pair2 : this->OneSided().pairs() ) {
+          for ( const auto &pair2 : Arcs(this->OneSided().arcs()).pairs() ) {
                TE t1 {pair2.first};
                TE t2 {pair2.second};
                // we can assume that a<b for each pair {a,b}
@@ -192,7 +554,7 @@ bool CobObj::check() const
 bool CobObj::compatible_with ( const CobObj obj ) const
 {
      // check whether cobordisms between these objects exist.
-     return ( top == obj.top && bot == obj.bot );
+     return ( top == obj.top && strands == obj.strands );
 };
 
 
@@ -204,116 +566,69 @@ CobObj CobObj::OneSided() const
 {
      // rotate bottom half of the tangle to the top right such that the
      // last top and last bot tangle end sit next to each other
-     Arcs new_arcs {  top + bot };
-     for ( std::size_t i = 0; i < arcs.size(); ++i ) {
-          TE new_entry;
-          if ( i < top ) {
-               new_entry = arcs[i];
-          } else {
-               new_entry = arcs[top+bot-i];
-          };
-          if ( new_entry < top ) {
-               new_arcs[i] = new_entry;
-          } else {
-               new_arcs[i] = top + bot - new_entry;
-          };
-     };
-     return CobObj ( top + bot,0,new_arcs,h,q );
+     return CobObj ( strands,0,PCA::gens[strands][index],h,q );
 }
 
-IndexLL CobObj::components_to ( const CobObj &obj ) const
-{
-     // components from this to obj; a component is a list of TEIs,
-     // starting with the lowest TEI.  A component always has an even
-     // number of TEIs.  The components are ordered by their lowest TEI
-     // (ie the first entry of the component).
-     IndexLL allcomponents;
-     allcomponents.reserve ( ( top + bot ) /2 );
-     // output list that will get populated by this method
-     IndexL done;
-     done.reserve ( top + bot );
-     // list of TEIs which have already been sorted into components
-     for ( TE i = 0; i < top + bot; ++i ) {
-          //find component for ith tangle end
-          if ( std::find ( done.begin(), done.end(), i ) == done.end() ) {
-               //continue if we don't already have a component; otherwise move
-               //on; equivalent to "i not in done"
-               IndexL component;
-               TE cur {i};
-               do {
-                    done.push_back ( cur );
-                    component.push_back ( cur );
-                    cur = arcs[cur];
-                    done.push_back ( cur );
-                    component.push_back ( cur );
-                    cur = obj.arcs[cur];
-               } while ( cur !=  i );
-               allcomponents.push_back ( component );
+bool to_BNObj( const TE &strands, const TE &top, const size_t &index ){
+     // convert CobObj to BNObj; this only works for the CobObj b and
+     bool type {false};// vertical
+     if ( strands == 1){
+          type = true;
+     } else if ( strands == 2) {
+          // index 0 = [1,0,3,2], index 1 = [3,2,1,0]
+          if ( ( index == 0 && top == 2 ) || ( index == 1 && top != 2 ) ){
+               // horizontal
+               type = true;
           };
+     } else {
+          PCA::gens[strands][index].print();
+          std::cerr << "Cannot convert this CobObj (with "
+                    << strands 
+                    << " strands, index "
+                    << index
+                    << ", and "
+                    << top
+                    << " tangle ends at the top) to BNObj!\n";
+          abort();
+          // sanity check;
      };
-     return allcomponents;
+     return type;
 }
 
 BNObj CobObj::to_BNObj() const
 {
      // convert CobObj to BNObj; this only works for the CobObj b and
-     // CobObj c
-     bool type {false};
-     if ( *this == a0 || *this == a1 || *this == b1 || *this == b2 || *this == b3 ) {
-          // b
-          type = true;
-     } else if ( *this == c1 || *this == c2 || *this == c3 ) {
-          // c
-          type = false;
-     } else {
-          this->print();
-          std::cerr << "Cannot convert this CobObj to BNObj!\n";
-          abort();
-          // sanity check;
-     };
-     return BNObj ( type,h,q );
+     return BNObj ( ::to_BNObj( strands,top,index ),h,q );
 }
 
 void CobObj::AddCap ( const TE &i )
 {
      // add two extra ends before the ith TEI, assumed to be at the
      // tangle bottom, and connect them by an arc.
-     bot += 2;
-     for ( auto &entry : arcs ) {
-          if ( entry >= i ) {
-               entry += 2;
-          };
-     };
-     Arcs new_arcs {i+1,i};
-     arcs.insert ( arcs.begin()+i,new_arcs.begin(),new_arcs.end() );
+     expand_gens_if_needed( strands+1 );
+     index = PCA::addCap[strands][index][ i ];
+     ++strands;
 }
 
 void CobObj::AddCup ( const TE &i )
 {
      // join the ith TEI, assumed to be at the tangle bottom, to the
      // next and join the two arcs if neccessary.
-     bot -=   2;
-     arcs[arcs[i]] = arcs[i+1];
-     arcs[arcs[i+1]] = arcs[i];
-     // This join the arcs starting at i and i+1.  If (i)---(i+1), only
-     // arcs[i] and arcs[i+1] change, but they are erased next anyway.
-     arcs.erase ( arcs.begin() + i,arcs.begin() + i + 2 );
-     for ( auto &entry : arcs ) {
-          if ( entry > i ) {
-               entry -=   2;
-          };
-     };
+     index = PCA::addCup[strands][index][ i ];
+     --strands;
 }
+
 
 bool CobObj::AddCupGivesClosedComponent ( const TE &i ) const
 {
      // 1 if the two ends were connected ( = new closed component)
      // 0 if the two ends belonged to different arcs
-     if ( arcs[i] == i+1 ) {
-          return true;
-     } else {
-          return false;
-     };
+     return PCA::addCupGCC[strands][index][ i ];
+}
+
+IndexLL CobObj::components_to ( const CobObj &obj2 ) const 
+{
+     return PCA::gens[strands][index].components_to( PCA::gens[strands][obj2.index] );
 }
 
 //                      //
@@ -322,18 +637,20 @@ bool CobObj::AddCupGivesClosedComponent ( const TE &i ) const
 bool CobObj::operator  == ( const CobObj &obj2 ) const
 {
      // ignore gradings
-     return ( ( top == obj2.top ) &&
-              ( bot == obj2.bot ) &&
-              ( arcs == obj2.arcs ) );
+     return ( ( strands == obj2.strands ) &&
+              ( top == obj2.top ) &&
+              ( index == obj2.index ) );
 };
 
 bool CobObj::operator!= ( const CobObj &obj2 ) const
 {
      // ignore gradings
-     return ( ( top !=  obj2.top ) ||
-              ( bot !=  obj2.bot ) ||
-              ( arcs !=  obj2.arcs ) );
+     return ( ( strands !=  obj2.strands ) ||
+              ( top !=  obj2.top ) ||
+              ( index !=  obj2.index ) );
 };
+
+
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //          Deco
@@ -473,29 +790,37 @@ Deco<Coeff> Deco<Coeff>::operator* (
 
 template<typename Coeff>
 CobMor<Coeff>::CobMor ( int i ) :
-     front ( a0 ),
-     back ( a0 ),
+     strands ( 1 ),
+     top ( 1 ),
+     front ( 0 ),
+     back ( 0 ),
      decos ( {} ),
-      comps ( {} )
+     comps ( {} )
 {
 }
 
 template<typename Coeff>
 CobMor<Coeff>::CobMor() :
-     front ( a0 ),
-     back ( a0 ),
+     strands ( 1 ),
+     top ( 1 ),
+     front ( 0 ),
+     back ( 0 ),
      decos ( {} ),
-      comps ( {} )
+     comps ( {} )
 {
 }
 
 template<typename Coeff>
 CobMor<Coeff>::CobMor (
-     CobObj front,
-     CobObj back,
+     TE strands,
+     TE top,
+     size_t front,
+     size_t back,
      std::vector<Deco<Coeff>> decos,
      IndexLL comps )
      :
+     strands ( strands ),
+     top ( top ),
      front ( front ),
      back ( back ),
      decos ( decos ),
@@ -505,14 +830,18 @@ CobMor<Coeff>::CobMor (
 
 template<typename Coeff>
 CobMor<Coeff>::CobMor (
-     CobObj front,
-     CobObj back,
+     TE strands,
+     TE top,
+     size_t front,
+     size_t back,
      std::vector<Deco<Coeff>> decos )
      :
+     strands ( strands ),
+     top ( top ),
      front ( front ),
      back ( back ),
      decos ( decos ),
-     comps ( front.components_to ( back ) )
+     comps ( PCA::gens[strands][front].components_to ( PCA::gens[strands][back] ) )
 {
 }
 
@@ -568,14 +897,27 @@ std::string CobMor<Coeff>::to_string() const
      std::string output;
      //
      if ( decos.empty() ) {
-          output +=  "The zero-morphism.\n";
+          output += "The zero-morphism.\n";
      } else {
-          output +=  "                ***front***\n";
-          output +=  front.to_string();
-          output +=  "                ***back***\n";
-          output +=  back.to_string();
-          output +=  "                ***decos***\n           ";
-
+          output += "CobMor (strands=";
+          output += std::to_string(strands);
+          output += ", top=";
+          output += std::to_string(top);
+          output += ");\n";
+          output += "    from:  ";
+          auto arcs {PCA::gens[strands][front]};
+          arcs.rotate(top);
+          output += arcs.to_string();
+          output += "  (index=";
+          output += std::to_string(front);
+          output += ")\n    to:    ";
+          arcs = PCA::gens[strands][back];
+          arcs.rotate(top);
+          output += arcs.to_string();
+          output += "  (index=";
+          output += std::to_string(back);
+          output += ")\n    decos: ";
+          //
           for ( const auto &deco : decos ) {
                output +=  std::to_string ( deco.hpower );
                output +=  "\t";
@@ -590,7 +932,11 @@ std::string CobMor<Coeff>::to_string() const
                };
                output +=  "-";
                for ( const auto &j : comps[i] ) {
-                    output +=  std::to_string ( j );
+                    if (j < top){
+                         output +=  std::to_string ( top-1-j );
+                    } else {
+                         output +=  std::to_string ( j );
+                    };
                     output +=  "-";
                };
                output +=  "\n           ";
@@ -613,9 +959,6 @@ bool CobMor<Coeff>::check() const
           return true;
      };
      // We may now assume that decos.size()>0.
-     if ( !front.compatible_with ( back ) ) {
-          return false;
-     };
      std::size_t dotlength {decos.front().dots.size() };
      for ( const auto &deco : decos ) {
           if ( deco.dots.size() !=  dotlength ) {
@@ -639,30 +982,30 @@ bool CobMor<Coeff>::check() const
      return true;
 }
 
-template<typename Coeff>
-Grading CobMor<Coeff>::gr_q() const
-{
-     // assuming decos is non-empty
-     Grading gr {decos.front().gr_q() };
-     for ( const auto &deco : decos ) {
-          if ( deco.gr_q() != gr ) {
-               this->print();
-               std::cerr << "morphism is not homogeneous!\n";
-               abort();
-          };
-     };
-     return back.get_q()-front.get_q()+gr-front.ends() /2;
-}
+// template<typename Coeff>
+// Grading CobMor<Coeff>::gr_q() const
+// {
+//      // assuming decos is non-empty
+//      Grading gr {decos.front().gr_q() };
+//      for ( const auto &deco : decos ) {
+//           if ( deco.gr_q() != gr ) {
+//                this->print();
+//                std::cerr << "morphism is not homogeneous!\n";
+//                abort();
+//           };
+//      };
+//      return back.get_q()-front.get_q()+gr-front.ends() /2;
+// }
 
 template<typename Coeff>
 bool CobMor<Coeff>::check (
      const CobObj &obj_from,
      const CobObj &obj_to ) const
 {
-     if ( front !=  obj_from ) {
+     if ( (front !=  obj_from.get_index()) || (strands != obj_from.get_strands()) || (top != obj_from.get_top()) ) {
           return false;
      };
-     if ( back !=  obj_to ) {
+     if ( (back !=  obj_to.get_index()) || (strands != obj_to.get_strands()) || (top != obj_to.get_top()) ) {
           return false;
      };
      return this->check();
@@ -708,8 +1051,8 @@ CobMor<Coeff> CobMor<Coeff>::simplify()
 template<typename Coeff>
 BNMor<Coeff> CobMor<Coeff>::to_BNMor ( TE special_end ) const
 {
-     BNObj obj_from = front.to_BNObj();
-     BNObj obj_to = back.to_BNObj();
+     BNObj obj_from = BNObj( to_BNObj( strands,top,front ) );
+     BNObj obj_to = BNObj( to_BNObj( strands,top,back ) );
      std::list<Label<Coeff>> new_labels;
      if ( comps.empty() ) {
           return BNMor<Coeff> ( 0 );
@@ -717,8 +1060,7 @@ BNMor<Coeff> CobMor<Coeff>::to_BNMor ( TE special_end ) const
           // morphism between different idempotents
           for ( const auto &deco : decos ) {
                if ( deco.dots.front() == 0 ) {
-                    if ( ( ( front.get_top() == 1 ) && ( front.get_bot() == 1 ) ) ||
-                              ( ( front.get_top() == 2 ) && ( front.get_bot() == 0 ) ) ) {
+                    if ( strands == 1 ) {
                          // 1-1- or 2-0-tangle
                          new_labels.push_back ( {deco.hpower,deco.coeff} );
                     } else {
@@ -789,13 +1131,13 @@ CobMor<New_Coeff> CobMor<Z_mod<integer_simulant>>::to_coeffs() const
                new_decos.push_back ( Deco<New_Coeff> ( deco.hpower,deco.dots,new_coeff ) );
           };
      };
-     return CobMor<New_Coeff> ( front,back,new_decos );
+     return CobMor<New_Coeff> ( strands,top,front,back,new_decos );
 };
 
 template<typename Coeff>
 CobMor<Coeff> CobMor<Coeff>::AddCap (
-     const CobObj &from,
-     const CobObj &to,
+     const size_t &start,
+     const size_t &end,
      const TE &i ) const
 {
      // add a component [i,i+1] without any dot. We apply this to entries
@@ -818,19 +1160,19 @@ CobMor<Coeff> CobMor<Coeff>::AddCap (
           };
      };
      // insert the new component:
-     new_comps.insert ( new_comps.begin()+k, {i,i+1} );
+     new_comps.insert ( new_comps.begin()+k, {i,static_cast<TE>(i+1)} );
      // insert an entry '0' in each deco.dots
      auto new_decos = decos;
      for ( auto &deco : new_decos ) {
           deco.dots.insert ( deco.dots.begin()+k,0 );
      };
-     return CobMor<Coeff> ( from,to,new_decos,new_comps );
+     return CobMor<Coeff> ( strands+1,top,start,end,new_decos,new_comps );
 }
 
 template<typename Coeff>
 CobMor<Coeff> CobMor<Coeff>::AddCup22 (
-     const CobObj &start,
-     const CobObj &end,
+     const size_t &start,
+     const size_t &end,
      const TE &i,
      const bool &from,
      const bool &to ) const
@@ -903,13 +1245,13 @@ CobMor<Coeff> CobMor<Coeff>::AddCup22 (
      else {
           std::cout << "ERROR! 'CobMor<Coeff>::AddCap22(...)' should never be called with from == 0 and to == 1.";
      };
-     return CobMor<Coeff> ( start, end, new_decos, new_comps );
+     return CobMor<Coeff> ( strands-1,top,start, end, new_decos, new_comps );
 }
 
 template<typename Coeff>
 CobMor<Coeff> CobMor<Coeff>::AddCupMixed (
-     const CobObj &start,
-     const CobObj &end,
+     const size_t &start,
+     const size_t &end,
      const TE &i,
      const bool &from,
      const bool &to ) const
@@ -969,7 +1311,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCupMixed (
           // is greater, so it needs to be shifted.
      };
      // compute new components:
-     IndexLL new_comps = start.components_to ( end );
+     IndexLL new_comps = PCA::gens[strands-1][start].components_to ( PCA::gens[strands-1][end] );
      // compute the new order for comps:
      IndexL new_order = new_order_new2old ( new_comps,comp_names );
      // update the index of the comp that previously contained i
@@ -1030,13 +1372,13 @@ CobMor<Coeff> CobMor<Coeff>::AddCupMixed (
           };
      };
      // 0--->1: This case does not exist.
-     return CobMor<Coeff> ( start, end, new_decos, new_comps );
+     return CobMor<Coeff> ( strands-1,top,start, end, new_decos, new_comps );
 }
 
 template<typename Coeff>
 CobMor<Coeff> CobMor<Coeff>::AddCup11 (
-     const CobObj &start,
-     const CobObj &end,
+     const size_t &start,
+     const size_t &end,
      const TE &i ) const
 {
      // finding the index of the component containing i:
@@ -1072,7 +1414,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCup11 (
           };
      }
      // compute new components:
-     IndexLL new_comps = start.components_to ( end );
+     IndexLL new_comps = PCA::gens[strands-1][start].components_to ( PCA::gens[strands-1][end] );
      // Update the decos:
      auto old_decos = decos;//make copy
      std::vector<Deco<Coeff>> new_decos;
@@ -1201,7 +1543,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCup11 (
                new_decos.push_back ( deco );
           };
      };
-     return CobMor<Coeff> ( start, end, new_decos, new_comps );
+     return CobMor<Coeff> ( strands-1,top,start, end, new_decos, new_comps );
 }
 
 
@@ -1212,6 +1554,12 @@ CobMor<Coeff> CobMor<Coeff>::AddCup11 (
 template<typename Coeff>
 bool CobMor<Coeff>::operator  == ( const CobMor<Coeff> &cob2 ) const
 {
+     if ( strands != cob2.strands ){
+          return false;
+     };
+     if ( top != cob2.top ){
+          return false;
+     };   
      if ( front!= cob2.front ) {
           return false;
      };
@@ -1258,7 +1606,7 @@ CobMor<Coeff> CobMor<Coeff>::operator- () const
      for ( auto &deco : new_decos ) {
           deco.coeff = -deco.coeff;
      };
-     return CobMor<Coeff> ( front,back,new_decos,comps );
+     return CobMor<Coeff> ( strands,top,front,back,new_decos,comps );
 }
 
 template<typename Coeff>
@@ -1303,7 +1651,7 @@ inline IndexLL partitionGenerator ( const IndexLL &new_comps, const Arcs &arcs )
           // different component (whose index has to be irn 'remaining')
           for ( const auto &TEI : nucleusL ) {
                // find new 'arcend'
-               x = arcs[TEI];
+               x = arcs.arcs[TEI];
                if ( nucleusL.end()  == std::find ( nucleusL.begin(),nucleusL.end(),x ) ) {
                     arcend = x;
                     found_arcend = true;
@@ -1326,7 +1674,7 @@ inline IndexLL partitionGenerator ( const IndexLL &new_comps, const Arcs &arcs )
                found_arcend = false;
                for ( const auto &TEI : nucleusL ) {
                     // find new 'arcend'
-                    x = arcs[TEI];
+                    x = arcs.arcs[TEI];
                     if ( nucleusL.end()  == std::find ( nucleusL.begin(),nucleusL.end(),x ) ) {
                          arcend = x;
                          found_arcend = true;
@@ -1344,13 +1692,15 @@ inline IndexLL partitionGenerator ( const IndexLL &new_comps, const Arcs &arcs )
 
 /// \todo precomputed algebra
 struct CobMultHelper {
-     /// partition of components of the first cobordism
+     /// Each instance of this structure corresponds to a component C of the joined up cobordisms cob2*cob1 and records the following data:
+     
+     /// components of the first cobordism that lie on C
      IndexL partition1;
-     /// partition of components of the second cobordism
+     /// components of the second cobordism that lie on C
      IndexL partition2;
-     /// genus of component
+     /// genus of C
      unsigned int genus;
-     /// \todo forgotten what this is about 
+     /// number of (open) components of new basic cobordism that are obtained by maximally neck-cutting C
      unsigned int partitionLength;
 
      CobMultHelper ( IndexL partition1,
@@ -1377,7 +1727,7 @@ inline std::tuple<std::vector<CobMultHelper>,IndexL> CobMultHelperFun ( const In
 {
      std::vector<CobMultHelper> output {};
      IndexLL partition { partitionGenerator ( new_comps,arcs ) };
-     //std::cout << "partition: " << stringLL ( partition ) << std::flush ;
+//      std::cout << "partition: " << stringLL ( partition ) << std::flush ;
      output.reserve ( partition.size() );
      IndexL new_order {};
      IndexL part1 {};
@@ -1416,49 +1766,17 @@ inline std::tuple<std::vector<CobMultHelper>,IndexL> CobMultHelperFun ( const In
      return { output,new_order };
 };
 
-int BoolVec::max {1};
-std::vector<std::vector<Dots>> BoolVec::vec {{},{{0}}};
-std::vector<std::vector<int>> BoolVec::vec_sum {{},{0}};
-// the first entry of vec will not be used, but it is needed to get the indexing right. The same applies to vec_sum.
 
+/// generating function for the list of all crossingless 0-2\f$i\f$-tangles with \f$i<n\f$ 
 
-/// computes more entries for BoolVec::vec if BoolVec::max < n
-void expand_vec ( const int &n ){
-     std::vector<Dots> temp {};
-     std::vector<int> temp_sum {};
-     for (int current_max = BoolVec::max; current_max < n; ++current_max ) {
-          // create temporary copy of last entry of vec to append 1s
-          ++BoolVec::max;
-          temp = BoolVec::vec.back();
-          temp_sum = BoolVec::vec_sum.back();
-          for ( auto &v : temp ) {
-               v.push_back ( 1 );
-          };
-          for ( auto &v : temp_sum ) {
-               ++v;
-          };
-          // copy the last entry of vec and append dots_all_1 to it 
-          Dots dots_all_1 {};
-          for ( int j = 0; j < current_max; ++j ){
-               dots_all_1.push_back(1);
-          };
-          BoolVec::vec.push_back( BoolVec::vec.back() );
-          BoolVec::vec_sum.push_back( BoolVec::vec_sum.back() );
-          // append 0s to all Dots in new last entry of vec
-          BoolVec::vec.back().push_back( dots_all_1 );
-          BoolVec::vec_sum.back().push_back( current_max );
-          for ( auto &v : BoolVec::vec.back() ) {
-               v.push_back ( 0 );
-          };
-          // append temporary vector to last entry of vec
-          BoolVec::vec.back().insert ( BoolVec::vec.back().end(),
-                                       temp.begin(),
-                                       temp.end() );
-          BoolVec::vec_sum.back().insert ( BoolVec::vec_sum.back().end(),
-                                           temp_sum.begin(),
-                                           temp_sum.end() );
-     };
-};
+/// All crossingless tangles are in arc format. 
+/// The definition is recursive. We subdivide the tasks into the subtasks of finding those clts that connect 0 to (2x+1):
+///
+/// 0 . . . . . (2x+1) . . . (2n-1)
+/// 0---(2x+1)
+///
+/// This is in preparation for precomputing the algebra
+
 
 template<typename Coeff>
 CobMor<Coeff> CobMor<Coeff>::operator* (
@@ -1476,8 +1794,8 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
      };
 
      //cobordisms compose as CobMor(b,c)*CobMor(a,b) = CobMor(a,c)
-     IndexLL new_comps { cob1.front.components_to ( back ) };
-     auto X { CobMultHelperFun ( new_comps,cob1.back.get_arcs(),comps,cob1.comps ) };
+     IndexLL new_comps { PCA::gens[strands][cob1.front].components_to ( PCA::gens[strands][back] ) };
+     auto X { CobMultHelperFun ( new_comps,PCA::gens[strands][cob1.back],comps,cob1.comps ) };
      std::vector<CobMultHelper> cobMultVec { std::get<0> ( X ) };
      IndexL new_order { std::get<1> ( X ) };
 
@@ -1536,15 +1854,13 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
                          new_part_decos.push_back ( Deco<Coeff> ( g+r-1,Dots ( n,1 ),1 ) );
                     } else {
                          // make sure, CobMor::vec[n] is already computed.
-                         if ( n > BoolVec::max ){
-                              expand_vec( n );
-                         };
-                         for ( int v=0; v < BoolVec::vec[n].size(); ++v ) {
+                         expand_vec_if_needed( n );
+                         for ( int v=0; v < PCA::vec[n].size(); ++v ) {
                               // coefficients/signs for the deco of each dot_vector
-                              if ( ( g+n-BoolVec::vec_sum[n][v] ) %2 == 0 ) {
-                                   new_part_decos.push_back ( Deco<Coeff> ( g+n-BoolVec::vec_sum[n][v]-1,BoolVec::vec[n][v],-1 ) );
+                              if ( ( g+n-PCA::vec_sum[n][v] ) %2 == 0 ) {
+                                   new_part_decos.push_back ( Deco<Coeff> ( g+n-PCA::vec_sum[n][v]-1,PCA::vec[n][v],-1 ) );
                               } else {
-                                   new_part_decos.push_back ( Deco<Coeff> ( g+n-BoolVec::vec_sum[n][v]-1,BoolVec::vec[n][v],1 ) );
+                                   new_part_decos.push_back ( Deco<Coeff> ( g+n-PCA::vec_sum[n][v]-1,PCA::vec[n][v],1 ) );
                               };
                          };
                          if ( g%2 == 1 ) { //genus odd
@@ -1584,7 +1900,7 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
           deco.reorder_old2new ( new_order );
      };
      //reorder the dots according to the partition.
-     return CobMor<Coeff> ( cob1.front,back,new_decos,new_comps ).simplify();
+     return CobMor<Coeff> ( strands,top,cob1.front,back,new_decos,new_comps ).simplify();
 }
 
 template<typename Coeff>
@@ -1601,7 +1917,7 @@ CobMor<Coeff> CobMor<Coeff>::operator+ (
      };     
      std::vector<Deco<Coeff>> new_decos = decos;// concatenate decos1 and decos2
      new_decos.insert ( new_decos.end(), cob2.decos.begin(), cob2.decos.end() );
-     return CobMor<Coeff> ( front, back, new_decos, comps ).simplify();
+     return CobMor<Coeff> ( strands,top,front, back, new_decos, comps ).simplify();
 }
 
 //                                            //
@@ -1637,51 +1953,6 @@ IndexL new_order_new2old (
      return new_order;
 }
 
-
-/// generating function for the list of all crossingless 2\f$i\f$-0-tangles with \f$i<n\f$ 
-
-/// All crossingless tangles are in arc format. 
-/// The definition is recursive. We subdivide the tasks into the subtasks of finding those clts that connect 0 to (2x+1):
-///
-/// 0 . . . . . (2x+1) . . . (2n-1)
-/// 0---(2x+1)
-///
-/// This is in preparation for precomputing the algebra
-std::vector<std::vector<TE>> CatalanTangles ( const TE &n )
-{
-     if ( n == 0 || n > 15 ) {// failsafe; never call this with more than 15
-          std::vector<TE> empty {};
-          std::vector<std::vector<TE>> emptyempty {empty};
-          return emptyempty;
-     };
-     std::vector<std::vector<TE>> output;
-     std::vector<std::vector<TE>> first;
-     std::vector<std::vector<TE>> second;
-     for ( TE x = 0; x < n; ++x ) {
-
-          first = CatalanTangles ( x );
-          second = CatalanTangles ( n-1-x );
-          for ( auto &v : first ) {
-               for ( TE &e : v ) {
-                    e += 1;
-               };
-               v.insert ( v.begin(),TE ( 2*x+1 ) );
-               v.insert ( v.begin()+2*x+1,TE ( 0 ) );
-          };
-          for ( auto &v : second ) {
-               for ( TE &e : v ) {
-                    e += 2*x+2;
-               };
-          };
-          for ( auto &v1 : first ) {
-               for ( auto v2 : second ) {
-                    v2.insert ( v2.begin(),v1.begin(),v1.end() );
-                    output.push_back ( v2 );
-               };
-          };
-     };
-     return output;
-};
 
 
 

@@ -46,6 +46,7 @@
 
 int main ( int argc, char **argv )
 {
+//      expand_gens_if_needed( 4 );
      //
      // define meta data
      //
@@ -346,13 +347,13 @@ int main ( int argc, char **argv )
           std::cout << "Tests still need to be implemented.\n";
           // testing mode
           //Test_Coefficients<Z_mod<3>>(0);
-//           Test_Cob<Z_mod<2>> ( 0 );
+          Test_Cob<Z_mod<2>> ( 1 );
           //Test_Complex<int>(0);
 //           Test_Complex<Z_mod<2>> ( 0 );
           //SparseMatrixTestAlgebra();
           //Test_Precurves<int>();
 //           Test_PrecomputedAlgebra<Z_mod<2>>();
-          Test_ChainConversion<Z_mod<2>>();
+//           Test_ChainConversion<Z_mod<2>>();
 //           Test_ChainConversion<Z_mod<5>>();
           return 0;
      };

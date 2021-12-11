@@ -102,19 +102,18 @@ std::string Complex_Base<Obj,Mor,Coeff>::to_string () const
           output +=  stringL ( cancelled_indices );
      };
      //
-     output += "\n    === objects ===\n";
+     output += "    === objects ===\n";
      for ( std::size_t i=0; i<objects.size(); i++ ) {
           output += "object ";
           output += std::to_string ( i );
-          output += ":";
+          output += ": ";
           output += objects[i].to_string();
-          output += "\n";
      };
      //
-     output += "    === diffs ===";
+     output += "\n    === diffs ===\n";
      for ( int k=0; k<diffs.outerSize(); ++k ) {
           for ( typename Eigen::SparseMatrix<Mor<Coeff>>::InnerIterator it ( diffs,k ); it; ++it ) {
-               output += "\n∂:";
+               output += "∂:";
                output += std::to_string ( it.col() );
                output += "–––>";
                output += std::to_string ( it.row() );
@@ -171,7 +170,9 @@ void Complex<CobObj,CobMor,Coeff>::AddCap ( const unsigned int &i )
      };
      for ( int k=0; k<this->diffs.outerSize(); ++k ) {
           for ( typename Eigen::SparseMatrix<CobMor<Coeff>>::InnerIterator it ( this->diffs,k ); it; ++it ) {
-               it.valueRef() = it.value().AddCap ( this->objects[it.col()],this->objects[it.row()],i );
+               it.valueRef() = it.value().AddCap ( this->objects[it.col()].get_index(),
+                                                   this->objects[it.row()].get_index(),
+                                                   i );
           };
      };
      //  return Complex_Base<CobObj,CobMor<Coeff>,Coeff>(objects,diffs);
@@ -220,69 +221,69 @@ void Complex<CobObj,CobMor,Coeff>::AddCup ( const unsigned int &i )
                if ( index_pusher[it.col()] ) {
                     if ( index_pusher[it.row()] ) {
                          //CASE 2->2//
-                         auto mor00=it.value().AddCup22 ( new_objects[start],new_objects[end],i,0,0 );
-                         auto mor10=it.value().AddCup22 ( new_objects[start+1],new_objects[end],i,1,0 );
-                         auto mor11=it.value().AddCup22 ( new_objects[start+1],new_objects[end+1],i,1,1 );
+                         auto mor00=it.value().AddCup22 ( new_objects[start].get_index(),new_objects[end].get_index(),i,0,0 );
+                         auto mor10=it.value().AddCup22 ( new_objects[start+1].get_index(),new_objects[end].get_index(),i,1,0 );
+                         auto mor11=it.value().AddCup22 ( new_objects[start+1].get_index(),new_objects[end+1].get_index(),i,1,1 );
                          //
                          if ( mor00.is_0() ==false ) {
-                              if ( mor00.gr_q() !=0 ) {
-                                   std::cerr << "mor00: wrong q-grading";
-                              };
+//                               if ( mor00.gr_q() !=0 ) {
+//                                    std::cerr << "mor00: wrong q-grading";
+//                               };
                               triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( end,start,mor00 ) );
                          };
                          if ( mor10.is_0() ==false ) {
-                              if ( mor10.gr_q() !=0 ) {
-                                   std::cerr << "mor10: wrong q-grading";
-                              };
+//                               if ( mor10.gr_q() !=0 ) {
+//                                    std::cerr << "mor10: wrong q-grading";
+//                               };
                               triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( end,start+1,mor10 ) );
                          };
                          if ( mor11.is_0() ==false ) {
-                              if ( mor11.gr_q() !=0 ) {
-                                   std::cerr << "mor11: wrong q-grading";
-                              };
+//                               if ( mor11.gr_q() !=0 ) {
+//                                    std::cerr << "mor11: wrong q-grading";
+//                               };
                               triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( end+1,start+1,mor11 ) );
                          };
                     } else {
                          //CASE 2->1//
-                         auto mor0=it.value().AddCupMixed ( new_objects[start],new_objects[end],i,0,0 );
-                         auto mor1=it.value().AddCupMixed ( new_objects[start+1],new_objects[end],i,1,0 );
+                         auto mor0=it.value().AddCupMixed ( new_objects[start].get_index(),new_objects[end].get_index(),i,0,0 );
+                         auto mor1=it.value().AddCupMixed ( new_objects[start+1].get_index(),new_objects[end].get_index(),i,1,0 );
                          if ( mor0.is_0() ==false ) {
-                              if ( mor0.gr_q() !=0 ) {
-                                   std::cerr << "mor0: wrong q-grading";
-                              };
+//                               if ( mor0.gr_q() !=0 ) {
+//                                    std::cerr << "mor0: wrong q-grading";
+//                               };
                               triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( end,start,mor0 ) );
                          };
                          if ( mor1.is_0() ==false ) {
-                              if ( mor1.gr_q() !=0 ) {
-                                   std::cerr << "mor1: wrong q-grading";
-                              };
+//                               if ( mor1.gr_q() !=0 ) {
+//                                    std::cerr << "mor1: wrong q-grading";
+//                               };
                               triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( end,start+1,mor1 ) );
                          };
                     };
                } else {
                     if ( index_pusher[it.row()] ) {
                          //CASE 1->2//
-                         auto mor0=it.value().AddCupMixed ( new_objects[start],new_objects[end],i,1,0 );
-                         auto mor1=it.value().AddCupMixed ( new_objects[start],new_objects[end+1],i,1,1 );
+                         auto mor0=it.value().AddCupMixed ( new_objects[start].get_index(),new_objects[end].get_index(),i,1,0 );
+                         auto mor1=it.value().AddCupMixed ( new_objects[start].get_index(),new_objects[end+1].get_index(),i,1,1 );
                          if ( mor0.is_0() ==false ) {
-                              if ( mor0.gr_q() !=0 ) {
-                                   std::cerr << "mor0: wrong q-grading";
-                              };
+//                               if ( mor0.gr_q() !=0 ) {
+//                                    std::cerr << "mor0: wrong q-grading";
+//                               };
                               triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( end,start,mor0 ) );
                          };
                          if ( mor1.is_0() ==false ) {
-                              if ( mor1.gr_q() !=0 ) {
-                                   std::cerr << "mor1: wrong q-grading";
-                              };
+//                               if ( mor1.gr_q() !=0 ) {
+//                                    std::cerr << "mor1: wrong q-grading";
+//                               };
                               triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( end+1,start,mor1 ) );
                          };
                     } else {
                          //CASE 1->1//
-                         auto mor=it.value().AddCup11 ( new_objects[start],new_objects[end],i );
+                         auto mor=it.value().AddCup11 ( new_objects[start].get_index(),new_objects[end].get_index(),i );
                          if ( mor.is_0() ==false ) {
-                              if ( mor.gr_q() !=0 ) {
-                                   std::cerr << "mor: wrong q-grading";
-                              };
+//                               if ( mor.gr_q() !=0 ) {
+//                                    std::cerr << "mor: wrong q-grading";
+//                               };
                               triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( end,start,mor ) );
                          };
                     };
@@ -361,7 +362,7 @@ void Complex<CobObj,CobMor,Coeff>::AddCrossing (
      };
      //
      // quasi-diagonal matrix connecting the two blocks:
-     size_t n_arcs=new_objects.front().get_arcs().size() /2;
+     size_t n_arcs = new_objects.front().get_strands();
      // number of components
      Deco<Coeff> deco_no_closed_comp=Deco<Coeff> ( 0,std::vector<bool> ( n_arcs-1 ),Coeff ( 1 ) );
      Deco<Coeff> deco_closed_comp=Deco<Coeff> ( 0,std::vector<bool> ( n_arcs ),Coeff ( 1 ) );
@@ -397,18 +398,28 @@ void Complex<CobObj,CobMor,Coeff>::AddCrossing (
                     // add the dot to the right component:
                     deco_closed_comp.switch_dot ( k );
                     // dot cobordism:
-                    auto mor=CobMor<Coeff> ( new_objects[from],new_objects[to], {deco_closed_comp},comps ) *diff_sign;
+                    auto mor=CobMor<Coeff> ( new_objects[from].get_strands(), 
+                                             new_objects[from].get_top(),
+                                             new_objects[from].get_index(),
+                                             new_objects[to].get_index(),
+                                             {deco_closed_comp},
+                                             comps ) *diff_sign;
                     // remove the dot again:
                     deco_closed_comp.switch_dot ( k );
                     deco_closed_comp.add_H();
                     // -H cobordism:
-                    mor+= ( CobMor<Coeff> ( new_objects[from],new_objects[to], {deco_closed_comp},comps ) * ( -diff_sign ) );
+                    mor+= ( CobMor<Coeff> ( new_objects[from].get_strands(), 
+                                            new_objects[from].get_top(),
+                                            new_objects[from].get_index(),
+                                            new_objects[to].get_index(),
+                                            {deco_closed_comp},
+                                            comps ) * ( -diff_sign ) );
                     // lower Hpower again, so we may recycle 'deco_closed_comp':
                     deco_closed_comp.sub_H();
                     // Sanity check:
-                    if ( mor.gr_q() !=0 ) {
-                         std::cerr << "Case X 0--->.: Wrong quantum grading!";
-                    };
+//                     if ( mor.gr_q() !=0 ) {
+//                          std::cerr << "Case X 0--->.: Wrong quantum grading!";
+//                     };
                     // Add this component to the differential:
                     triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( to,from,mor ) );
                     // 1--->.: no dot // <-/-> CASE Y
@@ -416,20 +427,29 @@ void Complex<CobObj,CobMor,Coeff>::AddCrossing (
                     //
                     // (Case X 1--->.)
                     //
-                    mor=CobMor<Coeff> ( new_objects[from],new_objects[to], {deco_closed_comp},comps ) *diff_sign;
+                    mor = CobMor<Coeff> ( new_objects[from].get_strands(),
+                                          new_objects[from].get_top(),
+                                          new_objects[from].get_index(),
+                                          new_objects[to].get_index(),
+                                          {deco_closed_comp},
+                                          comps ) *diff_sign;
                     // Sanity check:
-                    if ( mor.gr_q() !=0 ) {
-                         std::cerr << "Case X 1--->.: Wrong quantum grading!";
-                    };
+//                     if ( mor.gr_q() !=0 ) {
+//                          std::cerr << "Case X 1--->.: Wrong quantum grading!";
+//                     };
                     // Add this component to the differential:
                     triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( to,from,mor ) );
                } else {
                     // differential is a simple saddle (Case X .--->.)
-                    auto mor=CobMor<Coeff> ( new_objects[from],new_objects[to], {deco_no_closed_comp} ) *diff_sign;
+                    auto mor=CobMor<Coeff> ( new_objects[from].get_strands(), 
+                                             new_objects[from].get_top(),
+                                             new_objects[from].get_index(),
+                                             new_objects[to].get_index(),
+                                             {deco_no_closed_comp} ) *diff_sign;
                     // Sanity check:
-                    if ( mor.gr_q() !=0 ) {
-                         std::cerr << "Case X .--->.: Wrong quantum grading!";
-                    };
+//                     if ( mor.gr_q() !=0 ) {
+//                          std::cerr << "Case X .--->.: Wrong quantum grading!";
+//                     };
                     // Add this component to the differential:
                     triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( to,from,mor ) );
                };
@@ -461,11 +481,16 @@ void Complex<CobObj,CobMor,Coeff>::AddCrossing (
                     //
                     // .--->0: no dots // <-/-> CASE X
                     // (Case Y .--->0)
-                    auto mor=CobMor<Coeff> ( new_objects[from],new_objects[to], {deco_closed_comp},comps ) *diff_sign;
+                    auto mor = CobMor<Coeff> ( new_objects[from].get_strands(), 
+                                               new_objects[from].get_top(),
+                                               new_objects[from].get_index(),
+                                               new_objects[to].get_index(), 
+                                               {deco_closed_comp},
+                                               comps ) *diff_sign;
                     // Sanity check:
-                    if ( mor.gr_q() !=0 ) {
-                         std::cerr << "Case Y .--->0: Wrong quantum grading!";
-                    };
+//                     if ( mor.gr_q() !=0 ) {
+//                          std::cerr << "Case Y .--->0: Wrong quantum grading!";
+//                     };
                     // Add this component to the differential:
                     triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( to,from,mor ) );
                     // .--->1: single dot // <-/-> CASE X
@@ -473,22 +498,31 @@ void Complex<CobObj,CobMor,Coeff>::AddCrossing (
                     // (Case Y .--->1)
                     // add the dot to the right component:
                     deco_closed_comp.switch_dot ( k );
-                    mor=CobMor<Coeff> ( new_objects[from],new_objects[to], {deco_closed_comp},comps ) *diff_sign;
+                    mor = CobMor<Coeff> ( new_objects[from].get_strands(), 
+                                          new_objects[from].get_top(),
+                                          new_objects[from].get_index(),
+                                          new_objects[to].get_index(), 
+                                          {deco_closed_comp},
+                                          comps ) *diff_sign;
                     // Sanity check:
-                    if ( mor.gr_q() !=0 ) {
-                         std::cerr << "Case Y .--->1: Wrong quantum grading!";
-                    };
+//                     if ( mor.gr_q() !=0 ) {
+//                          std::cerr << "Case Y .--->1: Wrong quantum grading!";
+//                     };
                     // Add this component to the differential:
                     triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( to,from,mor ) );
                     // delete the dot again, so 'deco_closed_comp' can be recycled:
                     deco_closed_comp.switch_dot ( k );
                } else {
                     // differential is a simple saddle (Case .--->.)
-                    auto mor=CobMor<Coeff> ( new_objects[from],new_objects[to], {deco_no_closed_comp} ) *diff_sign;
+                    auto mor = CobMor<Coeff> ( new_objects[from].get_strands(), 
+                                               new_objects[from].get_top(),
+                                               new_objects[from].get_index(),
+                                               new_objects[to].get_index(), 
+                                               {deco_no_closed_comp} ) *diff_sign;
                     // Sanity check:
-                    if ( mor.gr_q() !=0 ) {
-                         std::cerr << "Case Y .--->.: Wrong quantum grading!";
-                    };
+//                     if ( mor.gr_q() !=0 ) {
+//                          std::cerr << "Case Y .--->.: Wrong quantum grading!";
+//                     };
                     // Add this component to the differential:
                     triplets.push_back ( Eigen::Triplet<CobMor<Coeff>> ( to,from,mor ) );
                };
@@ -535,7 +569,7 @@ std::string Complex<CobObj,CobMor,Coeff>::optimize ( const std::vector<bool> &bo
           bool go_on {true};
           auto cx = *this;
           std::string twist {""};
-          TE N = cx.objects.front().get_bot()-1;
+          TE N = 2 * cx.objects.front().get_strands() - cx.objects.front().get_top()-1;
           std::list<std::string> twists {};
           for ( TE i = 0; i<N; ++i ) {
                twists.push_back ( "x" + std::to_string ( i ) );
@@ -616,7 +650,9 @@ bool Complex_Base<Obj,Mor,Coeff>::check() const
      if ( d_squared.nonZeros() !=0 ) {
           std::cerr << "Warning: the differential does not satisfy d²=0."
                     << "\nERROR: d² is not 0. Here is the d²-matrix:\n\n"
-                    << Complex_Base<Obj,Mor,Coeff> ( objects,d_squared ).to_string();
+                    << Complex_Base<Obj,Mor,Coeff> ( objects,d_squared ).to_string()
+                    << "\n\ncomplex:\n"
+                    << this->to_string();
           return false;
      }
      return true;
