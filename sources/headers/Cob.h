@@ -43,8 +43,10 @@ template<typename Coeff> class CobMor;
 
 // Introduce new common types:
 typedef uint8_t TE; ///< tangle end of a two-sided (top/bottom) tangle; tangle ends are enumerated, starting at 0, from the top left to the top right, then bottom left to bottom right. 
-typedef std::vector<std::pair<TE,TE>> Pairs; ///< pair-format for tangles; consists of all pairs \f$(i,j)\f$ with \f$i<j\f$ for which the tangle connects the tangle ends \f$i\f$ to \f$j\f$. 
 typedef std::vector<bool> Dots;///<  container type for dot decoration of cobordisms: the  \f$i^\text{th}\f$ entry is true iff the \f$i^\text{th}\f$ component of a cobordism carries a dot. 
+
+void expand_gens_if_needed ( const int &n );
+void expand_vec_if_needed ( const int &n );
 
 
 
@@ -54,17 +56,29 @@ typedef std::vector<bool> Dots;///<  container type for dot decoration of cobord
 
 /// wrapper for arc representation of tangles
 
-struct Arcs
+class Arcs
 {
+private:
      std::vector<TE> arcs;///< list of tangle ends: the \f$i^\text{th}\f$ entry is the tangle end connected to the tangle end \f$i\f$.
+//TODO:      std::vector<std::vector<size_t>> addCup;
+//TODO:      std::vector<std::vector<bool>> addCupGCC;// could probably also be just a method
+//TODO:      std::vector<std::vector<size_t>> addCap;
+public:
+     friend class CobObj;
+     template<typename Coeff>
+     friend class CobMor;
+     friend struct PCA;
+     friend void expand_gens_if_needed ( const int &n );
+     friend void expand_vec_if_needed ( const int &n );
 
+     
      Arcs ( std::vector<TE> arcs );///< standard constructor
      Arcs ( TE size );///< constructor of the identity tangle with 'size' strands
      
      //                          //
      // output and sanity checks //
      //                          //
-     Pairs pairs() const;///< converts arc-format (Arcs) into pair-format (Pairs)
+     std::vector<std::pair<TE,TE>> pairs() const;///< converts arc-format (Arcs) into pair-format, which consists of all pairs \f$(i,j)\f$ with \f$i<j\f$ for which the tangle connects the tangle ends \f$i\f$ to \f$j\f$.
      std::string to_string() const;///< string representative of a cobordism object
      void print() const;///< print representative of a cobordism object in terminal
      bool check() const;///< true if the object is a well-defined crossingless tangle
@@ -99,8 +113,11 @@ struct PCA
      /// first index: number of tangle strands
      /// second index: arcs representing 0-n tangles
      /// 
+     //TODO: replace by a single list of lists (std:list, or std::forward_list, or some other dynamic container that preserves references when adding elements);
      static std::vector<std::vector<Arcs>> gens;
      /// x = addCup[i][j][k]: gens[i][j].AddCup(k)=gens[i-1][x]
+     
+     //TODO: remove the next three lists, by moving their contents into Arcs.
      static std::vector<std::vector<std::vector<size_t>>> addCup; 
      /// x = addCupGen[i][j][k]: gens[i][j].AddCap(k)=gens[i+1][x]     
      /// always one shorter than gens and addCupGCC
@@ -108,18 +125,13 @@ struct PCA
      /// addCupGCC[i][j][k] = gens[i][j].AddCupGivesClosedComponent(k)
      static std::vector<std::vector<std::vector<bool>>> addCupGCC;
      
-     
-//      static std::vector<Eigen::Matrix<Dynamic,Dynamic,>> 
+     static std::vector<Eigen::Matrix<IndexLL,Eigen::Dynamic,Eigen::Dynamic>> comps;
      
      static std::vector<std::vector<Dots>> vec;///< the ith entry is a list of all possible instances of Dots of length i, except the instance with 1 in all entries.
      static std::vector<std::vector<int>> vec_sum;///< vec_sum[i][j] = number of 1s in vec[i][j]. 
 };
 
-void expand_gens_if_needed ( const int &n );
-void expand_vec_if_needed ( const int &n );
-inline void AddCapArcs( Arcs &arcs,const TE &i );
-inline void AddCupArcs( Arcs &arcs,const TE &i );
-inline bool AddCupArcsGivesClosedComponent( const Arcs &arcs,const TE &i );
+
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //                  CobObj
@@ -137,11 +149,8 @@ private:
      TE strands;
      TE top;
      size_t index;///< index in PCA::gens
-//      Arcs arcs;
      Grading h;
      Grading q;
-
-//      Pairs pairs() const;///< converts arc-format (Arcs) into pair-format (Pairs)
 
 public:
      CobObj (
@@ -186,7 +195,6 @@ public:
      //              //
      // main methods //
      //              //
-     CobObj OneSided() const;///< crossingless tangle obtained by rotating the top half of the tangle to the lower left such that the first top and first bot tangle end sit next to each other
      BNObj to_BNObj() const;///< corresponding object of the Bar-Natan algebra (BNObj); this only works for the basic crossingless tangles \ref c1, \ref b1, etc.
      void AddCap ( const TE &i );///< Crossingless tangle obtained by adding two extra ends before the \f$i^\text{th}\f$ tangle end (which should be at the tangle bottom) and connect them by an arc.
      void AddCup ( const TE &i );///< Crossingless tangle obtained by joining the \f$i^\text{th}\f$ tangle end (which should be at the tangle bottom) to the next and removing the new closed component if there is one.
@@ -286,21 +294,21 @@ public:
 template<typename Coeff> class CobMor
 {
 private:
-     TE strands;
-     TE top;
-     size_t front; // index in PCA::gens[strands]
-     size_t back; // index in PCA::gens[strands]
+     TE strands;// TODO: remove entirely
+     TE top; // TODO: decide if to keep
+     size_t front; // index in PCA::gens[strands]// TODO: replace by reference to address of PCA::gens[strands][front]
+     size_t back; // index in PCA::gens[strands]// TODO: replace by reference to address of PCA::gens[strands][back]
      std::vector<Deco<Coeff>> decos;// using lists here instead makes the program marginally faster (219sec vs 223sec). 
-     IndexLL comps;/// TODO: It is unclear if the comps are in the new or old format; this might mess up the order and also the special tangle end!!!!
+//      IndexLL comps;// components of the cobordism; the front and back tangles are considered as 0-n-tangles.
 
 public:
-     CobMor (
-          TE strands,
-          TE top,
-          size_t front,
-          size_t back,
-          std::vector<Deco<Coeff>> decos,
-          IndexLL comps );///< standard constructor, specifying the components; only to be used if the components are known to be in the correct order
+//      CobMor (
+//           TE strands,
+//           TE top,
+//           size_t front,
+//           size_t back,
+//           std::vector<Deco<Coeff>> decos,
+//           IndexLL comps );///< standard constructor, specifying the components; only to be used if the components are known to be in the correct order
      CobMor (
           TE strands,
           TE top,

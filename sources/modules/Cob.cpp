@@ -41,6 +41,8 @@ std::vector<std::vector<Arcs>> PCA::gens {};
 std::vector<std::vector<std::vector<size_t>>> PCA::addCup;
 std::vector<std::vector<std::vector<bool>>> PCA::addCupGCC;
 std::vector<std::vector<std::vector<size_t>>> PCA::addCap;
+std::vector<Eigen::Matrix<IndexLL,Eigen::Dynamic,Eigen::Dynamic>> PCA::comps;
+
 
 /// computes more entries for PCA::gens if PCA::max_strands < n  
 void expand_gens_if_needed ( const int &n ){
@@ -50,9 +52,17 @@ void expand_gens_if_needed ( const int &n ){
                PCA::addCup = {{},{{0}}};
                PCA::addCupGCC = {{},{{true}}};
                PCA::addCap = {{{0}}};
+               //
+               PCA::comps = {};
+               Eigen::Matrix<IndexLL,Eigen::Dynamic,Eigen::Dynamic> mat1(1,1);
+               mat1.coeffRef(0,0) = PCA::gens[1][0].components_to ( PCA::gens[1][0] );;
+               PCA::comps.push_back(mat1);// 0th entry, only needed for indexing
+               PCA::comps.push_back(mat1);// 1st entry.
           } else {
+               // Create new arcs of length 'PCA::gens.size()'
+               size_t N { PCA::gens.size() };
                std:: cout << "\nExpanding generators to "
-                         << PCA::gens.size()
+                         << N
                          << "="
                          << PCA::addCup.size()
                          << "="
@@ -69,9 +79,9 @@ void expand_gens_if_needed ( const int &n ){
                std::vector<Arcs> new_gens;
                std::vector<Arcs> first;
                std::vector<Arcs> second;
-               for ( TE x = 0; x < PCA::gens.size(); ++x ) {                    
+               for ( TE x = 0; x < N; ++x ) {                    
                     first = PCA::gens[x]; 
-                    second = PCA::gens[PCA::gens.size()-1-x];
+                    second = PCA::gens[N-1-x];
                     for ( auto &v : first ) {
                          for ( TE &e : v.arcs ) {
                               e += 1;
@@ -98,7 +108,7 @@ void expand_gens_if_needed ( const int &n ){
                std::vector<bool> temp_bool {};
                for ( auto gen : new_gens){
                     auto temp_gen {gen};
-                    for ( size_t k=0; k < 2*PCA::gens.size()-1; ++k ){
+                    for ( size_t k=0; k < 2*N-1; ++k ){
                          temp_gen = gen;
                          temp_bool.push_back(temp_gen.addCupGCC( k ));
                          temp_gen.addCup( k );
@@ -120,7 +130,7 @@ void expand_gens_if_needed ( const int &n ){
 //                std::cout << PCA::gens.back().size() << " length gens back.\n" ;
                for ( auto gen : PCA::gens.back()){
                     auto temp_gen {gen};
-                    for ( size_t k=0; k < 2*PCA::gens.size()-1   ; ++k ){
+                    for ( size_t k=0; k < 2*N-1   ; ++k ){
 //                          std::cout << " addCap: " << k << std::flush;
                          temp_gen = gen;
                          temp_gen.addCap( k );
@@ -137,6 +147,15 @@ void expand_gens_if_needed ( const int &n ){
                PCA::addCap.push_back( new_addCupCap );
                //
                PCA::gens.push_back( new_gens );
+               //
+               size_t M {new_gens.size()};
+               Eigen::Matrix<IndexLL,Eigen::Dynamic,Eigen::Dynamic> new_comps ( M,M );
+               for ( size_t front = 0; front < M; ++front ){
+                    for ( size_t back = 0; back < M; ++back ){
+                         new_comps.coeffRef( back,front ) =                new_gens[front].components_to ( new_gens[back] );
+                    };
+               };
+               PCA::comps.push_back( new_comps );
           };
      };
 };
@@ -214,10 +233,10 @@ Arcs::Arcs ( TE size ){
 // output and sanity checks //
 //                          //
 
-Pairs Arcs::pairs() const
+std::vector<std::pair<TE,TE>> Arcs::pairs() const
 {
      // converts arc-format into pair-format
-     Pairs pairs;
+     std::vector<std::pair<TE,TE>> pairs;
      for ( std::size_t i = 0; i < arcs.size(); ++i ) {
           if ( i < arcs[i] ){
                pairs.push_back ( {i,arcs[i]} );
@@ -508,12 +527,7 @@ std::string CobObj::to_string() const
      output +=  "\n    arcs:  ";
      Arcs arcs {PCA::gens[strands][index]};
      arcs.rotate( top );     
-     for ( const auto &pair : arcs.pairs() ) {
-          output +=  std::to_string ( pair.first );
-          output +=  "–";
-          output +=  std::to_string ( pair.second );
-          output +=  " ";
-     };
+     output +=  arcs.to_string();
      output +=  "\n";
      //
      return output;
@@ -533,10 +547,11 @@ bool CobObj::check() const
           };
      };
      // test if tangle is crossingless
-     for ( const auto &pair1 : Arcs(this->OneSided().arcs()).pairs() ) {
+     auto pairs {PCA::gens[strands][index].pairs()};
+     for ( const auto &pair1 : pairs ) {
           TE p1 {pair1.first};
           TE p2 {pair1.second};
-          for ( const auto &pair2 : Arcs(this->OneSided().arcs()).pairs() ) {
+          for ( const auto &pair2 : pairs ) {
                TE t1 {pair2.first};
                TE t2 {pair2.second};
                // we can assume that a<b for each pair {a,b}
@@ -562,13 +577,6 @@ bool CobObj::compatible_with ( const CobObj obj ) const
 //              //
 // main methods //
 //              //
-CobObj CobObj::OneSided() const
-{
-     // rotate bottom half of the tangle to the top right such that the
-     // last top and last bot tangle end sit next to each other
-     return CobObj ( strands,0,PCA::gens[strands][index],h,q );
-}
-
 bool to_BNObj( const TE &strands, const TE &top, const size_t &index ){
      // convert CobObj to BNObj; this only works for the CobObj b and
      bool type {false};// vertical
@@ -794,8 +802,8 @@ CobMor<Coeff>::CobMor ( int i ) :
      top ( 1 ),
      front ( 0 ),
      back ( 0 ),
-     decos ( {} ),
-     comps ( {} )
+     decos ( {} )
+//      comps ( {} )
 {
 }
 
@@ -805,28 +813,28 @@ CobMor<Coeff>::CobMor() :
      top ( 1 ),
      front ( 0 ),
      back ( 0 ),
-     decos ( {} ),
-     comps ( {} )
+     decos ( {} )
+//      comps ( {} )
 {
 }
 
-template<typename Coeff>
-CobMor<Coeff>::CobMor (
-     TE strands,
-     TE top,
-     size_t front,
-     size_t back,
-     std::vector<Deco<Coeff>> decos,
-     IndexLL comps )
-     :
-     strands ( strands ),
-     top ( top ),
-     front ( front ),
-     back ( back ),
-     decos ( decos ),
-     comps ( comps )
-{
-}
+// template<typename Coeff>
+// CobMor<Coeff>::CobMor (
+//      TE strands,
+//      TE top,
+//      size_t front,
+//      size_t back,
+//      std::vector<Deco<Coeff>> decos,
+//      IndexLL comps )
+//      :
+//      strands ( strands ),
+//      top ( top ),
+//      front ( front ),
+//      back ( back ),
+//      decos ( decos ),
+//      comps ( comps )
+// {
+// }
 
 template<typename Coeff>
 CobMor<Coeff>::CobMor (
@@ -840,8 +848,8 @@ CobMor<Coeff>::CobMor (
      top ( top ),
      front ( front ),
      back ( back ),
-     decos ( decos ),
-     comps ( PCA::gens[strands][front].components_to ( PCA::gens[strands][back] ) )
+     decos ( decos )
+//      comps ( PCA::gens[strands][front].components_to ( PCA::gens[strands][back] ) )
 {
 }
 
@@ -931,6 +939,7 @@ std::string CobMor<Coeff>::to_string() const
                     output +=  "\t";
                };
                output +=  "-";
+               auto comps {PCA::comps[strands].coeff(back,front)};
                for ( const auto &j : comps[i] ) {
                     if (j < top){
                          output +=  std::to_string ( top-1-j );
@@ -965,6 +974,7 @@ bool CobMor<Coeff>::check() const
                return false;
           };
      };
+     auto comps {PCA::comps[strands].coeff(back,front)};
      if ( comps.size() !=  dotlength ) {
           return false;
      };
@@ -1054,6 +1064,7 @@ BNMor<Coeff> CobMor<Coeff>::to_BNMor ( TE special_end ) const
      BNObj obj_from = BNObj( to_BNObj( strands,top,front ) );
      BNObj obj_to = BNObj( to_BNObj( strands,top,back ) );
      std::list<Label<Coeff>> new_labels;
+     auto comps {PCA::comps[strands].coeff(back,front)};
      if ( comps.empty() ) {
           return BNMor<Coeff> ( 0 );
      } else if ( comps.size() == 1 ) {
@@ -1143,6 +1154,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCap (
      // add a component [i,i+1] without any dot. We apply this to entries
      // in a complex, 'from' and 'to' should come from the already
      // updated list of objects.
+     auto comps {PCA::comps[strands].coeff(back,front)};
      auto new_comps = comps;
      // shift the indices in the components:
      for ( auto &entryL : new_comps ) {
@@ -1160,13 +1172,13 @@ CobMor<Coeff> CobMor<Coeff>::AddCap (
           };
      };
      // insert the new component:
-     new_comps.insert ( new_comps.begin()+k, {i,static_cast<TE>(i+1)} );
+//      new_comps.insert ( new_comps.begin()+k, {i,static_cast<TE>(i+1)} );
      // insert an entry '0' in each deco.dots
      auto new_decos = decos;
      for ( auto &deco : new_decos ) {
           deco.dots.insert ( deco.dots.begin()+k,0 );
      };
-     return CobMor<Coeff> ( strands+1,top,start,end,new_decos,new_comps );
+     return CobMor<Coeff> ( strands+1,top,start,end,new_decos );
 }
 
 template<typename Coeff>
@@ -1183,6 +1195,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCup22 (
      // the pair.
      size_t comp_i{0};
      // finding the index of the component {i,i+1}:
+     auto comps {PCA::comps[strands].coeff(back,front)};
      auto new_comps = comps;
      for ( const auto &comp : new_comps ) {
           if ( comp.front()  == i ) {
@@ -1245,7 +1258,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCup22 (
      else {
           std::cout << "ERROR! 'CobMor<Coeff>::AddCap22(...)' should never be called with from == 0 and to == 1.";
      };
-     return CobMor<Coeff> ( strands-1,top,start, end, new_decos, new_comps );
+     return CobMor<Coeff> ( strands-1,top,start, end, new_decos );
 }
 
 template<typename Coeff>
@@ -1263,6 +1276,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCupMixed (
      // treat the LHS as 1. Note that 1--->0 is ambiguous, but it is
      // treated identically in the two cases.)  This involves:
      // finding the index of the component containing i (and i+1):
+     auto comps {PCA::comps[strands].coeff(back,front)};
      size_t n {comps.size() };
      size_t comp_i {n};
      // larger than any entry in comp in comps; will become the index of
@@ -1372,7 +1386,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCupMixed (
           };
      };
      // 0--->1: This case does not exist.
-     return CobMor<Coeff> ( strands-1,top,start, end, new_decos, new_comps );
+     return CobMor<Coeff> ( strands-1,top,start, end, new_decos );
 }
 
 template<typename Coeff>
@@ -1382,6 +1396,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCup11 (
      const TE &i ) const
 {
      // finding the index of the component containing i:
+     auto comps {PCA::comps[strands].coeff(back,front)};
      size_t n {comps.size() } ;
      size_t comp_i0 {n};
      // will become the index of comp containing i
@@ -1543,7 +1558,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCup11 (
                new_decos.push_back ( deco );
           };
      };
-     return CobMor<Coeff> ( strands-1,top,start, end, new_decos, new_comps );
+     return CobMor<Coeff> ( strands-1,top,start, end, new_decos );
 }
 
 
@@ -1606,7 +1621,7 @@ CobMor<Coeff> CobMor<Coeff>::operator- () const
      for ( auto &deco : new_decos ) {
           deco.coeff = -deco.coeff;
      };
-     return CobMor<Coeff> ( strands,top,front,back,new_decos,comps );
+     return CobMor<Coeff> ( strands,top,front,back,new_decos );
 }
 
 template<typename Coeff>
@@ -1620,7 +1635,7 @@ CobMor<Coeff> CobMor<Coeff>::operator* ( const Coeff &scalar ) const
 };
 
 /// preparation for CobMor<Coeff>::operator*( const CobMor<Coeff> &cob1 )
-inline IndexLL partitionGenerator ( const IndexLL &new_comps, const Arcs &arcs )
+inline IndexLL partitionGenerator ( const IndexLL &new_comps, const std::vector<TE> &arcs )
 {
      IndexLL partition;
      partition.reserve ( new_comps.size() );
@@ -1651,7 +1666,7 @@ inline IndexLL partitionGenerator ( const IndexLL &new_comps, const Arcs &arcs )
           // different component (whose index has to be irn 'remaining')
           for ( const auto &TEI : nucleusL ) {
                // find new 'arcend'
-               x = arcs.arcs[TEI];
+               x = arcs[TEI];
                if ( nucleusL.end()  == std::find ( nucleusL.begin(),nucleusL.end(),x ) ) {
                     arcend = x;
                     found_arcend = true;
@@ -1674,7 +1689,7 @@ inline IndexLL partitionGenerator ( const IndexLL &new_comps, const Arcs &arcs )
                found_arcend = false;
                for ( const auto &TEI : nucleusL ) {
                     // find new 'arcend'
-                    x = arcs.arcs[TEI];
+                    x = arcs[TEI];
                     if ( nucleusL.end()  == std::find ( nucleusL.begin(),nucleusL.end(),x ) ) {
                          arcend = x;
                          found_arcend = true;
@@ -1723,7 +1738,7 @@ CobMultHelper::CobMultHelper ( IndexL partition1,
 }
 
 /// helper function for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
-inline std::tuple<std::vector<CobMultHelper>,IndexL> CobMultHelperFun ( const IndexLL &new_comps, const Arcs &arcs, const IndexLL &comps0, const IndexLL &comps1 )
+inline std::tuple<std::vector<CobMultHelper>,IndexL> CobMultHelperFun ( const IndexLL &new_comps, const std::vector<TE> &arcs, const IndexLL &comps0, const IndexLL &comps1 )
 {
      std::vector<CobMultHelper> output {};
      IndexLL partition { partitionGenerator ( new_comps,arcs ) };
@@ -1794,8 +1809,11 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
      };
 
      //cobordisms compose as CobMor(b,c)*CobMor(a,b) = CobMor(a,c)
-     IndexLL new_comps { PCA::gens[strands][cob1.front].components_to ( PCA::gens[strands][back] ) };
-     auto X { CobMultHelperFun ( new_comps,PCA::gens[strands][cob1.back],comps,cob1.comps ) };
+//      IndexLL new_comps { PCA::gens[strands][cob1.front].components_to ( PCA::gens[strands][back] ) };
+     auto comps {PCA::comps[strands].coeff(back,front)};
+     auto comps1 {PCA::comps[strands].coeff(cob1.back,cob1.front)};
+     IndexLL new_comps {PCA::comps[strands].coeff(back,cob1.front)};
+     auto X { CobMultHelperFun ( new_comps,PCA::gens[strands][cob1.back].arcs,comps,comps1 ) };
      std::vector<CobMultHelper> cobMultVec { std::get<0> ( X ) };
      IndexL new_order { std::get<1> ( X ) };
 
@@ -1900,7 +1918,7 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
           deco.reorder_old2new ( new_order );
      };
      //reorder the dots according to the partition.
-     return CobMor<Coeff> ( strands,top,cob1.front,back,new_decos,new_comps ).simplify();
+     return CobMor<Coeff> ( strands,top,cob1.front,back,new_decos ).simplify();
 }
 
 template<typename Coeff>
@@ -1917,7 +1935,7 @@ CobMor<Coeff> CobMor<Coeff>::operator+ (
      };     
      std::vector<Deco<Coeff>> new_decos = decos;// concatenate decos1 and decos2
      new_decos.insert ( new_decos.end(), cob2.decos.begin(), cob2.decos.end() );
-     return CobMor<Coeff> ( strands,top,front, back, new_decos, comps ).simplify();
+     return CobMor<Coeff> ( strands,top,front, back, new_decos ).simplify();
 }
 
 //                                            //

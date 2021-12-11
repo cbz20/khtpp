@@ -190,7 +190,6 @@ bool Test_Cob ( const int &details )
      std::cout << "arcs representing all tangles with up to "
                << number_of_strands
                << " strands: \n";
-
      for ( auto a : PCA::vec ){
           std::cout << "[";
           for (auto b : a ){
@@ -216,16 +215,29 @@ bool Test_Cob ( const int &details )
                << number_of_strands
                << " strands: \n";
 
-     for ( auto a : PCA::gens ){
+     int counter {0};
+     for ( auto arcss : PCA::gens ){
+          counter = 0;
           std::cout << "[";
-          for (auto b : a ){
+          for (auto a : arcss ){
+               ++counter;
                std::cout << "[ ";
-               for ( auto c : b.arcs ){
-                    std::cout << int(c) << " ";
-               };
+               a.print();
                std::cout << "]";
           };
-          std::cout << "]\n\n";    
+          std::cout << "]\ntotal="
+                    << counter
+                    << "\n";    
+     };
+     std::cout << " comps lookup-tables:\n";
+     for ( auto mat : PCA::comps ){
+          for ( int front=0 ;front<mat.cols(); ++front ){
+               for ( int back=0 ;back<mat.rows(); ++back ){
+                    std::cout << stringLL(mat.coeff(back,front));
+               };
+               std::cout << "\n";
+          };
+          std::cout << "\n";
      };
      
      std::cout << " addCup lookup-tables:\n";

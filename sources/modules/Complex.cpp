@@ -402,8 +402,7 @@ void Complex<CobObj,CobMor,Coeff>::AddCrossing (
                                              new_objects[from].get_top(),
                                              new_objects[from].get_index(),
                                              new_objects[to].get_index(),
-                                             {deco_closed_comp},
-                                             comps ) *diff_sign;
+                                             {deco_closed_comp} ) *diff_sign;
                     // remove the dot again:
                     deco_closed_comp.switch_dot ( k );
                     deco_closed_comp.add_H();
@@ -412,8 +411,7 @@ void Complex<CobObj,CobMor,Coeff>::AddCrossing (
                                             new_objects[from].get_top(),
                                             new_objects[from].get_index(),
                                             new_objects[to].get_index(),
-                                            {deco_closed_comp},
-                                            comps ) * ( -diff_sign ) );
+                                            {deco_closed_comp} ) * ( -diff_sign ) );
                     // lower Hpower again, so we may recycle 'deco_closed_comp':
                     deco_closed_comp.sub_H();
                     // Sanity check:
@@ -431,8 +429,7 @@ void Complex<CobObj,CobMor,Coeff>::AddCrossing (
                                           new_objects[from].get_top(),
                                           new_objects[from].get_index(),
                                           new_objects[to].get_index(),
-                                          {deco_closed_comp},
-                                          comps ) *diff_sign;
+                                          {deco_closed_comp} ) *diff_sign;
                     // Sanity check:
 //                     if ( mor.gr_q() !=0 ) {
 //                          std::cerr << "Case X 1--->.: Wrong quantum grading!";
@@ -485,8 +482,7 @@ void Complex<CobObj,CobMor,Coeff>::AddCrossing (
                                                new_objects[from].get_top(),
                                                new_objects[from].get_index(),
                                                new_objects[to].get_index(), 
-                                               {deco_closed_comp},
-                                               comps ) *diff_sign;
+                                               {deco_closed_comp} ) *diff_sign;
                     // Sanity check:
 //                     if ( mor.gr_q() !=0 ) {
 //                          std::cerr << "Case Y .--->0: Wrong quantum grading!";
@@ -502,8 +498,7 @@ void Complex<CobObj,CobMor,Coeff>::AddCrossing (
                                           new_objects[from].get_top(),
                                           new_objects[from].get_index(),
                                           new_objects[to].get_index(), 
-                                          {deco_closed_comp},
-                                          comps ) *diff_sign;
+                                          {deco_closed_comp} ) *diff_sign;
                     // Sanity check:
 //                     if ( mor.gr_q() !=0 ) {
 //                          std::cerr << "Case Y .--->1: Wrong quantum grading!";
