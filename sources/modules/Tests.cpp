@@ -194,18 +194,12 @@ bool Test_Cob ( const int &details )
           std::cout << "[";
           for (auto b : a ){
                std::cout << "[ ";
-               for ( auto c : b ){
+               for ( auto c : b.first ){
                     std::cout << int(c) << " ";
                };
+               std::cout << "|";
+               std::cout << b.second;
                std::cout << "]";
-          };
-          std::cout << "]\n\n";    
-     };
-     std::cout << "vec_sum lookup-tables:\n";
-     for ( auto a : PCA::vec_sum ){
-          std::cout << "[";
-          for (auto b : a ){
-               std::cout << b << " ";
           };
           std::cout << "]\n\n";    
      };

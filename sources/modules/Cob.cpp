@@ -107,8 +107,6 @@ inline IndexLL partitionGenerator ( const IndexLL &new_comps, const std::vector<
 
 
 /// helper structure for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
-
-/// \todo precomputed algebra
 struct CobMultHelper {
      /// Each instance of this structure corresponds to a component C of the joined up cobordisms cob2*cob1 and records the following data:
      
@@ -141,7 +139,7 @@ CobMultHelper::CobMultHelper ( IndexL partition1,
 }
 
 /// helper function for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
-inline std::tuple<std::vector<CobMultHelper>,IndexL> CobMultHelperFun ( const IndexLL &new_comps, const std::vector<TE> &arcs, const IndexLL &comps0, const IndexLL &comps1 )
+inline std::pair<std::vector<CobMultHelper>,IndexL> CobMultHelperFun ( const IndexLL &new_comps, const std::vector<TE> &arcs, const IndexLL &comps0, const IndexLL &comps1 )
 {
      std::vector<CobMultHelper> output {};
      IndexLL partition { partitionGenerator ( new_comps,arcs ) };
@@ -184,25 +182,12 @@ inline std::tuple<std::vector<CobMultHelper>,IndexL> CobMultHelperFun ( const In
      return { output,new_order };
 };
 
-
-/// generating function for the list of all crossingless 0-2\f$i\f$-tangles with \f$i<n\f$ 
-
-/// All crossingless tangles are in arc format. 
-/// The definition is recursive. We subdivide the tasks into the subtasks of finding those clts that connect 0 to (2x+1):
-///
-/// 0 . . . . . (2x+1) . . . (2n-1)
-/// 0---(2x+1)
-///
-/// This is in preparation for precomputing the algebra
-
-
-// int PCA::max_strands {1};
 std::vector<std::vector<Arcs>> PCA::gens {};
 std::vector<std::vector<std::vector<size_t>>> PCA::addCup;
 std::vector<std::vector<std::vector<bool>>> PCA::addCupGCC;
 std::vector<std::vector<std::vector<size_t>>> PCA::addCap;
 std::vector<Eigen::Matrix<IndexLL,Eigen::Dynamic,Eigen::Dynamic>> PCA::comps;
-std::vector<Eigen::Matrix<std::vector<std::tuple<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic>> PCA::CobMultHelper;
+std::vector<Eigen::Matrix<std::vector<std::pair<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic>> PCA::CobMultHelper;
 
 
 /// computes more entries for PCA::gens if PCA::max_strands < n  
@@ -221,8 +206,8 @@ void expand_gens_if_needed ( const int &n ){
                PCA::comps.push_back( new_comps );// 1st entry.
                //
                PCA::CobMultHelper = {};
-               Eigen::Matrix<std::vector<std::tuple<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic> new_helps ( 1,1 );
-               std::vector<std::tuple<std::vector<CobMultHelper>,IndexL>> help1 {};
+               Eigen::Matrix<std::vector<std::pair<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic> new_helps ( 1,1 );
+               std::vector<std::pair<std::vector<CobMultHelper>,IndexL>> help1 {};
                help1.push_back( CobMultHelperFun ( new_comps.coeff(0,0),
                                                   PCA::gens[1][0].arcs,
                                                   new_comps.coeff(0,0),
@@ -250,6 +235,11 @@ void expand_gens_if_needed ( const int &n ){
                               << " tangle strands, which is too many."
                               << " Try inceasing the value of 'maximum_number_of_tangle_strands' in 'sources/headers/constants.h'. ";
                };
+               // generate a list of all crossingless 0-2\f$i\f$-tangles with \f$i<n\f$ 
+               // The definition is recursive. We subdivide the tasks into the subtasks of finding those clts that connect 0 to (2x+1):
+               //
+               // 0 . . . . . (2x+1) . . . (2n-1)
+               // 0---(2x+1)
                std::vector<Arcs> new_gens;
                std::vector<Arcs> first;
                std::vector<Arcs> second;
@@ -331,13 +321,8 @@ void expand_gens_if_needed ( const int &n ){
                };
                PCA::comps.push_back( new_comps );
                //
-               //OLD: auto comps {PCA::comps[strands].coeff(back,front)};
-               //OLD: auto comps1 {PCA::comps[strands].coeff(cob1.back,cob1.front)};
-               //OLD: IndexLL new_comps {PCA::comps[strands].coeff(back,cob1.front)};
-               //OLD: auto X { CobMultHelperFun ( new_comps,PCA::gens[strands][cob1.back].arcs,comps,comps1 ) };
-               //NEW: auto X { PCA::CobMultHelper[strands].coeff(back,cob1.front)[front] };
-               Eigen::Matrix<std::vector<std::tuple<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic> new_helps ( M,M );
-               std::vector<std::tuple<std::vector<CobMultHelper>,IndexL>> help {};
+               Eigen::Matrix<std::vector<std::pair<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic> new_helps ( M,M );
+               std::vector<std::pair<std::vector<CobMultHelper>,IndexL>> help {};
                for ( size_t front = 0; front < M; ++front ){
                     for ( size_t back = 0; back < M; ++back ){
                          help.clear();
@@ -357,16 +342,15 @@ void expand_gens_if_needed ( const int &n ){
 };
 
 
-std::vector<std::vector<Dots>> PCA::vec;
-std::vector<std::vector<int>> PCA::vec_sum;
+std::vector<std::vector<std::pair<Dots,int>>> PCA::vec;
+// std::vector<std::vector<int>> PCA::vec_sum;
 // the first entry of vec will not be used, but it is needed to get the indexing right. The same applies to vec_sum.
 
 /// computes more entries for PCA::vec if PCA::max < n
 inline void expand_vec_if_needed ( const int &n ){
      while ( PCA::vec.size() < n+1 ) {
           if ( PCA::vec.size() < 2 ){
-               PCA::vec = {{},{{0}}};
-               PCA::vec_sum = {{},{0}};
+               PCA::vec = {{},{{{0},0}}};
           } else {
                // Create new vectors of length 'PCA::vec.size()'
                if ( n > maximum_number_of_tangle_strands ){
@@ -376,13 +360,10 @@ inline void expand_vec_if_needed ( const int &n ){
                               << " Try inceasing the value of 'maximum_number_of_tangle_strands' in 'sources/headers/constants.h'. ";
                };
                // create temporary copy of last entry of vec to append 1s
-               std::vector<Dots> temp {PCA::vec.back()};
-               std::vector<int> temp_sum {PCA::vec_sum.back()};
+               std::vector<std::pair<Dots,int>> temp {PCA::vec.back()};
                for ( auto &v : temp ) {
-                    v.push_back ( 1 );
-               };
-               for ( auto &v : temp_sum ) {
-                    ++v;
+                    v.first.push_back ( 1 );
+                    ++(v.second);
                };
                // copy the last entry of vec and append dots_all_1 to it 
                Dots dots_all_1 {};
@@ -390,20 +371,15 @@ inline void expand_vec_if_needed ( const int &n ){
                     dots_all_1.push_back(1);
                };
                PCA::vec.push_back( PCA::vec.back() );
-               PCA::vec_sum.push_back( PCA::vec_sum.back() );
                // append 0s to all Dots in new last entry of vec
-               PCA::vec.back().push_back( dots_all_1 );
-               PCA::vec_sum.back().push_back( PCA::vec.size()-2 );
+               PCA::vec.back().push_back( {dots_all_1,PCA::vec.size()-2 } );
                for ( auto &v : PCA::vec.back() ) {
-                    v.push_back ( 0 );
+                    v.first.push_back ( 0 );
                };
                // append temporary vector to last entry of vec
                PCA::vec.back().insert ( PCA::vec.back().end(),
                                         temp.begin(),
                                         temp.end() );
-               PCA::vec_sum.back().insert ( PCA::vec_sum.back().end(),
-                                             temp_sum.begin(),
-                                             temp_sum.end() );
           };
      };
 };
@@ -994,43 +970,15 @@ Deco<Coeff> Deco<Coeff>::operator* (
 
 template<typename Coeff>
 CobMor<Coeff>::CobMor ( int i ) :
-     strands ( 1 ),
-     top ( 1 ),
-     front ( 0 ),
-     back ( 0 ),
      decos ( {} )
-//      comps ( {} )
 {
 }
 
 template<typename Coeff>
 CobMor<Coeff>::CobMor() :
-     strands ( 1 ),
-     top ( 1 ),
-     front ( 0 ),
-     back ( 0 ),
      decos ( {} )
-//      comps ( {} )
 {
 }
-
-// template<typename Coeff>
-// CobMor<Coeff>::CobMor (
-//      TE strands,
-//      TE top,
-//      size_t front,
-//      size_t back,
-//      std::vector<Deco<Coeff>> decos,
-//      IndexLL comps )
-//      :
-//      strands ( strands ),
-//      top ( top ),
-//      front ( front ),
-//      back ( back ),
-//      decos ( decos ),
-//      comps ( comps )
-// {
-// }
 
 template<typename Coeff>
 CobMor<Coeff>::CobMor (
@@ -1045,7 +993,6 @@ CobMor<Coeff>::CobMor (
      front ( front ),
      back ( back ),
      decos ( decos )
-//      comps ( PCA::gens[strands][front].components_to ( PCA::gens[strands][back] ) )
 {
 }
 
@@ -1838,26 +1785,16 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
 {
      //multiplication of CobMor: cob*cob1
      if ( cob1.decos.empty() || decos.empty() ) {
+          //multiplication with the zero-morphism.
           return CobMor<Coeff> ( 0 );
      };
-     //multiplication with the zero-morphism.
-     if ( front != cob1.back ) {
-          // Not necessary, if we trust the program.
-          std::cerr << "WARNING: You are trying to multiply two incomposable morphisms.\n";
-          abort();
-     };
-
+     assert ( front == cob1.back );
+     
      //cobordisms compose as CobMor(b,c)*CobMor(a,b) = CobMor(a,c)
-//      IndexLL new_comps { PCA::gens[strands][cob1.front].components_to ( PCA::gens[strands][back] ) };
-//      auto comps {PCA::comps[strands].coeff(back,front)};
-//      auto comps1 {PCA::comps[strands].coeff(cob1.back,cob1.front)};
-//      IndexLL new_comps {PCA::comps[strands].coeff(back,cob1.front)};
-//      auto X { CobMultHelperFun ( new_comps,PCA::gens[strands][cob1.back].arcs,comps,comps1 ) };
-     auto X { PCA::CobMultHelper[strands].coeff(back,cob1.front)[front] };
-     std::vector<CobMultHelper> cobMultVec { std::get<0> ( X ) };
-     IndexL new_order { std::get<1> ( X ) };
-
-     // temporary variables neded below
+     std::vector<CobMultHelper> cobMultVec { PCA::CobMultHelper[strands].coeff(back,cob1.front)[front].first };
+     IndexL new_order { PCA::CobMultHelper[strands].coeff(back,cob1.front)[front].second };
+     
+     // temporary variables needed below
      std::vector<Deco<Coeff>> new_decos {};
      std::vector<std::vector<Deco<Coeff>>> part_decos {};
      std::vector<Deco<Coeff>> new_part_decos {};
@@ -1866,59 +1803,37 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
      unsigned int n {0};
      unsigned int g {0};
      int r {0};
-     
-//      std::vector<int> r1 {};
-//      r1.reserve( cobMultVec.size() );
-//      Eigen::Matrix<int,Eigen::Dynamic,Eigen::Dynamic> r2( decos.size(),
-//                                                           cobMultVec.size() );
-//      for ( int j = 0; j < decos.size(); ++j ) {
-//           for ( int k = 0; k < cobMultVec.size(); ++k ) {
-//                r = 0;// total #dots on this old component
-//                for ( const auto &l : cobMultVec[k].partition2 ) {
-//                     r +=  decos[j].dots[l];
-//                };
-//                r2.coeffRef(j,k) = r;
-//           };
-//      };
-     for ( int i=0; i < cob1.decos.size(); ++i ) {
-//           r1.clear();
-//           for ( const auto &c : cobMultVec ) {
-//                r = 0;// total #dots on this old component
-//                for ( const auto &l : c.partition1 ) {
-//                     r +=  cob1.decos[i].dots[l];
-//                };
-//                r1.push_back( r );
-//           };
-          for ( int j=0; j < decos.size(); ++j ) {
+     //
+     for ( const auto &d1 : cob1.decos ) {
+             for ( const auto &d2 : decos ) {
                part_decos.clear();
                // for each element of the partition, compute the partial
                // decorations on the new components corresponding to that
                // element; a partial decoration is of type 'Deco', but the
                // length of the dot-vectors are equal to the length of the
                // partition element.
-               for ( int k = 0; k < cobMultVec.size(); ++k ) {
-//                     r = r1[k]+r2.coeff(j,k);// total #dots on this old component
+               for ( const auto &c : cobMultVec) {
                     r = 0;
-                    for ( const auto &l : cobMultVec[k].partition1 ) {
-                         r +=  cob1.decos[i].dots[l];
+                    for ( const auto &l : c.partition1 ) {
+                         r +=  d1.dots[l];
                     };
-                    for ( const auto &l : cobMultVec[k].partition2 ) {
-                         r +=  decos[j].dots[l];
+                    for ( const auto &l : c.partition2 ) {
+                         r +=  d2.dots[l];
                     };
-                    n = cobMultVec[k].partitionLength;
-                    g = cobMultVec[k].genus;
+                    n = c.partitionLength;
+                    g = c.genus;
                     new_part_decos.clear();
                     if ( r > 0 ) {
                          new_part_decos.push_back ( Deco<Coeff> ( g+r-1,Dots ( n,1 ),1 ) );
                     } else {
                          // make sure, CobMor::vec[n] is already computed.
                          expand_vec_if_needed( n );
-                         for ( int v=0; v < PCA::vec[n].size(); ++v ) {
+                         for ( const auto &v : PCA::vec[n] ){
                               // coefficients/signs for the deco of each dot_vector
-                              if ( ( g+n-PCA::vec_sum[n][v] ) %2 == 0 ) {
-                                   new_part_decos.push_back ( Deco<Coeff> ( g+n-PCA::vec_sum[n][v]-1,PCA::vec[n][v],-1 ) );
+                              if ( ( g+n-v.second ) %2 == 0 ) {
+                                   new_part_decos.push_back ( Deco<Coeff> ( g+n-v.second-1,v.first,-1 ) );
                               } else {
-                                   new_part_decos.push_back ( Deco<Coeff> ( g+n-PCA::vec_sum[n][v]-1,PCA::vec[n][v],1 ) );
+                                   new_part_decos.push_back ( Deco<Coeff> ( g+n-v.second-1,v.first,1 ) );
                               };
                          };
                          if ( g%2 == 1 ) { //genus odd
@@ -1947,9 +1862,9 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
                // now:
                for ( auto &deco : more_decos ) {
                     deco = deco*Deco<Coeff> (
-                                cob1.decos[i].hpower+decos[j].hpower,
+                                d1.hpower+d2.hpower,
                                 {},
-                                cob1.decos[i].coeff*decos[j].coeff );
+                                d1.coeff*d2.coeff );
                };
                new_decos.insert ( new_decos.end(),more_decos.begin(),more_decos.end() );
           };

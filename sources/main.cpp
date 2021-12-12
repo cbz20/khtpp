@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <string>
 #include <getopt.h>
+#include <cassert>
 #include <Eigen/Core>
 #include <Eigen/SparseCore>
 #include "headers/aux_sys.h"

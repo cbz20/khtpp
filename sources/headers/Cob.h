@@ -24,6 +24,7 @@
 #include <vector>
 #include <algorithm> 
 #include <list>
+#include <cassert>
 #include <Eigen/Core>
 #include "aux_sys.h"
 #include "Coefficients.h"
@@ -127,10 +128,9 @@ struct PCA
      static std::vector<std::vector<std::vector<bool>>> addCupGCC;
      
      static std::vector<Eigen::Matrix<IndexLL,Eigen::Dynamic,Eigen::Dynamic>> comps;
-     static std::vector<Eigen::Matrix<std::vector<std::tuple<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic>> CobMultHelper;
+     static std::vector<Eigen::Matrix<std::vector<std::pair<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic>> CobMultHelper;
      
-     static std::vector<std::vector<Dots>> vec;///< the ith entry is a list of all possible instances of Dots of length i, except the instance with 1 in all entries.
-     static std::vector<std::vector<int>> vec_sum;///< vec_sum[i][j] = number of 1s in vec[i][j]. 
+     static std::vector<std::vector<std::pair<Dots,int>>> vec;///< the ith entry is a pair, whose first element is a list of all possible instances of Dots of length i, except the instance with 1 in all entries, and whose second element is equal to the number of 1s in this vector; 
 };
 
 
@@ -301,16 +301,8 @@ private:
      size_t front; // index in PCA::gens[strands]// TODO: replace by reference to address of PCA::gens[strands][front]
      size_t back; // index in PCA::gens[strands]// TODO: replace by reference to address of PCA::gens[strands][back]
      std::vector<Deco<Coeff>> decos;// using lists here instead makes the program marginally faster (219sec vs 223sec). 
-//      IndexLL comps;// components of the cobordism; the front and back tangles are considered as 0-n-tangles.
 
 public:
-//      CobMor (
-//           TE strands,
-//           TE top,
-//           size_t front,
-//           size_t back,
-//           std::vector<Deco<Coeff>> decos,
-//           IndexLL comps );///< standard constructor, specifying the components; only to be used if the components are known to be in the correct order
      CobMor (
           TE strands,
           TE top,
