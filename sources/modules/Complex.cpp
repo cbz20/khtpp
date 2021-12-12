@@ -944,7 +944,7 @@ Chains<Coeff> Complex<BNObj,BNMor,Coeff>::to_chains () const
                     second_loop = false;
                     go_on = false;
                } else {
-                    morphism = BNMor<Coeff> ( object,object, {{}} );
+                    morphism = BNMor<Coeff> ( object.get_idem(),object.get_idem(), {{}} );
                     go_on = false;
                };
                chain.push_back ( {object, morphism, rightarrow} );
@@ -1049,8 +1049,8 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::cone ( const int &n ) con
                     iter+dim1,
                     iter,
                     BNMor<Coeff> (
-                         new_objects[iter],
-                         new_objects2[iter],
+                         new_objects[iter].get_idem(),
+                         new_objects2[iter].get_idem(),
                          labels ) ) );
      };
      //
@@ -1117,14 +1117,14 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(it.row(),iB);
                                         col = indices(it.col(),iB);
                                         if ( n % 2 == 0 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n,l.get_coeff()},
                                                                   {-2*n,l.get_coeff()}}
                                                                );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n,-l.get_coeff()},
                                                                   {-2*n,l.get_coeff()}}
                                                                );
@@ -1134,19 +1134,19 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(it.row(),iB);
                                         col = indices(it.col(),iB)+1;
                                         if ( n == 1 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{0,l.get_coeff()}}
                                                                );
                                         } else if ( n % 2 == 0 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,-l.get_coeff()},
                                                                   {2-2*n,l.get_coeff()}}
                                                                );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,l.get_coeff()},
                                                                   {2-2*n,l.get_coeff()}}
                                                                );
@@ -1166,19 +1166,19 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(it.row(),iB);
                                         col = indices(it.col(),iB);
                                         if ( n == 1 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{0,l.get_coeff()}}
                                                                );
                                         } else if ( n % 2 == 0 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,-l.get_coeff()},
                                                                   {2-2*n,l.get_coeff()}}
                                                                );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,l.get_coeff()},
                                                                   {2-2*n,l.get_coeff()}}
                                                                );
@@ -1197,19 +1197,19 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(it.row(),iB);
                                         col = indices(it.col(),iB)+1;
                                         if ( n == 1 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{0,l.get_coeff()}}
                                                                );
                                         } else if ( n % 2 == 0 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,l.get_coeff()},
                                                                   {2-2*n,-l.get_coeff()}}
                                                                );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,l.get_coeff()},
                                                                   {2-2*n,l.get_coeff()}}
                                                                );
@@ -1219,14 +1219,14 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(it.row(),iB)+1;
                                         col = indices(it.col(),iB)+1;
                                         if ( n % 2 == 0 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n,l.get_coeff()},
                                                                   {-2*n,l.get_coeff()}}
                                                                );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n,l.get_coeff()},
                                                                   {-2*n,-l.get_coeff()}}
                                                                );
@@ -1239,14 +1239,14 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(it.row(),iB);
                                         col = indices(it.col(),iB);
                                         if ( n % 2 == 0 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n,l.get_coeff()},
                                                                   {-2*n,l.get_coeff()}}
                                                                );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n,-l.get_coeff()},
                                                                   {-2*n,l.get_coeff()}}
                                                                );
@@ -1256,19 +1256,19 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(it.row(),iB);
                                         col = indices(it.col(),iB)+1;
                                         if ( n == 1 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{0,l.get_coeff()}}
                                                                );
                                         } else if ( n % 2 == 0 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,-l.get_coeff()},
                                                                   {2-2*n,l.get_coeff()}}
                                                                );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,l.get_coeff()},
                                                                   {2-2*n,l.get_coeff()}}
                                                                );
@@ -1287,14 +1287,14 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(it.row(),iB);
                                         col = indices(it.col(),iB);
                                         if ( n % 2 == 0 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n,l.get_coeff()},
                                                                   {-2*n,l.get_coeff()}}
                                                                );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n,-l.get_coeff()},
                                                                   {-2*n,l.get_coeff()}}
                                                                );
@@ -1329,8 +1329,8 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         // arrow (1)--->.
                                         row = indices(iT,it.row());
                                         col = indices(iT,it.col());
-                                        mor = BNMor<Coeff>( new_objects[row],
-                                                            new_objects[col],
+                                        mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                            new_objects[col].get_idem(),
                                                             {{-2*n,l.get_coeff()}}
                                                           );
                                         triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
@@ -1338,13 +1338,13 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(iT,it.row());
                                         col = indices(iT,it.col())+1;
                                         if ( n == 1 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{0,l.get_coeff()}}
                                                                );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,l.get_coeff()},
                                                                   {2-2*n,l.get_coeff()}}
                                                                );
@@ -1365,13 +1365,13 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(iT,it.row());
                                         col = indices(iT,it.col());
                                         if ( n == 1 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{0,l.get_coeff()}}
                                                                );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,l.get_coeff()},
                                                                   {2-2*n,l.get_coeff()}}
                                                                );
@@ -1380,8 +1380,8 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         // arrow .--->(2)
                                         row = indices(iT,it.row())+1;
                                         col = indices(iT,it.col());
-                                        mor = BNMor<Coeff>( new_objects[row],
-                                                            new_objects[col],
+                                        mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                            new_objects[col].get_idem(),
                                                             {{n,l.get_coeff()}}
                                                           );
                                         triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
@@ -1398,13 +1398,13 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(iT,it.row());
                                         col = indices(iT,it.col());
                                         if ( n % 2 == 0){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n,-l.get_coeff()}}
                                                             );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n,l.get_coeff()}}
                                                             );
                                         };
@@ -1413,13 +1413,13 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(iT,it.row())+1;
                                         col = indices(iT,it.col())+1;
                                         if ( n % 2 == 0){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{-2*n,-l.get_coeff()}}
                                                             );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{-2*n,l.get_coeff()}}
                                                             );
                                         };
@@ -1428,19 +1428,19 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(iT,it.row());
                                         col = indices(iT,it.col())+1;
                                         if ( n == 1 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{0,-l.get_coeff()}}
                                                                );
                                         } else if ( n % 2 == 0 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,l.get_coeff()},
                                                                   {2-2*n,l.get_coeff()}}
                                                                );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,-l.get_coeff()},
                                                                   {2-2*n,-l.get_coeff()}}
                                                                );
@@ -1452,16 +1452,16 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         // arrow (1)--->(1)
                                         row = indices(iT,it.row());
                                         col = indices(iT,it.col());
-                                        mor = BNMor<Coeff>( new_objects[row],
-                                                            new_objects[col],
+                                        mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                            new_objects[col].get_idem(),
                                                             {{-2*n,l.get_coeff()}}
                                                           );
                                         triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
                                         // arrow (2)--->(2)
                                         row = indices(iT,it.row())+1;
                                         col = indices(iT,it.col())+1;
-                                        mor = BNMor<Coeff>( new_objects[row],
-                                                            new_objects[col],
+                                        mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                            new_objects[col].get_idem(),
                                                             {{n,l.get_coeff()}}
                                                           );
                                         triplets.push_back ( Eigen::Triplet<BNMor<Coeff>> ( row,col,mor ) );
@@ -1469,13 +1469,13 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         row = indices(iT,it.row());
                                         col = indices(iT,it.col())+1;
                                         if ( n == 1 ){
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{0,l.get_coeff()}}
                                                                );
                                         } else {
-                                             mor = BNMor<Coeff>( new_objects[row],
-                                                                 new_objects[col],
+                                             mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                                 new_objects[col].get_idem(),
                                                                  {{n-1,l.get_coeff()},
                                                                   {2-2*n,l.get_coeff()}}
                                                                );
@@ -1493,8 +1493,8 @@ Complex<BNObj,BNMor,Coeff> Complex<BNObj,BNMor,Coeff>::operator+ ( const Complex
                                         n = -n/2;// n from formula
                                         row = indices(iT,it.row());
                                         col = indices(iT,it.col());
-                                        mor = BNMor<Coeff>( new_objects[row],
-                                                            new_objects[col],
+                                        mor = BNMor<Coeff>( new_objects[row].get_idem(),
+                                                            new_objects[col].get_idem(),
                                                             {{n,l.get_coeff()},
                                                              {-2*n,l.get_coeff()}}
                                                           );
@@ -1802,7 +1802,9 @@ void Complex<BNObj,BNMor,Coeff>::isolate_arrow (
                          exit ( 1 );
                     };
                     coeff = alg.get_coeff ( faceD ) * inverse_coeff;
-                    isotopy = BNMor<Coeff> ( this->objects[end],this->objects[x], {{current_type-type,coeff}} );
+                    isotopy = BNMor<Coeff> ( this->objects[end].get_idem(),
+                                             this->objects[x].get_idem(),
+                                             {{current_type-type,coeff}} );
                     this->isotopy ( end,x,isotopy );
                };
                if ( this->diffs.coeff ( x,start ).get_type ( faceD ) !=0 ) {
@@ -1833,7 +1835,9 @@ void Complex<BNObj,BNMor,Coeff>::isolate_arrow (
                          exit ( 1 );
                     };
                     coeff = ( -1 ) * alg.get_coeff ( faceD ) * inverse_coeff;
-                    isotopy = BNMor<Coeff> ( this->objects[x],this->objects[start], {{current_type-type,coeff}} );
+                    isotopy = BNMor<Coeff> ( this->objects[x].get_idem(),
+                                             this->objects[start].get_idem(),
+                                             {{current_type-type,coeff}} );
                     this->isotopy ( x,start,isotopy );
                };
                if ( this->diffs.coeff ( end,x ).get_type ( faceD ) !=0 ) {

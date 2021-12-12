@@ -102,7 +102,7 @@ Clink<Coeff>::Clink ( const std::string &s ){
      try {
           // test if morphism is zero
           if ( str.empty() || i == std::string::npos ){
-               morphism = BNMor<Coeff>(object, object, {});
+               morphism = BNMor<Coeff>(idem, idem, {});
           } else {
                // morphism is non-zero; now determine for sign of type
                if ( rightarrow ){
@@ -174,13 +174,13 @@ Clink<Coeff>::Clink ( const std::string &s ){
                          type *= std::stoi(str.substr(i+1));
                     };
                };
-               auto front {object};
-               auto back {object};
+               auto front {idem};
+               auto back {idem};
                if ( type < 0 && ((type-1) % 2 == 0)){
                     if ( rightarrow ){
-                         back = BNObj(!idem, h, q);
+                         back = !idem;
                     } else {
-                         front = BNObj(!idem, h, q);
+                         front = !idem;
                     };
                };
                //
@@ -357,7 +357,7 @@ Chain<Coeff>::Chain ( const std::string s )
           // compare current object to next, but cyclically
           if (clinks[i].object==clinks[(i+1)% clinks.size()].object ){
                if (clinks[i].morphism.get_first_type()==-1){
-                    clinks[i].morphism = BNMor<Coeff>(clinks[i].object, clinks[i].object, {Label(-2, clinks[i].morphism.get_coeff(false))});
+                    clinks[i].morphism = BNMor<Coeff>(clinks[i].object.get_idem(), clinks[i].object.get_idem(), {Label(-2, clinks[i].morphism.get_coeff(false))});
                };
           };
      };
@@ -534,7 +534,9 @@ void Chain<Coeff>::sort ()
                // add the final clink from the old start
                new_clinks.push_back ( {
                     clinks.front().object,
-                    BNMor<Coeff> ( clinks.front().object,clinks.front().object,{} ),
+                    BNMor<Coeff> ( clinks.front().object.get_idem(),
+                                   clinks.front().object.get_idem(),
+                                   {} ),
                     0
                } );
                clinks = new_clinks;

@@ -307,24 +307,20 @@ bool label_is_zero ( const Label<Coeff> &label )
 
 template<typename Coeff>
 BNMor<Coeff>::BNMor ( int i ) :
-     front ( BNObj() ),
-     back ( BNObj() ),
      labels ( {} )
 {
 }
 
 template<typename Coeff>
 BNMor<Coeff>::BNMor() :
-     front ( BNObj() ),
-     back ( BNObj() ),
      labels ( {} )
 {
 }
 
 template<typename Coeff>
 BNMor<Coeff>::BNMor (
-     BNObj front,
-     BNObj back,
+     Idem front,
+     Idem back,
      std::list<Label<Coeff>> labels )
      :
      front ( front ),
@@ -337,13 +333,13 @@ BNMor<Coeff>::BNMor (
 // getters and setters //
 //                     //
 template<typename Coeff>
-BNObj BNMor<Coeff>::get_front ( ) const
+Idem BNMor<Coeff>::get_front ( ) const
 {
      return this->front;
 };
 
 template<typename Coeff>
-BNObj BNMor<Coeff>::get_back ( ) const
+Idem BNMor<Coeff>::get_back ( ) const
 {
      return this->back;
 };
@@ -448,11 +444,11 @@ void BNMor<Coeff>::print ( const bool &is_4ended ) const
      if ( labels.empty() ) {
           std::cout << "The zero-morphism.\n";
      } else {
-          std::cout << front.to_string ( 1 )
-                    << "---(";
-          std::cout << this->to_string ( 1, is_4ended );
-          std::cout << ")--->"
-                    << back.to_string ( 1 );
+          std::cout << BNObj( front ).to_string ( false )
+                    << "---("
+                    << this->to_string ( 1, is_4ended )
+                    << ")--->"
+                    << BNObj( back ).to_string ( false );
      };
 }
 
@@ -465,10 +461,10 @@ bool BNMor<Coeff>::check (
           return true;
      };
      // We may now assume that the morphism is non-zero.
-     if ( front!=obj_from ) {
+     if ( front!=obj_from.get_idem() ) {
           return false;
      };
-     if ( back!=obj_to ) {
+     if ( back!=obj_to.get_idem() ) {
           return false;
      };
      return true;

@@ -1204,8 +1204,8 @@ CobMor<Coeff> CobMor<Coeff>::simplify()
 template<typename Coeff>
 BNMor<Coeff> CobMor<Coeff>::to_BNMor ( TE special_end ) const
 {
-     BNObj obj_from = BNObj( to_BNObj( strands,top,front ) );
-     BNObj obj_to = BNObj( to_BNObj( strands,top,back ) );
+     Idem obj_from = BNObj( to_BNObj( strands,top,front ) ).get_idem();
+     Idem obj_to = BNObj( to_BNObj( strands,top,back ) ).get_idem();
      std::list<Label<Coeff>> new_labels;
      auto comps {PCA::comps[strands].coeff(back,front)};
      if ( comps.empty() ) {

@@ -174,13 +174,13 @@ public:
 template<typename Coeff> class BNMor
 {
 private:
-     BNObj front;
-     BNObj back;
+     Idem front;
+     Idem back;
      std::list<Label<Coeff>> labels;
 
 public:
-     BNMor ( BNObj front,
-             BNObj back,
+     BNMor ( Idem front,
+             Idem back,
              std::list<Label<Coeff>> labels );///< standard constructor
      BNMor ( int i );///< constructor for the zero-morphism (needed by the Eigen Template Library)
      BNMor();///< constructor for the zero-morphism (needed by the Eigen Template Library)
@@ -188,9 +188,9 @@ public:
      //                     //
      // getters and setters //
      //                     //
-     BNObj get_front() const;///< front objects of the morphism
+     Idem get_front() const;///< front objects of the morphism
      
-     BNObj get_back() const;///< back objects of the morphism
+     Idem get_back() const;///< back objects of the morphism
      /// type of same type as faceD and 0 if there is none.
      
      /// results in undefined behaviour unless the morphism is homogeneous of non-zero quantum grading, so that there is:
