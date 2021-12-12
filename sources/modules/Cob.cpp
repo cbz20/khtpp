@@ -36,12 +36,173 @@
 //                  Precomputed Algebra
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+
+/// preparation for CobMor<Coeff>::operator*( const CobMor<Coeff> &cob1 )
+inline IndexLL partitionGenerator ( const IndexLL &new_comps, const std::vector<TE> &arcs )
+{
+     IndexLL partition;
+     partition.reserve ( new_comps.size() );
+     // the partition will be a list of list of indices of components of
+     // the new cobordism; the following lines populates this list
+     IndexL remaining;
+     remaining.reserve ( new_comps.size() );
+     // indices of the remaining components in our iteration process
+     // populating 'partition'.
+     for ( std::size_t i = 0; i < new_comps.size(); ++i ) {
+          remaining.push_back ( i );
+     };
+     IndexL nucleus, nucleusL;
+     TE arcend, x;
+     bool found_arcend {false};
+     //
+     while ( remaining.size() >0 ) {
+          // pick the first of the remaining components as the nucleus of a
+          // new element of the partition and remove it from remaining:
+          nucleus = { remaining.back() };
+          remaining.pop_back();
+          nucleusL = new_comps[nucleus.back()];
+          // list of TEIs of nucleus
+          arcend = 0;
+          x = 0;
+          found_arcend = false;
+          // the first TEI of nucleus which connects via the middle clt to a
+          // different component (whose index has to be irn 'remaining')
+          for ( const auto &TEI : nucleusL ) {
+               // find new 'arcend'
+               x = arcs[TEI];
+               if ( nucleusL.end()  == std::find ( nucleusL.begin(),nucleusL.end(),x ) ) {
+                    arcend = x;
+                    found_arcend = true;
+                    break;
+               };
+          };
+          while ( found_arcend ) {
+               // find the component of 'arcend' and remove this component from
+               // the remaining components (strictly reducing remaining.size())
+               for ( std::size_t i = 0; i<remaining.size(); ++i ) {
+                    IndexL comp = new_comps[remaining[i]];
+                    if ( std::find ( comp.begin(),comp.end(),arcend ) != comp.end() ) {
+                         // the following will execute exactly once in the for loop
+                         nucleus.push_back ( remaining[i] );
+                         remaining.erase ( remaining.begin()+i );
+                         nucleusL.insert ( nucleusL.end(),comp.begin(),comp.end() );
+                         break;
+                    };
+               };
+               found_arcend = false;
+               for ( const auto &TEI : nucleusL ) {
+                    // find new 'arcend'
+                    x = arcs[TEI];
+                    if ( nucleusL.end()  == std::find ( nucleusL.begin(),nucleusL.end(),x ) ) {
+                         arcend = x;
+                         found_arcend = true;
+                         break;
+                    };
+               };
+          };
+          partition.push_back ( nucleus );
+     };
+     return partition;
+};
+
+
+/// helper structure for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
+
+/// \todo precomputed algebra
+struct CobMultHelper {
+     /// Each instance of this structure corresponds to a component C of the joined up cobordisms cob2*cob1 and records the following data:
+     
+     /// components of the first cobordism that lie on C
+     IndexL partition1;
+     /// components of the second cobordism that lie on C
+     IndexL partition2;
+     /// genus of C
+     unsigned int genus;
+     /// number of (open) components of new basic cobordism that are obtained by maximally neck-cutting C
+     unsigned int partitionLength;
+
+     CobMultHelper ( IndexL partition1,
+                     IndexL partition2,
+                     unsigned int genus,
+                     unsigned int partitionLength
+                   );///< standard constructor
+};
+
+CobMultHelper::CobMultHelper ( IndexL partition1,
+                               IndexL partition2,
+                               unsigned int genus,
+                               unsigned int partitionLength
+                             ) :
+     partition1 ( partition1 ),
+     partition2 ( partition2 ),
+     genus ( genus ),
+     partitionLength ( partitionLength )
+{
+}
+
+/// helper function for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
+inline std::tuple<std::vector<CobMultHelper>,IndexL> CobMultHelperFun ( const IndexLL &new_comps, const std::vector<TE> &arcs, const IndexLL &comps0, const IndexLL &comps1 )
+{
+     std::vector<CobMultHelper> output {};
+     IndexLL partition { partitionGenerator ( new_comps,arcs ) };
+//      std::cout << "partition: " << stringLL ( partition ) << std::flush ;
+     output.reserve ( partition.size() );
+     IndexL new_order {};
+     IndexL part1 {};
+     IndexL part2 {};
+     IndexL comp {}; //'old_comp'
+
+     // part1/2: indices of components of cob1/cob2 that are from
+     // the intersection of cob1/cob2 with the old component
+     // corresponding to the element of 'partition'
+     for ( const auto &part : partition ) {
+          comp.clear();
+          for ( const auto &i : part ) {
+               comp.insert ( comp.end(),new_comps[i].begin(),new_comps[i].end() );
+          };
+          part1.clear();
+          for ( std::size_t i = 0; i<comps1.size(); ++i ) {
+               if ( std::find ( comp.begin(),comp.end(),comps1[i][0] ) != comp.end() ) {
+                    part1.push_back ( i );
+               };
+          };
+          part2.clear();
+          for ( std::size_t i = 0; i<comps0.size(); ++i ) {
+               if ( std::find ( comp.begin(),comp.end(),comps0[i][0] ) != comp.end() ) {
+                    part2.push_back ( i );
+               };
+          };
+          output.push_back ( CobMultHelper ( part1,
+                                             part2,
+                                             1 - ( part1.size()
+                                                       +part2.size()
+                                                       -comp.size() / 2
+                                                       +part.size() ) /2,
+                                             part.size() ) );
+          new_order.insert ( new_order.end(),part.begin(),part.end() );
+     };
+     return { output,new_order };
+};
+
+
+/// generating function for the list of all crossingless 0-2\f$i\f$-tangles with \f$i<n\f$ 
+
+/// All crossingless tangles are in arc format. 
+/// The definition is recursive. We subdivide the tasks into the subtasks of finding those clts that connect 0 to (2x+1):
+///
+/// 0 . . . . . (2x+1) . . . (2n-1)
+/// 0---(2x+1)
+///
+/// This is in preparation for precomputing the algebra
+
+
 // int PCA::max_strands {1};
 std::vector<std::vector<Arcs>> PCA::gens {};
 std::vector<std::vector<std::vector<size_t>>> PCA::addCup;
 std::vector<std::vector<std::vector<bool>>> PCA::addCupGCC;
 std::vector<std::vector<std::vector<size_t>>> PCA::addCap;
 std::vector<Eigen::Matrix<IndexLL,Eigen::Dynamic,Eigen::Dynamic>> PCA::comps;
+std::vector<Eigen::Matrix<std::vector<std::tuple<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic>> PCA::CobMultHelper;
 
 
 /// computes more entries for PCA::gens if PCA::max_strands < n  
@@ -54,10 +215,23 @@ void expand_gens_if_needed ( const int &n ){
                PCA::addCap = {{{0}}};
                //
                PCA::comps = {};
-               Eigen::Matrix<IndexLL,Eigen::Dynamic,Eigen::Dynamic> mat1(1,1);
-               mat1.coeffRef(0,0) = PCA::gens[1][0].components_to ( PCA::gens[1][0] );;
-               PCA::comps.push_back(mat1);// 0th entry, only needed for indexing
-               PCA::comps.push_back(mat1);// 1st entry.
+               Eigen::Matrix<IndexLL,Eigen::Dynamic,Eigen::Dynamic> new_comps(1,1);
+               new_comps.coeffRef(0,0) = PCA::gens[1][0].components_to ( PCA::gens[1][0] );;
+               PCA::comps.push_back( new_comps );// 0th entry, only needed for indexing
+               PCA::comps.push_back( new_comps );// 1st entry.
+               //
+               PCA::CobMultHelper = {};
+               Eigen::Matrix<std::vector<std::tuple<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic> new_helps ( 1,1 );
+               std::vector<std::tuple<std::vector<CobMultHelper>,IndexL>> help1 {};
+               help1.push_back( CobMultHelperFun ( new_comps.coeff(0,0),
+                                                  PCA::gens[1][0].arcs,
+                                                  new_comps.coeff(0,0),
+                                                  new_comps.coeff(0,0) )
+                              );
+               new_helps.coeffRef( 0,0 ) = help1;
+               PCA::CobMultHelper.push_back( new_helps );// 0th entry, only needed for indexing
+               PCA::CobMultHelper.push_back( new_helps );// 1st entry.
+               //
           } else {
                // Create new arcs of length 'PCA::gens.size()'
                size_t N { PCA::gens.size() };
@@ -156,6 +330,28 @@ void expand_gens_if_needed ( const int &n ){
                     };
                };
                PCA::comps.push_back( new_comps );
+               //
+               //OLD: auto comps {PCA::comps[strands].coeff(back,front)};
+               //OLD: auto comps1 {PCA::comps[strands].coeff(cob1.back,cob1.front)};
+               //OLD: IndexLL new_comps {PCA::comps[strands].coeff(back,cob1.front)};
+               //OLD: auto X { CobMultHelperFun ( new_comps,PCA::gens[strands][cob1.back].arcs,comps,comps1 ) };
+               //NEW: auto X { PCA::CobMultHelper[strands].coeff(back,cob1.front)[front] };
+               Eigen::Matrix<std::vector<std::tuple<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic> new_helps ( M,M );
+               std::vector<std::tuple<std::vector<CobMultHelper>,IndexL>> help {};
+               for ( size_t front = 0; front < M; ++front ){
+                    for ( size_t back = 0; back < M; ++back ){
+                         help.clear();
+                         for ( size_t middle = 0; middle < M; ++middle ){
+                              help.push_back( CobMultHelperFun ( new_comps.coeff(back,front),
+                                                                 new_gens[middle].arcs,
+                                                                 new_comps.coeff(back,middle),
+                                                                 new_comps.coeff(middle,front) )
+                                            );
+                         };
+                         new_helps.coeffRef( back,front ) = help;
+                    };
+               };
+               PCA::CobMultHelper.push_back( new_helps );
           };
      };
 };
@@ -1634,163 +1830,6 @@ CobMor<Coeff> CobMor<Coeff>::operator* ( const Coeff &scalar ) const
      return new_cob;
 };
 
-/// preparation for CobMor<Coeff>::operator*( const CobMor<Coeff> &cob1 )
-inline IndexLL partitionGenerator ( const IndexLL &new_comps, const std::vector<TE> &arcs )
-{
-     IndexLL partition;
-     partition.reserve ( new_comps.size() );
-     // the partition will be a list of list of indices of components of
-     // the new cobordism; the following lines populates this list
-     IndexL remaining;
-     remaining.reserve ( new_comps.size() );
-     // indices of the remaining components in our iteration process
-     // populating 'partition'.
-     for ( std::size_t i = 0; i < new_comps.size(); ++i ) {
-          remaining.push_back ( i );
-     };
-     IndexL nucleus, nucleusL;
-     TE arcend, x;
-     bool found_arcend {false};
-     //
-     while ( remaining.size() >0 ) {
-          // pick the first of the remaining components as the nucleus of a
-          // new element of the partition and remove it from remaining:
-          nucleus = { remaining.back() };
-          remaining.pop_back();
-          nucleusL = new_comps[nucleus.back()];
-          // list of TEIs of nucleus
-          arcend = 0;
-          x = 0;
-          found_arcend = false;
-          // the first TEI of nucleus which connects via the middle clt to a
-          // different component (whose index has to be irn 'remaining')
-          for ( const auto &TEI : nucleusL ) {
-               // find new 'arcend'
-               x = arcs[TEI];
-               if ( nucleusL.end()  == std::find ( nucleusL.begin(),nucleusL.end(),x ) ) {
-                    arcend = x;
-                    found_arcend = true;
-                    break;
-               };
-          };
-          while ( found_arcend ) {
-               // find the component of 'arcend' and remove this component from
-               // the remaining components (strictly reducing remaining.size())
-               for ( std::size_t i = 0; i<remaining.size(); ++i ) {
-                    IndexL comp = new_comps[remaining[i]];
-                    if ( std::find ( comp.begin(),comp.end(),arcend ) != comp.end() ) {
-                         // the following will execute exactly once in the for loop
-                         nucleus.push_back ( remaining[i] );
-                         remaining.erase ( remaining.begin()+i );
-                         nucleusL.insert ( nucleusL.end(),comp.begin(),comp.end() );
-                         break;
-                    };
-               };
-               found_arcend = false;
-               for ( const auto &TEI : nucleusL ) {
-                    // find new 'arcend'
-                    x = arcs[TEI];
-                    if ( nucleusL.end()  == std::find ( nucleusL.begin(),nucleusL.end(),x ) ) {
-                         arcend = x;
-                         found_arcend = true;
-                         break;
-                    };
-               };
-          };
-          partition.push_back ( nucleus );
-     };
-     return partition;
-};
-
-
-/// helper structure for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
-
-/// \todo precomputed algebra
-struct CobMultHelper {
-     /// Each instance of this structure corresponds to a component C of the joined up cobordisms cob2*cob1 and records the following data:
-     
-     /// components of the first cobordism that lie on C
-     IndexL partition1;
-     /// components of the second cobordism that lie on C
-     IndexL partition2;
-     /// genus of C
-     unsigned int genus;
-     /// number of (open) components of new basic cobordism that are obtained by maximally neck-cutting C
-     unsigned int partitionLength;
-
-     CobMultHelper ( IndexL partition1,
-                     IndexL partition2,
-                     unsigned int genus,
-                     unsigned int partitionLength
-                   );///< standard constructor
-};
-
-CobMultHelper::CobMultHelper ( IndexL partition1,
-                               IndexL partition2,
-                               unsigned int genus,
-                               unsigned int partitionLength
-                             ) :
-     partition1 ( partition1 ),
-     partition2 ( partition2 ),
-     genus ( genus ),
-     partitionLength ( partitionLength )
-{
-}
-
-/// helper function for the multiplication of cobordisms; this is in preparation for precomputing the algebra 
-inline std::tuple<std::vector<CobMultHelper>,IndexL> CobMultHelperFun ( const IndexLL &new_comps, const std::vector<TE> &arcs, const IndexLL &comps0, const IndexLL &comps1 )
-{
-     std::vector<CobMultHelper> output {};
-     IndexLL partition { partitionGenerator ( new_comps,arcs ) };
-//      std::cout << "partition: " << stringLL ( partition ) << std::flush ;
-     output.reserve ( partition.size() );
-     IndexL new_order {};
-     IndexL part1 {};
-     IndexL part2 {};
-     IndexL comp {}; //'old_comp'
-
-     // part1/2: indices of components of cob1/cob2 that are from
-     // the intersection of cob1/cob2 with the old component
-     // corresponding to the element of 'partition'
-     for ( const auto &part : partition ) {
-          comp.clear();
-          for ( const auto &i : part ) {
-               comp.insert ( comp.end(),new_comps[i].begin(),new_comps[i].end() );
-          };
-          part1.clear();
-          for ( std::size_t i = 0; i<comps1.size(); ++i ) {
-               if ( std::find ( comp.begin(),comp.end(),comps1[i][0] ) != comp.end() ) {
-                    part1.push_back ( i );
-               };
-          };
-          part2.clear();
-          for ( std::size_t i = 0; i<comps0.size(); ++i ) {
-               if ( std::find ( comp.begin(),comp.end(),comps0[i][0] ) != comp.end() ) {
-                    part2.push_back ( i );
-               };
-          };
-          output.push_back ( CobMultHelper ( part1,
-                                             part2,
-                                             1 - ( part1.size()
-                                                       +part2.size()
-                                                       -comp.size() / 2
-                                                       +part.size() ) /2,
-                                             part.size() ) );
-          new_order.insert ( new_order.end(),part.begin(),part.end() );
-     };
-     return { output,new_order };
-};
-
-
-/// generating function for the list of all crossingless 0-2\f$i\f$-tangles with \f$i<n\f$ 
-
-/// All crossingless tangles are in arc format. 
-/// The definition is recursive. We subdivide the tasks into the subtasks of finding those clts that connect 0 to (2x+1):
-///
-/// 0 . . . . . (2x+1) . . . (2n-1)
-/// 0---(2x+1)
-///
-/// This is in preparation for precomputing the algebra
 
 
 template<typename Coeff>
@@ -1810,10 +1849,11 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
 
      //cobordisms compose as CobMor(b,c)*CobMor(a,b) = CobMor(a,c)
 //      IndexLL new_comps { PCA::gens[strands][cob1.front].components_to ( PCA::gens[strands][back] ) };
-     auto comps {PCA::comps[strands].coeff(back,front)};
-     auto comps1 {PCA::comps[strands].coeff(cob1.back,cob1.front)};
-     IndexLL new_comps {PCA::comps[strands].coeff(back,cob1.front)};
-     auto X { CobMultHelperFun ( new_comps,PCA::gens[strands][cob1.back].arcs,comps,comps1 ) };
+//      auto comps {PCA::comps[strands].coeff(back,front)};
+//      auto comps1 {PCA::comps[strands].coeff(cob1.back,cob1.front)};
+//      IndexLL new_comps {PCA::comps[strands].coeff(back,cob1.front)};
+//      auto X { CobMultHelperFun ( new_comps,PCA::gens[strands][cob1.back].arcs,comps,comps1 ) };
+     auto X { PCA::CobMultHelper[strands].coeff(back,cob1.front)[front] };
      std::vector<CobMultHelper> cobMultVec { std::get<0> ( X ) };
      IndexL new_order { std::get<1> ( X ) };
 

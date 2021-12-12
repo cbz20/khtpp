@@ -40,6 +40,7 @@
 
 class CobObj;
 template<typename Coeff> class CobMor;
+struct CobMultHelper;
 
 // Introduce new common types:
 typedef uint8_t TE; ///< tangle end of a two-sided (top/bottom) tangle; tangle ends are enumerated, starting at 0, from the top left to the top right, then bottom left to bottom right. 
@@ -126,6 +127,7 @@ struct PCA
      static std::vector<std::vector<std::vector<bool>>> addCupGCC;
      
      static std::vector<Eigen::Matrix<IndexLL,Eigen::Dynamic,Eigen::Dynamic>> comps;
+     static std::vector<Eigen::Matrix<std::vector<std::tuple<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic>> CobMultHelper;
      
      static std::vector<std::vector<Dots>> vec;///< the ith entry is a list of all possible instances of Dots of length i, except the instance with 1 in all entries.
      static std::vector<std::vector<int>> vec_sum;///< vec_sum[i][j] = number of 1s in vec[i][j]. 
