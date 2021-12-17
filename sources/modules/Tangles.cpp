@@ -707,15 +707,8 @@ Complex<CobObj,CobMor,Coeff> Tangle::CobComplex ( Complex<CobObj,CobMor,Coeff> c
                // Case l or r : ↶ or ↷
                cx.AddCap ( i+top );
           };
-          if (cx.check()==false){
-               std::cerr << "Failed d²=0 before cancellation.";
-               exit(1);
-          };
+          assert ( cx.check() );
           cx.cancel();
-          if (cx.check()==false){
-               std::cerr << "Failed d²=0 after cancellation.";
-               exit(1);
-          };
      };
      if ( with_feedback ) {
           std::cout << "\33[2K\rComputed cobordism complex with "

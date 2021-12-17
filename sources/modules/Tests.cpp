@@ -278,7 +278,7 @@ bool Test_Cob ( const int &details )
      Deco<Coeff> deco3 {0,{1,0},1};
 
 
-     std::vector<Deco<Coeff>> decos {deco2, deco1, deco3};
+     std::list<Deco<Coeff>> decos {deco2, deco1, deco3};
      CobMor<Coeff> zero_mor = CobMor<Coeff> ( 1 );
      CobMor<Coeff> S_bc=CobMor<Coeff> ( 2,2,0,1, {deco0} );
      CobMor<Coeff> S_cb=CobMor<Coeff> ( 2,2,1,0, {deco0} );

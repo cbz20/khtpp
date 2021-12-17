@@ -986,7 +986,7 @@ CobMor<Coeff>::CobMor (
      TE top,
      size_t front,
      size_t back,
-     std::vector<Deco<Coeff>> decos )
+     std::list<Deco<Coeff>> decos )
      :
      strands ( strands ),
      top ( top ),
@@ -1170,34 +1170,59 @@ bool CobMor<Coeff>::check (
 template<typename Coeff>
 CobMor<Coeff> CobMor<Coeff>::simplify()
 {
-     if ( decos.empty() ) {
-          return CobMor<Coeff> ( 0 );
-     };
-     // We may now assume that the list of decos is non-empty.
-     //  1) order decos using the overloaded operation< on decos
-     //
-     std::sort(decos.begin(),decos.end());
-     // alternative with decos = std::list<Deco>: 
-     // decos.sort() // Could be marginally faster
-     //  2) for each deco, except the first, check if it is equal to the
-     //  predecessor except for the coefficient.
-     std::vector<Deco<Coeff>> new_decos {decos.front() };
-     decos.erase ( decos.begin() );
-     for ( const auto &deco : decos ) {
-          if ( deco == new_decos.back() ) {
-               new_decos.back().coeff +=  deco.coeff;
-          } else {
-               //eliminate decos that are zero.
-               if ( coeff_is_0 ( new_decos.back().coeff ) ) {
-                    new_decos.pop_back();
+     if ( !decos.empty() ) {
+          // We may now assume that the list of decos is non-empty.
+          //  1) order decos using the overloaded operation< on decos
+          //
+          // std::sort(decos.begin(),decos.end());
+          // alternative with decos = std::list<Deco>: 
+          decos.sort(); // Could be marginally faster
+          //  2) for each deco, except the first, check if it is equal to the
+          //  predecessor except for the coefficient.
+          
+          // for vectors instead of lists
+//           std::list<Deco<Coeff>> new_decos {decos.front() };
+//           decos.erase ( decos.begin() );
+//           for ( const auto &deco : decos ) {
+//                if ( deco == new_decos.back() ) {
+//                     new_decos.back().coeff +=  deco.coeff;
+//                } else {
+//                     //eliminate decos that are zero.
+//                     if ( coeff_is_0 ( new_decos.back().coeff ) ) {
+//                          new_decos.back() = deco;
+//                     } else {
+//                          new_decos.push_back ( deco );
+//                     };
+//                };
+//           };
+//           if ( coeff_is_0 ( new_decos.back().coeff ) ) {
+//                new_decos.pop_back();
+//           };
+//           decos = new_decos;
+          
+          // for lists instead of vectors
+//           std::list<Deco<Coeff>*>::iterator i {decos.begin()};
+          auto i {decos.begin()};
+          ++i;// we know list is not empty
+          auto prev {decos.begin()};
+          while ( i != decos.end() ) {
+               if ( *i == *prev ) {
+                    (*prev).coeff +=  (*i).coeff;
+                    i = decos.erase(i);
+               } else {
+                    //eliminate decos that are zero
+                    if ( coeff_is_0 ( (*prev).coeff ) ) {
+                         prev = decos.erase( prev );
+                    } else {
+                         ++prev;
+                    };
+                    ++i;
                };
-               new_decos.push_back ( deco );
+          };
+          if ( coeff_is_0 ( decos.back().coeff ) ) {
+               decos.pop_back();
           };
      };
-     if ( coeff_is_0 ( new_decos.back().coeff ) ) {
-          new_decos.pop_back();
-     };
-     decos = new_decos;
      return *this;
 }
 
@@ -1278,7 +1303,7 @@ template<typename New_Coeff>
 CobMor<New_Coeff> CobMor<Z_mod<integer_simulant>>::to_coeffs() const
 {
      //std::cout << << "Converting from Z to " << which_coeff ( New_Coeff ( 0 ) );
-     std::vector<Deco<New_Coeff>> new_decos;
+     std::list<Deco<New_Coeff>> new_decos;
      for ( const auto &deco : decos ) {
           New_Coeff new_coeff = deco.coeff.n;
           if ( coeff_is_0 ( new_coeff ) != true ) {
@@ -1360,7 +1385,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCup22 (
      //updating the coefficient according to the following three cases:
      auto old_decos {decos};//make copy
      // 0--->0:
-     std::vector<Deco<Coeff>> new_decos;
+     std::list<Deco<Coeff>> new_decos;
      if ( from == 0 && to == 0 ) {
           for ( auto &deco : old_decos ) {
                // dot == 0  == > 1
@@ -1477,7 +1502,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCupMixed (
      // updating the corresponding entry of deco.dots in all decos and
      // updating the coefficient according to the following three cases:
      auto old_decos = decos;//make copy
-     std::vector<Deco<Coeff>> new_decos;
+     std::list<Deco<Coeff>> new_decos;
      // 0--->.( = 0):
      if ( from == 0 ) {
           for ( auto &deco : old_decos ) {
@@ -1575,7 +1600,7 @@ CobMor<Coeff> CobMor<Coeff>::AddCup11 (
      IndexLL new_comps = PCA::gens[strands-1][start].components_to ( PCA::gens[strands-1][end] );
      // Update the decos:
      auto old_decos = decos;//make copy
-     std::vector<Deco<Coeff>> new_decos;
+     std::list<Deco<Coeff>> new_decos;
      //
      if ( comp_i0 == comp_i1 ) {
           // Cupping this morphism adds another boundary component, so we
@@ -1727,7 +1752,7 @@ bool CobMor<Coeff>::operator  == ( const CobMor<Coeff> &cob2 ) const
      if ( decos.size() != cob2.decos.size() ) {
           return false;
      };
-     std::vector<Deco<Coeff>> temp {cob2.decos};
+     std::list<Deco<Coeff>> temp {cob2.decos};
      for ( const auto &deco : decos ) {
           // testing if the two decorations are equal as sets. We assume
           // that 'cob1' and 'cob2' are fully simplified.
@@ -1760,7 +1785,7 @@ template<typename Coeff>
 CobMor<Coeff> CobMor<Coeff>::operator- () const
 {
      // multiply the cobordism by -1;
-     std::vector<Deco<Coeff>> new_decos {decos};
+     std::list<Deco<Coeff>> new_decos {decos};
      for ( auto &deco : new_decos ) {
           deco.coeff = -deco.coeff;
      };
@@ -1784,9 +1809,13 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
      const CobMor<Coeff> &cob1 ) const
 {
      //multiplication of CobMor: cob*cob1
-     if ( cob1.decos.empty() || decos.empty() ) {
+     if ( cob1.decos.empty() ) {
           //multiplication with the zero-morphism.
-          return CobMor<Coeff> ( 0 );
+          return cob1;
+     };
+     if ( decos.empty() ) {
+          //multiplication with the zero-morphism.
+          return *this;
      };
      assert ( front == cob1.back );
      
@@ -1795,11 +1824,11 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
      IndexL new_order { PCA::CobMultHelper[strands].coeff(back,cob1.front)[front].second };
      
      // temporary variables needed below
-     std::vector<Deco<Coeff>> new_decos {};
-     std::vector<std::vector<Deco<Coeff>>> part_decos {};
-     std::vector<Deco<Coeff>> new_part_decos {};
-     std::vector<Deco<Coeff>> more_decos {};
-     std::vector<Deco<Coeff>> temp {};
+     std::list<Deco<Coeff>> new_decos {};
+     std::vector<std::list<Deco<Coeff>>> part_decos {};
+     std::list<Deco<Coeff>> new_part_decos {};
+     std::list<Deco<Coeff>> more_decos {};
+     std::list<Deco<Coeff>> temp {};
      unsigned int n {0};
      unsigned int g {0};
      int r {0};
@@ -1888,7 +1917,7 @@ CobMor<Coeff> CobMor<Coeff>::operator+ (
           //  cob2 = 0, so returning cob1
           return *this;
      };     
-     std::vector<Deco<Coeff>> new_decos = decos;// concatenate decos1 and decos2
+     std::list<Deco<Coeff>> new_decos = decos;// concatenate decos1 and decos2
      new_decos.insert ( new_decos.end(), cob2.decos.begin(), cob2.decos.end() );
      return CobMor<Coeff> ( strands,top,front, back, new_decos ).simplify();
 }

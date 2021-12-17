@@ -667,6 +667,7 @@ void Complex_Base<Obj,Mor,Coeff>::cancel()
           id_coor=this->find_invertible();
      }
      this->resize();
+     assert ( this->check() );
 };
 
 template<typename Obj,
@@ -821,18 +822,15 @@ void Complex_Base<Obj,Mor,Coeff>::isotopy (
           diffs.makeCompressed();
           diffs.prune ( NonZero<Mor<Coeff>> );
      };
-     if ( this->check() == false ) {
-          this->check();
-          std::cerr << "d² no longer satisfied. "
-                    << "Component end_isotopy ("
-                    << end 
-                    << ") -> start_isotopy ("
-                    << start 
-                    << ") = "
-                    << this->diffs.coeff ( start,end ).to_string()
-                    << ".\n";
-          exit ( 1 );
-     };
+     assert ( this->check() ); //
+//           std::cerr << "d² no longer satisfied. "
+//                     << "Component end_isotopy ("
+//                     << end 
+//                     << ") -> start_isotopy ("
+//                     << start 
+//                     << ") = "
+//                     << this->diffs.coeff ( start,end ).to_string()
+//                     << ".\n";
 };
 
 template<typename Coeff>

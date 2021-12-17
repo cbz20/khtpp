@@ -300,7 +300,7 @@ private:
      TE top; // TODO: decide if to keep
      size_t front; // index in PCA::gens[strands]// TODO: replace by reference to address of PCA::gens[strands][front]
      size_t back; // index in PCA::gens[strands]// TODO: replace by reference to address of PCA::gens[strands][back]
-     std::vector<Deco<Coeff>> decos;// using lists here instead makes the program marginally faster (219sec vs 223sec). 
+     std::list<Deco<Coeff>> decos;// using lists here instead makes the program marginally faster (219sec vs 223sec). 
 
 public:
      CobMor (
@@ -308,7 +308,7 @@ public:
           TE top,
           size_t front,
           size_t back,
-          std::vector<Deco<Coeff>> decos);///< constructor, which generates the list of components automatically; this is slower than the standard constructor
+          std::list<Deco<Coeff>> decos);///< constructor, which generates the list of components automatically; this is slower than the standard constructor
      CobMor ( int i );///< constructor for the zero-cobordism (needed by the Eigen Template Library)
      CobMor();///< constructor for the zero-cobordism (needed by the Eigen Template Library)
 

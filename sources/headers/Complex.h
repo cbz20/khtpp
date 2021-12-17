@@ -24,6 +24,7 @@
 #include <vector>
 #include <random>
 #include <chrono>
+#include <cassert>
 #include <Eigen/Core>
 #include <Eigen/SparseCore> // Sparse Matrix Library
 #include "aux_sys.h"
