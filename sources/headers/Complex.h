@@ -58,6 +58,7 @@ protected:
      Eigen::SparseMatrix<Mor<Coeff>> diffs;
      /// list of cancelled indices, which is empty by default; cancel() adds the indices of the cancelled generators, but keeps objects and diffs intact; resize() then actually deletes the objects and resizes diffs according to this list.
      std::list<unsigned int> cancelled_indices;
+     size_t start_find_invertible;/// starting index for finding invertible generators
 
 public:
      Complex_Base (
@@ -88,7 +89,7 @@ public:
      void cancel ( const ssize_t &sourceindex,
                    const ssize_t &targetindex );///< implements the Cancellation Lemma from \cite KWZ for a single component of the differential
      void resize(); ///< resizes the list of objects and matrix of differentials according to the list of cancelled indices
-     std::pair<int,int> find_invertible() const;///< component of the differential  to which one can apply the Cancellation Lemma from \cite KWZ; if there is no such component, this returns (n,n), where n is the number of objects in the complex
+     std::pair<int,int> find_invertible();///< component of the differential  to which one can apply the Cancellation Lemma from \cite KWZ; if there is no such component, this returns (n,n), where n is the number of objects in the complex
      void isotopy ( const ssize_t &start,
                     const ssize_t &end,
                     const Mor<Coeff> &mor ); ///< implements the Clean-Up Lemma from \cite KWZ, ie performs a basic isotopy along start---(mor)--->end

@@ -42,9 +42,10 @@ Complex_Base<Obj,Mor,Coeff>::Complex_Base (
      Eigen::SparseMatrix<Mor<Coeff>> diffs )
      :
      objects ( objects ),
-     diffs ( diffs )
+     diffs ( diffs ),
+     cancelled_indices ( {} ),
+     start_find_invertible ( 0 )
 {
-     cancelled_indices= {};
 }
 
 template<typename Obj,
@@ -53,9 +54,10 @@ template<typename Obj,
 Complex_Base<Obj,Mor,Coeff>::Complex_Base ()
      :
      objects ( {} ),
-        diffs ( {} )
+     diffs ( {} ),
+     cancelled_indices ( {} ),
+     start_find_invertible ( 0 )
 {
-     cancelled_indices = {};
 }
 
 //                     //
@@ -175,6 +177,7 @@ void Complex<CobObj,CobMor,Coeff>::AddCap ( const unsigned int &i )
                                                    i );
           };
      };
+     this->start_find_invertible = 0;
      //  return Complex_Base<CobObj,CobMor<Coeff>,Coeff>(objects,diffs);
 };
 
@@ -295,6 +298,7 @@ void Complex<CobObj,CobMor,Coeff>::AddCup ( const unsigned int &i )
      // update complex
      this->objects=new_objects;
      this->diffs=new_diffs;
+     this->start_find_invertible = 0;
 };
 
 template<typename Coeff>
@@ -529,6 +533,7 @@ void Complex<CobObj,CobMor,Coeff>::AddCrossing (
      // update complex
      this->objects=new_objects;
      this->diffs=new_diffs;
+     this->start_find_invertible = 0;
 }
 
 template<typename Coeff>
@@ -762,18 +767,29 @@ void Complex_Base<Obj,Mor,Coeff>::resize()
           new_diffs.setFromTriplets ( triplets.begin(),triplets.end() );
           diffs=new_diffs;
           cancelled_indices= {};
+          start_find_invertible = 0;
      };
 };
 
 template<typename Obj,
          template <typename> typename Mor,
          typename Coeff>
-std::pair<int,int> Complex_Base<Obj,Mor,Coeff>::find_invertible() const
+std::pair<int,int> Complex_Base<Obj,Mor,Coeff>::find_invertible()
 {
-     for ( int k=0; k<diffs.outerSize(); ++k ) {
+     for ( int k=start_find_invertible; k<diffs.outerSize(); ++k ) {
           for ( typename Eigen::SparseMatrix<Mor<Coeff>>::InnerIterator it ( diffs,k ); it; ++it ) {
                // Checking for an invertible component from it.col() to it.row()
                if ( it.value().is_inv() ) {
+                    start_find_invertible = k;
+                    return std::pair<int,int> ( it.row(),it.col() );
+               };
+          };
+     };
+     for ( int k=0; k<start_find_invertible; ++k ) {
+          for ( typename Eigen::SparseMatrix<Mor<Coeff>>::InnerIterator it ( diffs,k ); it; ++it ) {
+               // Checking for an invertible component from it.col() to it.row()
+               if ( it.value().is_inv() ) {
+                    start_find_invertible = k;
                     return std::pair<int,int> ( it.row(),it.col() );
                };
           };
