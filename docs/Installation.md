@@ -34,7 +34,7 @@ You will need a C++ compiler supporting the C++17 standard, such as [clang++](ht
 We also recommend that you install the version control system [git](https://git-scm.com/).
 On ubuntu 20.04, you can install these prerequisites by running the following command:
 
-    sudo apt install update
+    sudo apt update
     sudo apt install build-essential clang git
 
 </li>
