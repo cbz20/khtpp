@@ -187,7 +187,7 @@ std::vector<std::vector<std::vector<size_t>>> PCA::addCup;
 std::vector<std::vector<std::vector<bool>>> PCA::addCupGCC;
 std::vector<std::vector<std::vector<size_t>>> PCA::addCap;
 std::vector<Eigen::Matrix<IndexLL,Eigen::Dynamic,Eigen::Dynamic>> PCA::comps;
-std::vector<Eigen::Matrix<std::vector<std::pair<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic>> PCA::CobMultHelper;
+std::vector<Eigen::Matrix<std::vector<std::pair<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic>> PCA::CobMultHelperMat;
 
 
 /// computes more entries for PCA::gens if PCA::max_strands < n  
@@ -205,7 +205,7 @@ void expand_gens_if_needed ( const int &n ){
                PCA::comps.push_back( new_comps );// 0th entry, only needed for indexing
                PCA::comps.push_back( new_comps );// 1st entry.
                //
-               PCA::CobMultHelper = {};
+               PCA::CobMultHelperMat = {};
                Eigen::Matrix<std::vector<std::pair<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic> new_helps ( 1,1 );
                std::vector<std::pair<std::vector<CobMultHelper>,IndexL>> help1 {};
                help1.push_back( CobMultHelperFun ( new_comps.coeff(0,0),
@@ -214,8 +214,8 @@ void expand_gens_if_needed ( const int &n ){
                                                   new_comps.coeff(0,0) )
                               );
                new_helps.coeffRef( 0,0 ) = help1;
-               PCA::CobMultHelper.push_back( new_helps );// 0th entry, only needed for indexing
-               PCA::CobMultHelper.push_back( new_helps );// 1st entry.
+               PCA::CobMultHelperMat.push_back( new_helps );// 0th entry, only needed for indexing
+               PCA::CobMultHelperMat.push_back( new_helps );// 1st entry.
                //
           } else {
                // Create new arcs of length 'PCA::gens.size()'
@@ -336,7 +336,7 @@ void expand_gens_if_needed ( const int &n ){
                          new_helps.coeffRef( back,front ) = help;
                     };
                };
-               PCA::CobMultHelper.push_back( new_helps );
+               PCA::CobMultHelperMat.push_back( new_helps );
           };
      };
 };
@@ -1820,8 +1820,8 @@ CobMor<Coeff> CobMor<Coeff>::operator* (
      assert ( front == cob1.back );
      
      //cobordisms compose as CobMor(b,c)*CobMor(a,b) = CobMor(a,c)
-     std::vector<CobMultHelper> cobMultVec { PCA::CobMultHelper[strands].coeff(back,cob1.front)[front].first };
-     IndexL new_order { PCA::CobMultHelper[strands].coeff(back,cob1.front)[front].second };
+     std::vector<CobMultHelper> cobMultVec { PCA::CobMultHelperMat[strands].coeff(back,cob1.front)[front].first };
+     IndexL new_order { PCA::CobMultHelperMat[strands].coeff(back,cob1.front)[front].second };
      
      // temporary variables needed below
      std::list<Deco<Coeff>> new_decos {};

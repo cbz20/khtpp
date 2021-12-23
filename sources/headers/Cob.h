@@ -128,7 +128,7 @@ struct PCA
      static std::vector<std::vector<std::vector<bool>>> addCupGCC;
      
      static std::vector<Eigen::Matrix<IndexLL,Eigen::Dynamic,Eigen::Dynamic>> comps;
-     static std::vector<Eigen::Matrix<std::vector<std::pair<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic>> CobMultHelper;
+     static std::vector<Eigen::Matrix<std::vector<std::pair<std::vector<CobMultHelper>,IndexL>>,Eigen::Dynamic,Eigen::Dynamic>> CobMultHelperMat;
      
      static std::vector<std::vector<std::pair<Dots,int>>> vec;///< the ith entry is a pair, whose first element is a list of all possible instances of Dots of length i, except the instance with 1 in all entries, and whose second element is equal to the number of 1s in this vector; 
 };
