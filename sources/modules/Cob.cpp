@@ -750,7 +750,6 @@ bool CobObj::compatible_with ( const CobObj obj ) const
 // main methods //
 //              //
 bool to_BNObj( const TE &strands, const TE &top, const size_t &index ){
-     // convert CobObj to BNObj; this only works for the CobObj b and
      bool type {false};// vertical
      if ( strands == 1){
           type = true;

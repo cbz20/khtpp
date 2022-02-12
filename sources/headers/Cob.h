@@ -197,7 +197,7 @@ public:
      //              //
      // main methods //
      //              //
-     BNObj to_BNObj() const;///< corresponding object of the Bar-Natan algebra (BNObj); this only works for the basic crossingless tangles \ref c1, \ref b1, etc.
+     BNObj to_BNObj() const;///< corresponding object of the Bar-Natan algebra (BNObj); this only works for 2- or 4-ended tangles
      void AddCap ( const TE &i );///< Crossingless tangle obtained by adding two extra ends before the \f$i^\text{th}\f$ tangle end (which should be at the tangle bottom) and connect them by an arc.
      void AddCup ( const TE &i );///< Crossingless tangle obtained by joining the \f$i^\text{th}\f$ tangle end (which should be at the tangle bottom) to the next and removing the new closed component if there is one.
      bool AddCupGivesClosedComponent ( const TE &i ) const; ///< true if the two ends were connected (=new closed component); false if the two ends belonged to different arcs
@@ -210,6 +210,13 @@ public:
      bool operator== ( const CobObj &obj2 ) const;///< true if idempotents coincide (ignore gradings)
      bool operator!= ( const CobObj &obj2 ) const;///< true if idempotents differ (ignore gradings)
 };
+
+//                                            //
+// non-member functions that relate to CobObj //
+//                                            //
+bool to_BNObj( const TE &strands, 
+               const TE &top, 
+               const size_t &index ); ///< true if 2-ended tangle or (4-ended tangle and horizontal), false if (4-ended tangle and vertical); raises error for any other cases. 
 
 // %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 //                  Deco

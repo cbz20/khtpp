@@ -58,7 +58,7 @@ protected:
      Eigen::SparseMatrix<Mor<Coeff>> diffs;
      /// list of cancelled indices, which is empty by default; cancel() adds the indices of the cancelled generators, but keeps objects and diffs intact; resize() then actually deletes the objects and resizes diffs according to this list.
      std::list<unsigned int> cancelled_indices;
-     size_t start_find_invertible;/// starting index for finding invertible generators
+     size_t start_find_invertible;///< starting index for finding invertible generators
 
 public:
      Complex_Base (
