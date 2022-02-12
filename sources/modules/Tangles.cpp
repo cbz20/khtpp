@@ -1036,44 +1036,57 @@ void Tangle::doubled ()
 {
      std::string tanglestring;
      Cut new_top;
-     for ( const bool &orient : cuts.front() ) {
-          new_top.push_back ( orient );
-          new_top.push_back ( orient );
+     int c {0};
+     // if we started with a 1-1-knot, add cap to get the framing right
+     if ( this->top_orient().size() == 1 && this->bot_orient().size() == 1 ) {
+          if ( this->top_orient().front() == 1 ){
+               tanglestring += "l0.";
+          } else {
+               tanglestring += "r0.";
+          };
+          new_top = cuts.front();
+          c=1;
+     } else {
+          for ( const bool &orient : cuts.front() ) {
+               new_top.push_back ( orient );
+               new_top.push_back ( orient );
+          };
      };
+     // now deal with the main part of the tangle
      for ( const Slice &slice : slices ) {
           switch ( slice.first ) {
           case 'x':
           case 'y':
                tanglestring += slice.first +
-                               std::to_string ( 2*slice.second+1 ) + ".";
+                               std::to_string ( c+2*slice.second+1 ) + ".";
                tanglestring += slice.first +
-                               std::to_string ( 2*slice.second ) + ".";
+                               std::to_string ( c+2*slice.second ) + ".";
                tanglestring += slice.first +
-                               std::to_string ( 2*slice.second+2 ) + ".";
+                               std::to_string ( c+2*slice.second+2 ) + ".";
                tanglestring += slice.first +
-                               std::to_string ( 2*slice.second+1 ) + ".";
+                               std::to_string ( c+2*slice.second+1 ) + ".";
                break;
           case 'l':
           case 'r':
                tanglestring += slice.first +
-                               std::to_string ( 2*slice.second ) + ".";
+                               std::to_string ( c+2*slice.second ) + ".";
                tanglestring += slice.first +
-                               std::to_string ( 2*slice.second+1 ) + ".";
+                               std::to_string ( c+2*slice.second+1 ) + ".";
                break;
           case 'u':
                tanglestring += slice.first +
-                               std::to_string ( 2*slice.second+1 ) + ".";
+                               std::to_string ( c+2*slice.second+1 ) + ".";
                tanglestring += slice.first +
-                               std::to_string ( 2*slice.second ) + ".";
+                               std::to_string ( c+2*slice.second ) + ".";
                break;
           }
      };
      // if we started with a 1-1-knot, make sure that the linking number between the two strands is 0.
      if ( this->top_orient().size() == 1 && this->bot_orient().size() == 1 ) {
           int n {this->writhe()};
-          std::string s {"x0.x0."};
+          std::string s {"x1.x1."};
           if (n<0){
-               s = "y0.y0.";
+               s = "y1.y1.";
                n *= -1;
           };
           for ( int i=0; i<n; ++i){

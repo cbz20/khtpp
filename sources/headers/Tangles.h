@@ -176,7 +176,7 @@ public:
      Tangle add( const std::string &twists ) const;///< add a tangle \c twists to the bottom of the tangle. The format of \c twists is as the first component of \ref tangle_input.  
      Tangle quotient() const;///< computes the quotient of a symmetric knot under a string inversion
      Tangle complete_symmetry() const;///< completes a symmetric knot to a full knot
-     void doubled();///< double each strand of a tangle diagram. For example, this can be used to generate four-ended tangles from 1-1-knots. For those knots, the framing of the resulting cap-trivial tangle is chosen such that the linking number between the two strands is 0.
+     void doubled();///< double each strand of a tangle diagram. For example, this can be used to generate four-ended tangles from 1-1-knots. For those knots, the framing of the resulting cap-trivial tangle is chosen such that the linking number between the two strands is 0 and the \f$\infty\f$-filling is the unknot filling.
      void simplify_diagram();///< attempt to simplify a tangle diagram. This is currently only implemented for non-symmetric tangles. This function relies on simplify().
      int writhe() const;///< signed number of crossings
 };
