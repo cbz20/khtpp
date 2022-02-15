@@ -30,7 +30,7 @@ inline extern const int max_clean_up_iter {100000};///< sets the maximum number 
 inline extern const int wiggle_number {100};///< number of wiggle moves during tangle string simplification attempting a simplification move
 inline extern const int wiggle_abort_after {10000};///< maximum number of iterations of unsuccessful attempts to perform a simplifacation move
 inline extern const int default_number_of_lines {3};///< constant used in the interactive tangle definition; this constant should be eliminated
-inline extern const int maximum_number_of_tangle_strands {7};///< (conservative) upper limit for the number of allowed tangle strands to prevent the computer from attempting calculations whose runtime might exceed the age of the universe. 
+inline extern const int maximum_number_of_tangle_strands {6};///< (conservative) upper limit for the number of allowed tangle strands to prevent the computer from attempting calculations whose runtime might exceed the age of the universe. 
 
 inline extern const int integer_simulant {default_coeff * 3 * 5 * 7 * custom_coeff};///< integer \f$N\f$ such that we can do the main computation for all finite fields \f$\mathbb{Z}/p\f$ for prime \f$p\f$ simultaneously, by first computing over \f$\mathbb{Z}/N\f$ and then doing a conversion. 
 

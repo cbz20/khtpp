@@ -220,20 +220,20 @@ void expand_gens_if_needed ( const int &n ){
           } else {
                // Create new arcs of length 'PCA::gens.size()'
                size_t N { PCA::gens.size() };
-               std:: cout << "\nExpanding generators to "
+               std:: cout << "\nExpanding algebra to "
                          << N
-                         << "="
-                         << PCA::addCup.size()
-                         << "="
-                         << PCA::addCupGCC.size()
-                         << "="
-                         << (PCA::addCap.size()+1)
-                         << " strands.\n\n";
+//                          << "="
+//                          << PCA::addCup.size()
+//                          << "="
+//                          << PCA::addCupGCC.size()
+//                          << "="
+//                          << (PCA::addCap.size()+1)
+                         << " tangle strands." << std::flush;
                if ( n > maximum_number_of_tangle_strands ){
-                    std::cerr << "There are "
+                    std::cerr << "\nThere are "
                               << n
-                              << " tangle strands, which is too many."
-                              << " Try inceasing the value of 'maximum_number_of_tangle_strands' in 'sources/headers/constants.h'. ";
+                              << " tangle strands, which is too many.\n"
+                              << " Try inceasing the value of 'maximum_number_of_tangle_strands' in 'sources/headers/constants.h'.\n";
                };
                // generate a list of all crossingless 0-2\f$i\f$-tangles with \f$i<n\f$ 
                // The definition is recursive. We subdivide the tasks into the subtasks of finding those clts that connect 0 to (2x+1):
@@ -338,6 +338,7 @@ void expand_gens_if_needed ( const int &n ){
                };
                PCA::CobMultHelperMat.push_back( new_helps );
           };
+          std::cout << "\33[2K\r\033[F" << std::flush;
      };
 };
 
