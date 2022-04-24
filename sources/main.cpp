@@ -584,7 +584,6 @@ int main ( int argc, char **argv )
                Complex<CobObj,CobMor,Z_mod<integer_simulant>> cxZ;
                if ( coeffs.size() > 1 ) {
                     cxZ = T0.CobComplex<Z_mod<integer_simulant>>();
-                    auto cxxBNr=cxZ.to_BN();
                     // attempt to store file; but this does not work because cxZ is a class object, not a struct object; see
                     // https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/cppBinaryFileIO-2.html
                     // or
