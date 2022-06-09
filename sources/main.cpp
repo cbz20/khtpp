@@ -455,9 +455,9 @@ int main ( int argc, char **argv )
           };
           for ( auto const &e : b_opt_braid ){
                if ( e < 0 ){
-                    tanglestring += "y" + std::to_string(-e-1) + ".";
+                    tanglestring += "x" + std::to_string(-e-1) + ".";
                } else {
-                    tanglestring += "x" + std::to_string(e-1) + ".";
+                    tanglestring += "y" + std::to_string(e-1) + ".";
                };
           };
           for ( int i = max; i > b_opt_top_orient.size()-1; --i){
