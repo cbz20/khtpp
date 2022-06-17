@@ -1203,15 +1203,68 @@ Tangle Sakuma ( const std::vector<int> &list )
 //                                             //
 // non-member functions that relate to Tangles //
 //                                             //
+Tangle rational_tangle ( const int &p, const int &q)
+{
+     std::vector<int> continued_frac {continued_fraction ( p,q ) };
+     std::cout << "Generating rational tangle with the following continued fraction decomposition:\n"
+               << stringL( continued_frac ) 
+               << "\n"
+               << std:: flush;
+
+     bool sign {false};
+     for ( auto &e : continued_frac){
+          if (e<0){
+               sign = true;
+               e *= -1;
+          };
+     };
+     std::vector<std::string> v = {".y0",".x1"};
+     if ( sign ){
+          v = {".x0",".y1"};
+     };
+     std::string tanglestring {};  
+     for ( size_t i = 0 ; i < continued_frac.size(); ++i ) { 
+          for ( int j = 0; j < continued_frac[i]; ++j){
+               tanglestring = v[(i+1)%2] + tanglestring;
+          };
+     };
+     tanglestring = "l" + std::to_string( (continued_frac.size() + 1) % 2 ) + tanglestring;
+     // even length continued_frac: start with Q_∞, ie l1
+     // odd length continued_frac: start with Q_0, ie l0     
+     Tangle T0 = Tangle ( tanglestring, {1} );
+     return T0;
+};
+
+void rational_knot ( const int &p,
+                         const int &q,
+                         const std::string &name,
+                         const std::string &metadata,
+                         std::vector<File> &files )
+{
+     if ( p*p > q*q || yes_no_dialogue ("Warning: |p|<q, so the knot diagram will not be reduced! Do you want to continue nonetheless? ") ) {
+          File file {"examples/knots/2-bridge_knots"};
+          file.create_directories();
+          file /= name;
+          std::string message {"% 2-bridge knot of slope " + std::to_string ( p ) + "/" + std::to_string ( q ) + "." };
+          Tangle T0 = rational_tangle ( p,q );
+          T0 = T0.add( "u0" );
+          T0.to_file ( file );
+          files.push_back ( file );
+          conditional_append ( file.fullname()+".kht", message );
+     };
+};
+
 void rational_quotient ( const int &p,
                          const int &q,
                          const std::string &name,
                          const std::string &metadata,
                          std::vector<File> &files )
 {
-     /// \todo add safety checks for input
-     File file {"examples/strong_inversions/2-bridge_knots"};
-     file.create_directories();
+     if ( p*p < q*q || q<0 ) {
+          std::cout << "Input error: Please make sure that |p|>q>0! \n";
+          return;
+     };
+     File file {"examples/strong_inversions/2-bridge_knots"};     file.create_directories();
      file /= name;
      std::vector<int> continued_frac {continued_fraction ( p,q ) };
      std::string message {"2-bridge knot corresponding to the fraction " + std::to_string ( p ) + "/" + std::to_string ( q ) + " = " + stringL ( continued_frac ) };

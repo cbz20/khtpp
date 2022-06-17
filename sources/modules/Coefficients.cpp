@@ -211,37 +211,30 @@ int_coeff gcd ( int_coeff p, int_coeff q )
 
 std::vector<int> continued_fraction ( int p, int q )
 {
-     /// \todo make sure this function is safe (user input)
      std::vector<int> output {};
+     bool sign {false};
      if ( q < 0 ) {
-          p *= -1;
+          sign = !sign;
           q *= -1;
      };
-     int next {p/q};
-     int r {0};
-     while ( q != 1 ) {
-          //  (a/b)*b + a%b == a
-          // a/b truncating towards zero
-          r = p % q;
-          if ( next % 2 != 0 ) {
-               if ( r > 0 ) {
-                    next += 1;
-                    r -= q;
-               } else if ( r < 0 ) {
-                    next -= 1;
-                    r += q;
-               };
-          };
-          output.push_back ( next );
-          p = q;
-          q = r;
-          if ( q < 0 ) {
-               p *= -1;
-               q *= -1;
-          };
-          next = p / q;
+     if ( p < 0 ) {
+          sign = !sign;
+          p *= -1;
      };
-     output.push_back ( next );
+     // Can now assume p,q≥0. 
+     int temp {0};
+     while ( q != 0 ) {
+          output.push_back ( p/q );
+          //  (p/q)*q + p%q == p
+          temp = p % q;
+          p = q;
+          q = temp;
+     };
+     if ( sign ) {
+          for ( auto &e : output ){
+               e *= -1;
+          };
+     };
      return output;
 }
 

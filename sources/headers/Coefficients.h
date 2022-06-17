@@ -140,7 +140,7 @@ struct Q {
 
 int_coeff gcd ( int_coeff p, int_coeff q );///< gcd of \f$p\f$ and \f$q\f$
 
-std::vector<int> continued_fraction ( int p, int q );///< computes the continued fraction of \f$p/q\f$
+std::vector<int> continued_fraction ( int p, int q );///< computes the continued fraction of \f$p/q\f$ such that all coefficients have the same sign
 
 bool coeff_is_inv ( const Q &r );///< true iff \c n is invertible, ie non-zero
 bool is_id ( const Q &r );///< true iff \c n is equal to +1

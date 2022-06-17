@@ -174,7 +174,7 @@ public:
      Complex<CobObj,CobMor,Coeff> CobComplex( Complex<CobObj,CobMor,Coeff> cx = {},const bool &with_feedback = true ) const;
      void flip_orient_at_index( int i );///< changes the orientation of the strand at the index \c i at the bottom of the tangle, counted from the left, starting with 0
      Tangle add( const std::string &twists ) const;///< add a tangle \c twists to the bottom of the tangle. The format of \c twists is as the first component of \ref tangle_input.  
-     Tangle quotient() const;///< computes the quotient of a symmetric knot under a string inversion
+     Tangle quotient() const;///< computes the quotient of a symmetric knot under a strong inversion
      Tangle complete_symmetry() const;///< completes a symmetric knot to a full knot
      void doubled();///< double each strand of a tangle diagram. For example, this can be used to generate four-ended tangles from 1-1-knots. For those knots, the framing of the resulting cap-trivial tangle is chosen such that the linking number between the two strands is 0 and the \f$\infty\f$-filling is the unknot filling.
      void simplify_diagram();///< attempt to simplify a tangle diagram. This is currently only implemented for non-symmetric tangles. This function relies on simplify().
@@ -185,12 +185,19 @@ public:
 // non-member functions that relate to Tangles //
 //                                             //
 Tangle Sakuma ( const std::vector<int> &list1,const std::vector<int> &list2 );///< generates a symmetric knot corresponding to \f$I_1(a_1,\dots,a_n:c_1,\dots,c_n)\f$ from \cite Sakuma.
+Tangle rational_tangle ( const int &p, const int &q);///< generates a rational tangle of slope p/q
+
 Tangle Sakuma ( const std::vector<int> &list );///< generates a symmetric knot corresponding to \f$I_2(a_1,\dots,a_n)\f$ from \cite Sakuma. 
 void rational_quotient (const int &p,
                         const int &q,
                         const std::string &name,
                         const std::string &metadata,
                         std::vector<File> &files );///< generate diagrams for all strong inversions of the 2-bridge knot corresponding to the fraction p/q; we will assume |p|>q>0; see \cite Sakuma. 
+void rational_knot (const int &p,
+                    const int &q,
+                    const std::string &name,
+                    const std::string &metadata,
+                    std::vector<File> &files );///< generate a diagram for the 2-bridge knot corresponding to the fraction p/q; we will assume |p|>q>0.
 File interactive_file ( const std::string &defaultpath = "");///< User dialogue for specifying a file (path)
 void interactive ( const std::string &metadata,std::vector<File> &files );///< User dialogue for generating tangles and storing them for later use. 
 

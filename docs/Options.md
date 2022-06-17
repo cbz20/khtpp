@@ -126,7 +126,7 @@ For example, in conjunction with the options \ref DoubleStrands "-d" and \ref Su
 
 \section QuotientTangles Quotients of strongly invertible knots
 
-- \c -q , \c &ndash;&ndash;quotient (see also \ref TwoBridge)
+- \c -q , \c &ndash;&ndash;quotient (see also \ref TwoBridgeQuotients)
 
 This option was developed and extensively used for the paper \cite KWZ_strong_inversions. It computes the invariants of the quotient tangle of a strongly invertible knot specified by a \ref StrongInversions "symmetric diagram". The quotient tangle is framed such that the closure with the rational tangle of slope 0 is the unknot and the rational closure of slope \f$\infty\f$ corresponds to surgery along the longitude for the knot. Unfortunately, this means that to make these tangles follow the (arguable better) conventions used in \cite Watson2010, \cite Watson2012, and \cite Watson2017, one needs to rotate the tangles by 90 degrees. 
 
@@ -141,11 +141,18 @@ is equal to
 It is generally a good idea to combine computations for quotient tangles with the option \ref SimplifyTangles "-s".
 
 
-\section TwoBridge Defining strongly invertible 2-bridge knots
+\section TwoBridgeQuotients Defining strongly invertible 2-bridge knots
 
-- \code{.sh} -r <name>:<p>/<q>\endcode , \code{.sh} --rational <name>:<p>/<q> \endcode (see also \ref QuotientTangles)
+- \code{.sh} -q <name>:<p>/<q>\endcode , \code{.sh} --quotient <name>:<p>/<q> \endcode (see also \ref QuotientTangles)
 
 Computes all symmetric diagrams of the 2-bridge knot corresponding to the fraction \code{.sh}<p>/<q>\endcode and saves them in one or more files \code{.sh}<name>.kht\endcode or \code{.sh}<name>-{1,2}.kht\endcode in the directory \code{.sh} examples/strong_inversions/2-bridge-knots\endcode; see \ref StrongInversions, \ref Sakuma, and \cite Sakuma for details. 
+
+
+\section RationalKnots Defining rational knots
+
+- \code{.sh} -r <name>:<p>/<q>\endcode , \code{.sh} --rational <name>:<p>/<q> \endcode
+
+Computes an alternating (=minimal crossing) diagram of the 2-bridge knot corresponding to the fraction \code{.sh}<p>/<q>\endcode and saves it in the file \code{.sh} examples/knots/2-bridge-knots/<name>.kht\endcode.
 
 
 

@@ -45,7 +45,7 @@
                           symmetric diagram.  The tangle string in the 
                           corresponding .kht-file should have the prefix 
                           's.'. 
-    -r <name>:<p>/<q>, --rational <name>:<p>/<q> 
+    -q <name>:<p>/<q>, --quotient <name>:<p>/<q> 
                           Computes all symmetric diagrams of the 2-bridge
                           knot corresponding to the fraction <p>/<q> and 
                           saves them in one or more files
@@ -56,6 +56,13 @@
                                                                    
                             examples/strong_inversions/2-bridge-knots
                                                                    
+    -r <name>:<p>/<q>, --rational <name>:<p>/<q> 
+                          Computes the alternating (=minimal crossing) 
+                          diagram of the 2-bridge knot corresponding to 
+                          the fraction p/q and saves it in the file
+
+                            examples/knots/2-bridge-knots/<name>.kht
+
     -s, --simplify        Attempts to simplify the diagram before
                           computing any invariants.
     --sum <s1>:<s2>       Computes the complex of the tangle sum of two 

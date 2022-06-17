@@ -141,7 +141,7 @@ There should be the same number of caps as there are cups.
 Moreover, the symmetrized diagram should have a single component only (so we get a knot, as opposed to a link with more than one component). 
 Finally, neither caps nor cups may have slice index \c 0, otherwise they would intersect the axis; in particular, neither the top cap nor the bottommost cup should be specified.
 
-For 2-bridge knots, one can use the parameter \c -r to generate all strong inversions, see \ref TwoBridge "here" for details. 
+For 2-bridge knots, one can use the parameter \c -r to generate all strong inversions, see \ref TwoBridgeQuotients "here" for details. 
 
 \note Strongly invertible knots are not implemented in the \ref Interactive. 
 

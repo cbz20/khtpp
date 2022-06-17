@@ -74,8 +74,8 @@ int main ( int argc, char **argv )
      bool h_flag {false};// help flag
      bool o_flag {false};// optimize flag
      bool prefix_flag {false};// prepend flag
-     bool q_flag {false};// take quotient (of a strongly invertible knot)
-     bool r_flag {false};// rationalquotient
+     bool q_flag {false};// take quotient (of a strongly invertible knot); with optional argument, can also specify quotient of 2-bridge knot
+     bool r_flag {false};// rational knot
      bool s_flag {false};// simplify flag
      static int sum_flag {false};// tangle sum flag
      static int sum_non_compact_flag {false};// tangle sum flag for ignoring compact input curves
@@ -89,9 +89,12 @@ int main ( int argc, char **argv )
      std::string p_opt_prefix; // prefix to append to tangle string for prefix_flag
      Cut p_opt_new_top;
      std::vector<std::string> p_opt_suffix {}; // list of suffixes to append to tangle string
-     int r_opt_p; // rational quotient numerator
-     int r_opt_q; // rational quotient denominator
-     std::string r_opt_n; // rational quotient name of knot
+     int r_opt_p; // rational numerator
+     int r_opt_q; // rational denominator
+     std::string r_opt_n; // name of rational knot
+     int q_opt_p; // rational quotient numerator
+     int q_opt_q; // rational quotient denominator
+     std::string q_opt_n; // rational quotient name of knot
      int c_opt;// coefficient option
      std::vector<int> coeffs {};// coefficients argument list
      int optresult;
@@ -112,7 +115,7 @@ int main ( int argc, char **argv )
                {"optimize",  no_argument, 0, 'o'},      // Output
                {"prepend",   required_argument, 0, 'P'},// Input
                {"append",    required_argument, 0, 'p'},// Input
-               {"quotient",  no_argument, 0, 'q'},      // Input
+               {"quotient",  optional_argument, 0, 'q'},// Input
                {"rational",  required_argument, 0, 'r'},// Input
                {"simplify",  no_argument, 0, 's'},      // Input
                {"sum",       required_argument, 0,  2 },// Exceptional
@@ -124,7 +127,7 @@ int main ( int argc, char **argv )
           };
           int option_index = 0;
           //
-          optresult = getopt_long ( argc, argv, "ab:c:dhoP:p:qr:stvw",
+          optresult = getopt_long ( argc, argv, "ab:c:dhoP:p:q::r:stvw",
                                     long_options, &option_index );
           if ( optresult == -1 ) {
                break;
@@ -256,6 +259,27 @@ int main ( int argc, char **argv )
                break;
           case 'q':
                q_flag = true;
+               try {
+                    if ( optarg == 0 ){
+                         q_opt_n = "";
+                    } else {
+                         std::string input = optarg;
+                         auto i {input.find_first_of ( ':' ) };
+                         q_opt_n = input.substr ( 0,i );
+                         input = input.substr ( i+1 );
+                         auto j {input.find_first_of ( '/' ) };
+                         q_opt_p = std::stoi ( input.substr ( 0,j ) );
+                         q_opt_q = std::stoi ( input.substr ( j+1 ) );
+                         if (i == std::string::npos || j == std::string::npos ){
+                              throw "input error";
+                         };
+                    };
+               } catch ( ... ) {
+                    std::cerr << "INPUT ERROR: The option '-q' can only be followed by a\n"
+                              << "             (optional) argument of the form '<name>:<p>/<q>'.\n"
+                              << "             Type 'kht++ --help' for more info.\n";
+                    return 0;
+               };
                break;
           case 'r':
                try {
@@ -430,12 +454,19 @@ int main ( int argc, char **argv )
      // remove duplicates
      std::sort ( files.begin(), files.end() );
      files.erase ( std::unique ( files.begin(), files.end() ), files.end() );
-     if ( r_flag ) {
-          rational_quotient ( r_opt_p,
-                              r_opt_q,
-                              r_opt_n,
+     if ( q_flag && q_opt_n != "") {
+          rational_quotient ( q_opt_p,
+                              q_opt_q,
+                              q_opt_n,
                               metadata,
                               files );
+          q_flag =  false; // do not immediately take quotient, because that might be resource extensive; first only compute the knot invariant before quotienting.   
+     } else if ( r_flag ) {
+          rational_knot ( r_opt_p,
+                          r_opt_q,
+                          r_opt_n,
+                          metadata,
+                          files );
      } else if ( b_flag ) {
           std::string tanglestring;
           int min {0};
