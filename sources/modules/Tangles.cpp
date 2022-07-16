@@ -629,7 +629,13 @@ bool Tangle::n_ended ( const size_t &n )
      return ( cuts.front().size() + cuts.back().size() == n );
 };
 
-
+size_t Tangle::complexity() const {
+     size_t c {0};
+     for ( const auto &e : this->cuts){
+          c += e.size() * e.size() * e.size();
+     };
+     return c;
+};
 
 //              //
 // main methods //
@@ -1103,7 +1109,28 @@ void Tangle::doubled ()
 void Tangle::simplify_diagram ()
 {
      if ( !symmetry ) {
-          *this = Tangle ( simplify ( this->tanglestring(), cuts.front().size() ),cuts.front() );
+          //maximum number of iterations; 6 is a magic number, adapt as necessary
+          size_t maxit { 6 * this->cuts.size() };
+          for ( size_t i = 0; i < maxit; ++i ){
+               std::cout << "\33[2K\r"
+                         << spin ( i )
+                         << " "
+                         << to_percentage ( i, maxit )
+                         << " Reducing complexity. Current complexity = " 
+                         << this->complexity() 
+                         << "." 
+                         << std::flush;
+               auto T = Tangle ( simplify ( this->tanglestring(), 
+                                            cuts.front().size() 
+                                          ),
+                                 cuts.front() 
+                               );
+               if ( T.complexity() <= this->complexity() ){
+                    *this = T;
+               };
+          };
+          std::cout << "\33[2K\rReduced complexity to " << this->complexity() << ".\n" << std::flush;
+
      };
 };
 
@@ -1614,36 +1641,24 @@ std::string simplify ( std::string tanglestring,
      size_t counter {0};
 //      Tangle T0;
      std::string old_string;
-     while ( counter < wiggle_abort_after ) {
+     // maximum number of loops
+     // 3 is a magic number, adapt as necessary
+     size_t maxloops { 3 * slices.size() };
+     // maximum number of iterations in each loop
+     // 3 is a magic number, adapt as necessary
+     size_t maxit { 3 * tanglestring.size() };
+     //
+     while ( counter < maxloops ) {
           ++counter;
-          if ( counter%100   == 0 ) {
-               std::cout << "\33[2K" << to_percentage ( counter,wiggle_abort_after ) << " wiggling\r" << std::flush;
-          };
-          for ( size_t iter = 0; iter < wiggle_number; ++iter ) {
+          for ( size_t iter = 0; iter < maxit; ++iter ) {
                wiggle_move ( slices );
-               //std::cout << slices_to_string ( slices ) << "\n";
-//                T0=Tangle ( slices_to_string ( slices ), {1,1} );
-//                if( T0.bot_orient()[0]==0 || T0.bot_orient()[1]==0){
-//                     std::cout << "old: " << old_string << "\n"
-// //                               << "new: " << slices_to_string ( slices ) << "\n";
-//                };
-//                old_string = slices_to_string ( slices );
           };
           while ( simplification_move ( slices ) ) {
                counter = 0;// reset
-               std::cout << slices_to_string ( slices ) << "\n" << std::flush;
-               Tangle ( slices_to_string ( slices ), {1,1} ).print();
-//                T0=Tangle ( slices_to_string ( slices ), {1,1} );
-//                if( T0.bot_orient()[0]==0 || T0.bot_orient()[1]==0){
-//                     std::cout << "old: " << old_string << "\n"
-//                               << "new: " << slices_to_string ( slices );
-//                };
-//                old_string = slices_to_string ( slices );
           };
           // to be effective for complicated examples, need to add some move that looks for long strands that remain below or above others for a long time.
-     };
-     std::cout << "\33[2KSimplified tangle to "
-               << slices_to_string ( slices ) << ".\n";
+     };     
+     cleanup_move (slices);
      return slices_to_string ( slices );
 };
 
@@ -1721,11 +1736,46 @@ bool simplification_move ( std::vector<Slice> &slices )
                break;
           };
           if ( simplified ) {
-               std::cout << "simplified tangle!\n";
+//                std::cout << "simplified tangle!\n";
                break;
           };
      };
      return simplified;
+};
+
+void cleanup_move ( std::vector<Slice> &slices )
+{
+     bool cleanedup { true };
+     while ( cleanedup ){
+          cleanedup = false;
+          for ( size_t iter = 1; iter < slices.size(); ++iter ) {
+               if ( slices[iter].first == 'u' ) {
+               // switch x.u and y.u if possible. 
+                    switch ( slices[iter-1].first ) {
+                    case 'x':
+                    case 'y':
+                         if ( slices[iter].second < slices[iter-1].second - 1 ) {
+                              cleanedup = true;
+                              // simplify: (z<j>.u<i> becomes u<i>.z<j-2>)
+                              slices[iter].first = slices[iter-1].first;
+                              slices[iter-1].first = 'u';
+                              auto temp {slices[iter].second};
+                              slices[iter].second = slices[iter-1].second - 2;
+                              slices[iter-1].second = temp;
+                         } else if ( slices[iter].second > slices[iter-1].second + 1 ) {
+                              cleanedup = true;
+                              // simplify: (z<j>.u<i> becomes u<i>.z<j>)
+                              slices[iter].first = slices[iter-1].first;
+                              slices[iter-1].first = 'u';
+                              auto temp {slices[iter].second};
+                              slices[iter].second = slices[iter-1].second;
+                              slices[iter-1].second = temp;
+                         };
+                         break;
+                    };
+               };
+          };
+     };
 };
 
 void wiggle_move ( std::vector<Slice> &slices )
@@ -1745,10 +1795,10 @@ void wiggle_move ( std::vector<Slice> &slices )
           if ( slices[level].first!='l' && slices[level].first!='r' ) {
                while ( level != 0 && changed ) {
                     changed = false;
-                    if ( ( ( slices[level-1].first == 'u' )
-                              && ( slices[level-1].second != slices[level].second + 1 ) )
-                              || ( slices[level-1].second > slices[level].second + 1 )
-                              || ( slices[level-1].second + 1 < slices[level].second ) ) {
+                    if ( ( slices[level-1].first != 'u' )
+                              && 
+                              ( ( slices[level-1].second > slices[level].second + 1 )
+                              || ( slices[level-1].second + 1 < slices[level].second ) ) ) {
                          flip_slices ( slices,level );
                          --level;
                          changed = true;

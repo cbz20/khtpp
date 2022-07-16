@@ -27,8 +27,6 @@
 inline extern const int default_coeff {2};///< Specifies the default ring of coefficients, which is \f$\mathbb{Z}/\f$\c default_coeff; \c custom_coeff should be a prime number.  For details, see Coefficients.h
 inline extern const int custom_coeff {11};///< Specifies the a custom ring of coefficients, which is \f$\mathbb{Z}/\f$\c custom_coeff. \c custom_coeff should be a prime not equal to \c 2, \c 3, \c 5, or \c 7.  For details, see Coefficients.h
 inline extern const int max_clean_up_iter {100000};///< sets the maximum number of iterations that Complex::clean_up() will go through to put a complex into loop-type form. Currently this is set to 100000. 
-inline extern const int wiggle_number {100};///< number of wiggle moves during tangle string simplification attempting a simplification move
-inline extern const int wiggle_abort_after {10000};///< maximum number of iterations of unsuccessful attempts to perform a simplifacation move
 inline extern const int default_number_of_lines {3};///< constant used in the interactive tangle definition; this constant should be eliminated
 inline extern const int maximum_number_of_tangle_strands {6};///< (conservative) upper limit for the number of allowed tangle strands to prevent the computer from attempting calculations whose runtime might exceed the age of the universe. 
 

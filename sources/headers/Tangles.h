@@ -159,7 +159,8 @@ public:
           const std::string &name,
           const bool &orient = false ,
           const bool &transparent = false ) const;///< create svg file of the tangle diagram
-     bool n_ended(const size_t &n);///< true if tangle is n-ended and has at least one top tangle end (which is the reduction point) and one bottom tangle end
+     bool n_ended ( const size_t &n );///< true if tangle is n-ended and has at least one top tangle end (which is the reduction point) and one bottom tangle end
+     size_t complexity () const;///< complexity of the tangle; equal to the sum of the cubes of the lengths of all cuts 
      
      //              //
      // main methods //
@@ -210,6 +211,9 @@ bool simplification_move( std::vector<Slice> &slices );
 
 /// pushes randomly selected slice randomly up or down as far as possible and then attempts to perform a Reidemeister III move or a 'wiggle move' (interchanging x- and y crossings above cups or below caps)
 void wiggle_move( std::vector<Slice> &slices );
+
+/// pushes cups up as far as possible
+void cleanup_move( std::vector<Slice> &slices );
 
 void flip_slices(std::vector<Slice> &slices, const int &level );///< interchange two slices; this function does not check whether the move preserves the tangle type. It is only used in wiggle_move().
 

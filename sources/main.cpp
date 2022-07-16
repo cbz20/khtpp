@@ -597,6 +597,7 @@ int main ( int argc, char **argv )
           };
           if ( s_flag ) {
                T0.simplify_diagram();
+               T0.print();
                T0.to_svg ( metadata,file.fullname() + "/" + file.name() + "-s" );
                conditional_append (
                     file.fullname() + ".kht",
