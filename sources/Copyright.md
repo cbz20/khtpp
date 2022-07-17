@@ -1,1 +1,1 @@
-kht++ Copyright (C) 2021 Claudius Zibrowius
+kht++ Copyright (C) 2021–2022 Claudius Zibrowius
