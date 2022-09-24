@@ -72,6 +72,7 @@ int main ( int argc, char **argv )
      std::string b_opt_comment; // comment
      bool d_flag {false};// double up
      bool h_flag {false};// help flag
+     bool khr_only_flag {false};// only compute Khr, not BNr
      bool o_flag {false};// optimize flag
      bool prefix_flag {false};// prepend flag
      bool q_flag {false};// take quotient (of a strongly invertible knot); with optional argument, can also specify quotient of 2-bridge knot
@@ -111,6 +112,7 @@ int main ( int argc, char **argv )
                {"braid",     required_argument, 0, 'b'},// Input
                {"coeff",     required_argument, 0, 'c'},// Input
                {"double",    no_argument, 0, 'd'},      // Input
+               {"khr",       no_argument, 0,  3 },      // Exceptional
                {"help",      no_argument, 0, 'h'},      // Exceptional
                {"optimize",  no_argument, 0, 'o'},      // Output
                {"prepend",   required_argument, 0, 'P'},// Input
@@ -150,6 +152,8 @@ int main ( int argc, char **argv )
                     return 0;
                };
                break;
+          case 3: 
+               khr_only_flag = true;
           case 'a':
                a_flag = true;
                break;

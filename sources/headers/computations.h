@@ -86,12 +86,14 @@ for ( auto s : p_opt_suffix ) {
         auto cxBNr=cxs.to_BN();
         cxBNr.check();
         //cxBN.to_precurve().to_svg ( file.fullname() + "/precurve_original" );
-        cxBNr.clean_up ( max_clean_up_iter );
-        cxBNr.check();
-        T0s.to_svg ( metadata,file.fullname() + "/" + file.name() + fns_options );
-        cxBNr.print (
-            file.fullname() + "/cxBNr" + fns_options,
-            metadata );
+        if ( !khr_only_flag ){
+            cxBNr.clean_up ( max_clean_up_iter );
+            cxBNr.check();
+            T0s.to_svg ( metadata,file.fullname() + "/" + file.name() + fns_options );
+            cxBNr.print (
+                file.fullname() + "/cxBNr" + fns_options,
+                metadata );
+        };
         auto cxKhr = cxBNr.cone ( 1 );
         cxKhr.clean_up ( max_clean_up_iter );
         cxKhr.check();

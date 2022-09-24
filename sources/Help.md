@@ -23,6 +23,7 @@
                           run then program with option -c<p>. 
     -d, --double          Doubles all tangle strands before computing
                           the invariants of the tangles.
+	--khr                 only compute Khr curves, not BNr
     -h, --help            Displays this help message.
     -o, --optimize        Attempts to minimize the number of generators
                           in the invariants by adding twists to the 
