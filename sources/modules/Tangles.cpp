@@ -656,6 +656,9 @@ Complex<CobObj,CobMor,Coeff> Tangle::CobComplex ( Complex<CobObj,CobMor,Coeff> c
           top = cx.get_objects().front().get_top();
      };
      std::string feedback="";
+     if ( with_feedback ) {
+          std::cout << "\n" << std::flush;
+     };
      auto start_t {std::chrono::high_resolution_clock::now() };
      auto current_t {start_t};
      auto previous_t {start_t};
