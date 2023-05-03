@@ -190,6 +190,7 @@ public:
      // output and sanity checks //
      //                          //
      std::string to_string() const;///< string representative of a cobordism object
+     std::string to_svg( const bool &with_grading = true ) const;///< string representative of a cobordism object for svg file
      void print() const;///< print representative of a cobordism object in terminal
      bool check() const;///< true if the object is a well-defined crossingless tangle
      bool compatible_with ( const CobObj obj ) const;///< true if a cobordisms between these objects exist.

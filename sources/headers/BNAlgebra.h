@@ -80,6 +80,7 @@ public:
      // output and sanity checks //
      //                          //
      void print() const;///< print string representation of generator in terminal
+     std::string to_svg( const bool &with_grading = true ) const;///< string representative of a cobordism object for svg file
      std::string gr_string ( const max_gr_str &max_gr = {} ) const;///< string representation of grading
      std::string to_string ( const bool &with_grading = true ) const;///< string representation of generator
      std::string to_TeX() const;///< TeX representation of generator

@@ -23,6 +23,8 @@
 #ifndef COB_H
 #include "../headers/Cob.h"
 #include "../headers/constants.h"
+#include "../headers/aux_svg.h"
+
 #endif
 
 
@@ -676,6 +678,16 @@ void CobObj::print() const
      std::cout << this->to_string();
 }
 
+std::string CobObj::to_svg( const bool &with_grading ) const {
+     std::string output {};
+     Arcs arcs {PCA::gens[strands][index]};
+     arcs.rotate( top );     
+     output+=svg_text({0,0},arcs.to_string());
+     if ( with_grading ) {
+          output += svg_text({0,20},"q="+std::to_string(q));
+     };
+     return output;
+}
 
 std::string CobObj::to_string() const
 {

@@ -140,6 +140,80 @@ void Complex_Base<Obj,Mor,Coeff>::print (
      this->diffs.coeff ( index_to,index_from ).print();
 }
 
+template<typename Coeff>
+void Complex<CobObj,CobMor,Coeff>::view (
+     const std::string &name,
+     const std::string &metadata) const
+{
+     if ( metadata.empty() ) {
+          // Providing metadata should be strictly enforced
+          std::cerr << "No metadata was specified.";
+          abort();
+     } else {
+          std::ofstream file ( name +".svg" );
+          int min_h {this->objects[0].get_h()};
+          int max_h {min_h};
+          for ( auto & object : this->objects ){
+               if ( min_h > object.get_h()){
+                    min_h = object.get_h();
+               } else if ( max_h < object.get_h()){
+                    max_h = object.get_h();
+               };
+          };
+          std::vector<size_t> totals_h ( max_h-min_h + 1,0 );
+          for ( auto & object : this->objects ){
+               totals_h[ object.get_h() - min_h ] += 1;
+          };
+          size_t max_total {0};
+          for (auto & i : totals_h){
+               if ( max_total < i){
+                    max_total = i;
+               };
+          };
+          int xstretchfactor {3};
+          size_t height { 100 * (max_total+1) };
+          int width { xstretchfactor * 100 * (max_h-min_h) + 100 };
+          // svg file header
+          file << "<svg xmlns=\"http://www.w3.org/2000/svg\" "
+               << "height=\"" << height << "\" "
+               << "width =\"" << width << "\"> \n";
+          file << "<rect x=\"0\" y=\"0\" width=\"100%\" height=\"100%\" style=\"fill:white\"/>\n";
+          file << "<!-- file '"
+               << name
+               << ".svg', "
+               << metadata
+               << " -->\n";
+          for ( int i=0; i < max_h-min_h+1; ++i){
+               file << svg_text({50 + xstretchfactor * 100 *i, 100}, "h="+std::to_string(i+min_h));
+          };
+          std::vector<size_t> totals_h_current ( max_h-min_h + 1,0 );
+          std::vector<Coords> coords;
+          int x,y;
+          for ( auto & object : this->objects ){
+               x =  50 + xstretchfactor * 100 * (object.get_h() - min_h);
+               y = 150 + 100 * totals_h_current[ object.get_h() - min_h ] + (max_total - totals_h[ object.get_h() - min_h ]) * 50;
+               coords.push_back({x,y});
+               file << "<g transform=\"translate(" << x << " " << y << ")\">\n";
+               file << object.to_svg();
+               file << "</g>\n";
+               totals_h_current[ object.get_h() - min_h ] += 1;
+          };
+          for ( int k=0; k<this->diffs.outerSize(); ++k ) {
+               for ( typename Eigen::SparseMatrix<CobMor<Coeff>>::InnerIterator it ( this->diffs,k ); it; ++it ) {
+                    file << svg_line(Coords({coords[it.col()].first+50,coords[it.col()].second}),
+                                     Coords({coords[it.row()].first-50,coords[it.row()].second}),
+                                     "black",2);
+                    file << svg_arrowhead (
+                         Coords({coords[it.row()].first-50,coords[it.row()].second}),
+                                           90,"black", 2);
+                    // it.value().to_string();
+               };
+          };
+          file << "</svg>";
+          file.close();
+     };
+}
+
 
 template<typename Coeff>
 void Complex<CobObj,CobMor,Coeff>::print ( const std::string &name, const std::string &metadata ) const

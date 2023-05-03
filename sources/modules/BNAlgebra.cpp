@@ -23,6 +23,7 @@
 #ifndef BNALGEBRA_H
 #include "../headers/BNAlgebra.h"
 #include "../headers/constants.h"
+#include "../headers/aux_svg.h"
 #endif
 
 
@@ -90,6 +91,20 @@ void BNObj::shift_hq (
 void BNObj::print() const
 {
      std::cout << this->to_string() <<"\n";
+}
+
+std::string BNObj::to_svg ( const bool &with_grading ) const 
+{
+     std::string output;
+     if ( idem ) {
+          output+=svg_text({0,0},"⬮");//●⦁▮█
+     } else {
+          output+=svg_text({0,0},"⬯");//○∘▯Oo
+     };
+     if ( with_grading ) {
+          output += svg_text({0,20},this->gr_string());
+     };
+     return output;
 }
 
 std::string BNObj::gr_string ( const max_gr_str &max_gr ) const

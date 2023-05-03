@@ -143,9 +143,12 @@ for ( auto s : p_opt_suffix ) {
         //
     } else
     {
-        cxs.print (
+        cxs.view (
             file.fullname() + "/cx" + fns_options,
             metadata );
+        cxs.print (
+            file.fullname() + "/cx" + fns_options,
+            metadata);
         std::cout << "Printed the computed type D structure into " << file.fullname() << "/cx" + fns_options + ".\n";
     };
 };

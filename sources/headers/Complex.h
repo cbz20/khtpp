@@ -128,7 +128,10 @@ public:
 
      void print ( const std::string &name = "",
                   const std::string &metadata = "" ) const;///< if name is the empty, print string representative of a complex over the cobordism category into the terminal; if name is non-empty, this prints this string representative into the file specified by 'name'; metadata must be provided.
-
+     void view (
+          const std::string &name = "temp.svg",
+          const std::string &metadata = "" ) const;///< generates an svg file of a labelled oriented graph representing the complex. Metadata must be provided.
+    
      void AddCap ( const unsigned int &i );///< computes the cobordism complex  obtained by tensoring with the complex consisting of a single object, which is the identity plus a cap at the tangle end i, counted from the bottom left starting at 0.
      void AddCup ( const unsigned int &i );///< computes the cobordism complex  obtained by tensoring with the complex consisting of a single object, which is the identity plus a cup at the tangle end i, counted from the bottom left starting at 0.
      
