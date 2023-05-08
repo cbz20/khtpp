@@ -60,6 +60,7 @@ There exist several programs for computing Khovanov invariants for knots and lin
 - [Khoca](http://lewark.de/lukas/khoca.html)
 - [KhoHo](https://github.com/AShumakovitch/KhoHo)
 - [knotkit](https://github.com/cseed/knotkit)
+- [KnotJob](https://www.maths.dur.ac.uk/users/dirk.schuetz/knotjob.html)
 
 If you know of another program that you feel is missing from this list, please \ref Contact "get in touch". 
 
