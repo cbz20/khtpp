@@ -62,7 +62,7 @@ Tangle::Tangle ( std::string input,std::vector<bool> top_orient,bool auto_correc
                     if ( symmetry && slice.second == 0 ) {
                          cuts.back() [1] = !cuts.back() [1] ;
                     } else {
-                         std::swap ( cuts.back() [slice.second],cuts.back() [slice.second+1] );
+                         cuts.back().swap ( cuts.back() [slice.second],cuts.back() [slice.second+1] );
                     }
                     break;
                case 'u':
@@ -596,7 +596,7 @@ void Tangle::to_svg ( const std::string &metadata,
           };
           file << this->draw_svg_orient ( cuts[i],ycoord );
      } else {
-          int i{0};// cut index
+          //int i{0};// cut index
           int ycoord{1};// y-coordinate
           file << this->draw_svg_orient ( cuts.front(),ycoord,1 );
           // only draw orientations up
@@ -607,7 +607,7 @@ void Tangle::to_svg ( const std::string &metadata,
                } else if ( compact_slices[index].front().first=='r' ) {
                     file << svg_arrowhead ( Coords ( j*100+150,ycoord*100+50 ),180 );
                };
-               i+=compact_slices[index].size();
+               //i+=compact_slices[index].size();
                ++ycoord;
           };
           file << this->draw_svg_orient ( cuts.back(),ycoord,0 );
@@ -731,169 +731,200 @@ Complex<CobObj,CobMor,Coeff> Tangle::CobComplex ( Complex<CobObj,CobMor,Coeff> c
 };
 
 
+char follow_strand_up( const std::vector<Slice> &slices,
+					   const bool &symmetry,
+                       size_t &level,
+                       int &index)
+{
+     switch ( slices[level-1].first ) {
+     case 'x':
+     case 'y':
+          if ( slices[level-1].second == index ) {
+               index++ ;
+               level--;
+               // still go up
+          }
+          else if ( slices[level-1].second == index-1 ) {
+               if ( symmetry && index == 1 ) {
+                    // index unchanged
+                    level--;
+                    // still go up
+               }
+               else {
+                    index--;
+                    level--;
+                    // still go up
+               };
+          }
+          else {
+               // index unchanged
+               level--;
+               // still go up
+          };
+          break;
+     case 'l':
+          if ( slices[level-1].second == index ) {
+               //
+               index++ ;
+               // level unchanged
+               return 'r';
+          }
+          else if ( slices[level-1].second == index-1 ) {
+			   index-- ;
+               // level unchanged
+               return 'r';
+          }
+          else if ( slices[level-1].second < index-1 ) {
+               index--;
+               index--;
+               level--;
+               // still go up
+          }
+          else {
+               // index unchanged
+               level--;
+               // still go up
+          };
+          break;
+     case 'r':
+          if ( slices[level-1].second == index ) {
+               return 'l';
+               //
+               index++ ;
+               // level unchanged
+          }
+          else if ( slices[level-1].second == index-1 ) {
+               //
+               index-- ;
+               // level unchanged
+               return 'l';
+          }
+          else if ( slices[level-1].second < index-1 ) {
+               index--;
+               index--;
+               level--;
+               // still go up
+          }
+          else {
+               // index unchanged
+               level--;
+               // still go up
+          };
+          break;
+     case 'u':
+          if ( slices[level-1].second < index+1 ) {
+               index++;
+               index++;
+               level--;
+               // still go up
+          }
+          else {
+               // index unchanged
+               level--;
+               // still go up
+          };
+          break;
+     };
+     return 'a';// default return
+};
+
+char follow_strand_down( const std::vector<Slice> &slices,
+					     const bool &symmetry,
+                         size_t &level,
+                         int &index)
+{
+     switch ( slices[level].first ) {
+     case 'x':
+     case 'y':
+          if ( slices[level].second == index ) {
+               index++ ;
+               level++;
+               // still go down
+          }
+          else if ( slices[level].second == index-1 ) {
+               if ( symmetry && index == 1 ) {
+                    // index unchanged
+                    level--;
+                    // still go down
+               }
+               else {
+                    index-- ;
+                    level++;
+                    // still go down
+               };
+          }
+          else {
+               // index unchanged
+               level++;
+               // still go down
+          };
+          break;
+     case 'l':
+     case 'r':
+          if ( slices[level].second < index+1 ) {
+               index++;
+               index++;
+               level++;
+               // still go down
+          }
+          else {
+               // index unchanged
+               level++;
+               // still go down
+          };
+          break;
+     case 'u':
+          if ( slices[level].second == index ) {
+               index++ ;
+               // level unchanged
+               return 'u';//signal 'go up now'
+          }
+          else if ( slices[level].second == index-1 ) {
+               index-- ;
+               // level unchanged
+               return 'u';//signal 'go up now'
+          }
+          else if ( slices[level].second < index-1 ) {
+               index--;
+               index--;
+               level++;
+               // still go down
+          }
+          else {
+               // index unchanged
+               level++;
+               // still go down
+          };
+          break;
+     };
+     return 'a';//default
+};
+
 void Tangle::flip_orient_at_index ( int i )
 {
      size_t level { slices.size() };
      cuts[level][i] = !cuts[level][i];
      //
      bool go_up {true};
+     char follow_char;
      while ( true ) {
-//           if ( go_up ) {
-//                std::cout << "go_up = true, ";
-//           } else {
-//                std::cout << "go_up = false, ";
-//           };
-//           std::cout << "level = " << level
-//                     << ", index = " << i
-//                     << "\n" << std::flush;
           if ( go_up ) {
-               switch ( slices[level-1].first ) {
-               case 'x':
-               case 'y':
-                    if ( slices[level-1].second == i ) {
-                         i++ ;
-                         level--;
-                         // still go up
-                    } else if ( slices[level-1].second == i-1 ) {
-                         if ( symmetry && i == 1 ) {
-                              // index unchanged
-                              level--;
-                              // still go up
-                         } else {
-                              i-- ;
-                              level--;
-                              // still go up
-                         };
-                    } else {
-                         // index unchanged
-                         level--;
-                         // still go up
-                    };
-                    break;
-               case 'l':
-                    if ( slices[level-1].second == i ) {
-                         slices[level-1].first = 'r';
-                         //
-                         i++ ;
-                         // level unchanged
-                         go_up = false;
-                    } else if ( slices[level-1].second == i-1 ) {
-                         slices[level-1].first = 'r';
-                         //
-                         i-- ;
-                         // level unchanged
-                         go_up = false;
-                    } else if ( slices[level-1].second < i-1 ) {
-                         i--;
-                         i--;
-                         level--;
-                         // still go up
-                    } else {
-                         // index unchanged
-                         level--;
-                         // still go up
-                    };
-                    break;
-               case 'r':
-                    if ( slices[level-1].second == i ) {
-                         slices[level-1].first = 'l';
-                         //
-                         i++ ;
-                         // level unchanged
-                         go_up = false;
-                    } else if ( slices[level-1].second == i-1 ) {
-                         slices[level-1].first = 'l';
-                         //
-                         i-- ;
-                         // level unchanged
-                         go_up = false;
-                    } else if ( slices[level-1].second < i-1 ) {
-                         i--;
-                         i--;
-                         level--;
-                         // still go up
-                    } else {
-                         // index unchanged
-                         level--;
-                         // still go up
-                    };
-                    break;
-               case 'u':
-                    if ( slices[level-1].second < i+1 ) {
-                         i++;
-                         i++;
-                         level--;
-                         // still go up
-                    } else {
-                         // index unchanged
-                         level--;
-                         // still go up
-                    };
-                    break;
-               };
+				follow_char = follow_strand_up(slices,symmetry,level,i);
+				if ( follow_char != 'a' ){
+					go_up = false;
+					slices[level].first = follow_char;
+				};
           } else {
-               switch ( slices[level].first ) {
-               case 'x':
-               case 'y':
-                    if ( slices[level].second == i ) {
-                         i++ ;
-                         level++;
-                         // still go down
-                    } else if ( slices[level].second == i-1 ) {
-                         if ( symmetry && i == 1 ) {
-                              // index unchanged
-                              level--;
-                              // still go down
-                         } else {
-                              i-- ;
-                              level++;
-                              // still go down
-                         };
-                    } else {
-                         // index unchanged
-                         level++;
-                         // still go down
-                    };
-                    break;
-               case 'l':
-               case 'r':
-                    if ( slices[level].second < i+1 ) {
-                         i++;
-                         i++;
-                         level++;
-                         // still go down
-                    } else {
-                         // index unchanged
-                         level++;
-                         // still go down
-                    };
-                    break;
-               case 'u':
-                    if ( slices[level].second == i ) {
-                         i++ ;
-                         // level unchanged
-                         go_up = true;
-                    } else if ( slices[level].second == i-1 ) {
-                         i-- ;
-                         // level unchanged
-                         go_up = true;
-                    } else if ( slices[level].second < i-1 ) {
-                         i--;
-                         i--;
-                         level++;
-                         // still go down
-                    } else {
-                         // index unchanged
-                         level++;
-                         // still go down
-                    };
-                    break;
-               };
-          };
-          cuts[level][i] = !cuts[level][i];
-          if ( level == slices.size() || level == 0 ) {
-               break;
-          };
+				follow_char = follow_strand_down(slices,symmetry,level,i);
+				if ( follow_char != 'a' ){
+					go_up = true;
+				};
+		  };
+		cuts[level][i] = !cuts[level][i];
+		if ( level == slices.size() || level == 0 )
+		{
+			 break;
+		};
      };
 };
 
@@ -1119,14 +1150,14 @@ void Tangle::simplify_diagram ()
                          << spin ( i )
                          << " "
                          << to_percentage ( i, maxit )
-                         << " Reducing complexity. Current complexity = " 
-                         << this->complexity() 
-                         << "." 
+                         << " Reducing complexity. Current complexity = "
+                         << this->complexity()
+                         << "."
                          << std::flush;
-               auto T = Tangle ( simplify ( this->tanglestring(), 
-                                            cuts.front().size() 
+               auto T = Tangle ( simplify ( this->tanglestring(),
+                                            cuts.front().size()
                                           ),
-                                 cuts.front() 
+                                 cuts.front()
                                );
                if ( T.complexity() <= this->complexity() ){
                     *this = T;
@@ -1237,7 +1268,7 @@ Tangle rational_tangle ( const int &p, const int &q)
 {
      std::vector<int> continued_frac {continued_fraction ( p,q ) };
      std::cout << "Generating rational tangle with the following continued fraction decomposition:\n"
-               << stringL( continued_frac ) 
+               << stringL( continued_frac )
                << "\n"
                << std:: flush;
 
@@ -1252,15 +1283,15 @@ Tangle rational_tangle ( const int &p, const int &q)
      if ( sign ){
           v = {".x0",".y1"};
      };
-     std::string tanglestring {};  
-     for ( size_t i = 0 ; i < continued_frac.size(); ++i ) { 
+     std::string tanglestring {};
+     for ( size_t i = 0 ; i < continued_frac.size(); ++i ) {
           for ( int j = 0; j < continued_frac[i]; ++j){
                tanglestring = v[(i+1)%2] + tanglestring;
           };
      };
      tanglestring = "l" + std::to_string( (continued_frac.size() + 1) % 2 ) + tanglestring;
      // even length continued_frac: start with Q_∞, ie l1
-     // odd length continued_frac: start with Q_0, ie l0     
+     // odd length continued_frac: start with Q_0, ie l0
      Tangle T0 = Tangle ( tanglestring, {1} );
      return T0;
 };
@@ -1401,7 +1432,7 @@ File interactive_file ( const std::string &defaultpath )
 
 void interactive ( const std::string &metadata,std::vector<File> &files )
 {
-     /// \todo make this function cope with symmetric tangles and behave more gracefully in edge cases; in particular, remove the necessity of \ref default_number_of_lines. 
+     /// \todo make this function cope with symmetric tangles and behave more gracefully in edge cases; in particular, remove the necessity of \ref default_number_of_lines.
      bool aborted = false;
      File file {interactive_file() };
      file.create_directories();
@@ -1660,7 +1691,7 @@ std::string simplify ( std::string tanglestring,
                counter = 0;// reset
           };
           // to be effective for complicated examples, need to add some move that looks for long strands that remain below or above others for a long time.
-     };     
+     };
      cleanup_move (slices);
      return slices_to_string ( slices );
 };
@@ -1753,7 +1784,7 @@ void cleanup_move ( std::vector<Slice> &slices )
           cleanedup = false;
           for ( size_t iter = 1; iter < slices.size(); ++iter ) {
                if ( slices[iter].first == 'u' ) {
-               // switch x.u and y.u if possible. 
+               // switch x.u and y.u if possible.
                     switch ( slices[iter-1].first ) {
                     case 'x':
                     case 'y':
@@ -1781,6 +1812,17 @@ void cleanup_move ( std::vector<Slice> &slices )
      };
 };
 
+void global_move ( std::vector<Slice> &slices )
+{
+     for ( size_t iter = 1; iter < slices.size(); ++iter ) {
+          if ( slices[iter].first == 'u' ) {
+               // follow left
+
+          };
+
+     };
+};
+
 void wiggle_move ( std::vector<Slice> &slices )
 {
      std::random_device random_device;
@@ -1799,7 +1841,7 @@ void wiggle_move ( std::vector<Slice> &slices )
                while ( level != 0 && changed ) {
                     changed = false;
                     if ( ( slices[level-1].first != 'u' )
-                              && 
+                              &&
                               ( ( slices[level-1].second > slices[level].second + 1 )
                               || ( slices[level-1].second + 1 < slices[level].second ) ) ) {
                          flip_slices ( slices,level );

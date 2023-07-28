@@ -1,20 +1,20 @@
-// 
+//
 // This file is part of kht++.
-// 
+//
 // kht++ is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Affero General Public License as 
-// published by the Free Software Foundation, either version 3 of 
+// it under the terms of the GNU Affero General Public License as
+// published by the Free Software Foundation, either version 3 of
 // the License, or (at your option) any later version.
-// 
+//
 // kht++ is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU Affero General Public License for more details.
-// 
-// You should have received a copy of the GNU Affero General 
-// Public License along with kht++.  If not, see 
+//
+// You should have received a copy of the GNU Affero General
+// Public License along with kht++.  If not, see
 // <https://www.gnu.org/licenses/>.
-// 
+//
 
 
 
@@ -41,12 +41,12 @@
 
 
 
-/// a list of boolean values, representing oriented intersection points of a straight horizontal line with a generic oriented tangle diagram. 
+/// a list of boolean values, representing oriented intersection points of a straight horizontal line with a generic oriented tangle diagram.
 
-/// The boolean values are translated as follows: 
-/// - 1=↑ 
+/// The boolean values are translated as follows:
+/// - 1=↑
 /// - 0=↓
-typedef std::vector<bool> Cut; 
+typedef std::vector<bool> Cut;
 
 /// represents an elementary tangle in a Morse presentation of a tangle
 
@@ -57,17 +57,17 @@ typedef std::vector<bool> Cut;
 /// - \c l : ↶ (cap, oriented to the left)
 /// - \c r : ↷ (cap, oriented to the right)
 /// - \c u : ∪ (cup)
-/// 
-/// The second entry is the index of the left strand in a crossing/cap/cup, counted from the left, starting at 0. 
+///
+/// The second entry is the index of the left strand in a crossing/cap/cup, counted from the left, starting at 0.
 typedef std::pair<char,int> Slice;
 
 /// defines an oriented tangle
 
-/// The first entry is a string which is a dot(.)-separated sequence of words of the form \c ci where the pair (\c c,\c i) defines a \ref Slice. The \f$n^\text{th}\f$ word represents the \f$n^\text{th}\f$ elementary tangle in a Morse presentation of the tangle, read from top to bottom. 
-/// For symmetric knots, the prefix "s." should be added to this string. 
-/// The second entry is a \ref Cut corresponding to the top of the tangle. 
+/// The first entry is a string which is a dot(.)-separated sequence of words of the form \c ci where the pair (\c c,\c i) defines a \ref Slice. The \f$n^\text{th}\f$ word represents the \f$n^\text{th}\f$ elementary tangle in a Morse presentation of the tangle, read from top to bottom.
+/// For symmetric knots, the prefix "s." should be added to this string.
+/// The second entry is a \ref Cut corresponding to the top of the tangle.
 ///
-/// For example, 
+/// For example,
 ///
 /// \code{.sh}tangle_input={"l1.x2.y0.x2.y0.x2.u1",{1,1}}\endcode
 ///
@@ -77,16 +77,16 @@ typedef std::pair<char,int> Slice;
 ///
 //// \code{.sh}
 //// l1	↑  ↶  ↑
-//// x2	↑ ↓  ⤬  
-//// y0	 ⤫  ↑ ↑ 
-//// x2	↓ ↑  ⤬  
-//// y0	 ⤫  ↑ ↑ 
-//// x2	↑ ↓  ⤬  
+//// x2	↑ ↓  ⤬
+//// y0	 ⤫  ↑ ↑
+//// x2	↓ ↑  ⤬
+//// y0	 ⤫  ↑ ↑
+//// x2	↑ ↓  ⤬
 //// u1	↑   ͝  ↑
 //// \endcode
 ///
-/// and 
-/// 
+/// and
+///
 /// \code{.sh}tangle_input={"s.l1.y0.y0.x1.u2",{1}}\endcode
 ///
 /// corresponds to the symmetric knot
@@ -121,15 +121,15 @@ private:
 public:
 
      /// standard constructor
-    
+
      /// The pair (\c input, \c top_orient) have the same format as \ref tangle_input. Tangles are built from top to bottom, hence all cuts are determined by this data. If \c auto_correct is \c true, the constructor will attempt to auto-correct the orientation of strands if the input is inconsistent
      Tangle ( std::string input,Cut top_orient, bool auto_correct = true);
-     
+
      /// construct tangle from File \c file
-     
+
      /// \todo explain the structure of a file representing a tangle
      Tangle (const File &file);
-     
+
      Tangle();// constructor of empty tangle
 
      //                                 //
@@ -160,21 +160,21 @@ public:
           const bool &orient = false ,
           const bool &transparent = false ) const;///< create svg file of the tangle diagram
      bool n_ended ( const size_t &n );///< true if tangle is n-ended and has at least one top tangle end (which is the reduction point) and one bottom tangle end
-     size_t complexity () const;///< complexity of the tangle; equal to the sum of the cubes of the lengths of all cuts 
-     
+     size_t complexity () const;///< complexity of the tangle; equal to the sum of the cubes of the lengths of all cuts
+
      //              //
      // main methods //
      //              //
-     
+
      /// computes the cobordism complex for a tangle \f$T\f$
-     
-     /// The first argument is a cobordism complex \f$C'\f$ that we tensor with the cobordim complex \f$C(T)\f$ for \f$T\f$, gluing the top of \f$C(T)\f$ to the bottom of \f$C'\f$. If this argument is empty, we replace it by a complex consisting of a single crossingless tangle, namely the identity tangle on the same number of strands as there are endpoints at the top of \f$T\f$. 
+
+     /// The first argument is a cobordism complex \f$C'\f$ that we tensor with the cobordim complex \f$C(T)\f$ for \f$T\f$, gluing the top of \f$C(T)\f$ to the bottom of \f$C'\f$. If this argument is empty, we replace it by a complex consisting of a single crossingless tangle, namely the identity tangle on the same number of strands as there are endpoints at the top of \f$T\f$.
      ///
-     /// If the second argument is false, some feedback in the terminal concerning the status of the computation will be suppressed. 
+     /// If the second argument is false, some feedback in the terminal concerning the status of the computation will be suppressed.
      template <typename Coeff>
      Complex<CobObj,CobMor,Coeff> CobComplex( Complex<CobObj,CobMor,Coeff> cx = {},const bool &with_feedback = true ) const;
      void flip_orient_at_index( int i );///< changes the orientation of the strand at the index \c i at the bottom of the tangle, counted from the left, starting with 0
-     Tangle add( const std::string &twists ) const;///< add a tangle \c twists to the bottom of the tangle. The format of \c twists is as the first component of \ref tangle_input.  
+     Tangle add( const std::string &twists ) const;///< add a tangle \c twists to the bottom of the tangle. The format of \c twists is as the first component of \ref tangle_input.
      Tangle quotient() const;///< computes the quotient of a symmetric knot under a strong inversion
      Tangle complete_symmetry() const;///< completes a symmetric knot to a full knot
      void doubled();///< double each strand of a tangle diagram. For example, this can be used to generate four-ended tangles from 1-1-knots. For those knots, the framing of the resulting cap-trivial tangle is chosen such that the linking number between the two strands is 0 and the \f$\infty\f$-filling is the unknot filling.
@@ -188,23 +188,23 @@ public:
 Tangle Sakuma ( const std::vector<int> &list1,const std::vector<int> &list2 );///< generates a symmetric knot corresponding to \f$I_1(a_1,\dots,a_n:c_1,\dots,c_n)\f$ from \cite Sakuma.
 Tangle rational_tangle ( const int &p, const int &q);///< generates a rational tangle of slope p/q
 
-Tangle Sakuma ( const std::vector<int> &list );///< generates a symmetric knot corresponding to \f$I_2(a_1,\dots,a_n)\f$ from \cite Sakuma. 
+Tangle Sakuma ( const std::vector<int> &list );///< generates a symmetric knot corresponding to \f$I_2(a_1,\dots,a_n)\f$ from \cite Sakuma.
 void rational_quotient (const int &p,
                         const int &q,
                         const std::string &name,
                         const std::string &metadata,
-                        std::vector<File> &files );///< generate diagrams for all strong inversions of the 2-bridge knot corresponding to the fraction p/q; we will assume |p|>q>0; see \cite Sakuma. 
+                        std::vector<File> &files );///< generate diagrams for all strong inversions of the 2-bridge knot corresponding to the fraction p/q; we will assume |p|>q>0; see \cite Sakuma.
 void rational_knot (const int &p,
                     const int &q,
                     const std::string &name,
                     const std::string &metadata,
                     std::vector<File> &files );///< generate a diagram for the 2-bridge knot corresponding to the fraction p/q; we will assume |p|>q>0.
 File interactive_file ( const std::string &defaultpath = "");///< User dialogue for specifying a file (path)
-void interactive ( const std::string &metadata,std::vector<File> &files );///< User dialogue for generating tangles and storing them for later use. 
+void interactive ( const std::string &metadata,std::vector<File> &files );///< User dialogue for generating tangles and storing them for later use.
 
 std::vector<Slice> to_slices( std::string tanglestring,int cutlength );///< list of slices generated from a tangle string (ame format as the first component of \ref tangle_input). This function will throw error messages if the input is inconsistent. \c cutlength is the number of top tangle ends
 std::string slices_to_string( std::vector<Slice> slices );///< concatenates slices along dots (.)
-std::string simplify( std::string tanglestring,int cutlength ); ///< attempts to simplify a tangle string. This function should not be called if the \c tanglestring defines a symmetric tangle. 
+std::string simplify( std::string tanglestring,int cutlength ); ///< attempts to simplify a tangle string. This function should not be called if the \c tanglestring defines a symmetric tangle.
 
 /// attempts to apply Reidemeister I and II moves to reduce the number of crossings
 bool simplification_move( std::vector<Slice> &slices );
@@ -214,6 +214,28 @@ void wiggle_move( std::vector<Slice> &slices );
 
 /// pushes cups up as far as possible
 void cleanup_move( std::vector<Slice> &slices );
+
+/// follows a strand at a given level and index one step up
+///
+/// returns 'r' or 'l' if there is a cap at the next level and index, or 'a' otherwise.
+/// level and index are updated
+char follow_strand_up( const std::vector<Slice> &slices,
+					   const bool &symmetry,
+					   size_t &level,
+					   int &index);
+
+/// follows a strand at a given level and index one step down
+///
+/// returns 'u' if there is a cup at the next level and index, or 'a' otherwise.
+/// level and index are updated
+char follow_strand_down( const std::vector<Slice> &slices,
+					     const bool &symmetry,
+					     size_t &level,
+					     int &index);
+
+/// removes cap-cup pairs
+void global_move( std::vector<Slice> &slices );
+
 
 void flip_slices(std::vector<Slice> &slices, const int &level );///< interchange two slices; this function does not check whether the move preserves the tangle type. It is only used in wiggle_move().
 
