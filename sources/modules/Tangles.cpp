@@ -738,94 +738,104 @@ char follow_strand_up( const std::vector<Slice> &slices,
 {
      switch ( slices[level-1].first ) {
      case 'x':
-     case 'y':
           if ( slices[level-1].second == index ) {
-               index++ ;
-               level--;
-               // still go up
+               index++;// strand moves to the right
+               level--;// continue upwards
+               return 'U';// under strand
           }
           else if ( slices[level-1].second == index-1 ) {
                if ( symmetry && index == 1 ) {
-                    // index unchanged
-                    level--;
-                    // still go up
+                    // switch strands, index unchanged
+                    level--;// continue upwards
                }
                else {
-                    index--;
-                    level--;
-                    // still go up
+                    index--;// strand moves to the left
+                    level--;// continue upwards
                };
+               return 'O';// over strand
           }
           else {
                // index unchanged
-               level--;
-               // still go up
+               level--;// continue upwards
+          };
+          break;
+     case 'y':
+          if ( slices[level-1].second == index ) {
+               index++ ;// strand moves to the right
+               level--;// continue upwards
+               return 'O';// over strand
+          }
+          else if ( slices[level-1].second == index-1 ) {
+               if ( symmetry && index == 1 ) {
+                    // switch strands, index unchanged
+                    level--;// continue upwards
+               }
+               else {
+                    index--;// strand moves to the left
+                    level--;// continue upwards
+               };
+               return 'U';// under strand
+          }
+          else {
+               // index unchanged
+               level--;// continue upwards
           };
           break;
      case 'l':
           if ( slices[level-1].second == index ) {
-               //
-               index++ ;
+               index++;//strand returns on the right
                // level unchanged
-               return 'r';
+               return 'r';//reverse direction
           }
           else if ( slices[level-1].second == index-1 ) {
-			   index-- ;
+			   index--;//strand returns on the left
                // level unchanged
-               return 'r';
+               return 'r';//reverse direction
           }
           else if ( slices[level-1].second < index-1 ) {
                index--;
                index--;
-               level--;
-               // still go up
+               level--;// continue upwards
           }
           else {
                // index unchanged
-               level--;
-               // still go up
+               level--;// continue upwards
           };
           break;
      case 'r':
           if ( slices[level-1].second == index ) {
-               return 'l';
-               //
-               index++ ;
+               index++;//strand returns on the right
                // level unchanged
+               return 'l';//reverse direction
           }
           else if ( slices[level-1].second == index-1 ) {
-               //
-               index-- ;
+               index--;//strand returns on the left
                // level unchanged
-               return 'l';
+               return 'l';//reverse direction
           }
           else if ( slices[level-1].second < index-1 ) {
                index--;
                index--;
-               level--;
-               // still go up
+               level--;// continue upwards
           }
           else {
                // index unchanged
-               level--;
-               // still go up
+               level--;// continue upwards
           };
           break;
      case 'u':
           if ( slices[level-1].second < index+1 ) {
                index++;
                index++;
-               level--;
-               // still go up
+               level--;// continue upwards
           }
           else {
                // index unchanged
-               level--;
-               // still go up
+               level--;// continue upwards
           };
           break;
      };
-     return 'a';// default return
+     return 'a';// default return value
 };
 
 char follow_strand_down( const std::vector<Slice> &slices,
@@ -835,28 +845,47 @@ char follow_strand_down( const std::vector<Slice> &slices,
 {
      switch ( slices[level].first ) {
      case 'x':
+          if ( slices[level].second == index ) {
+               index++;// strand moves to the right
+               level++;// continue downwards
+               return 'O';// over strand
+          }
+          else if ( slices[level].second == index-1 ) {
+               if ( symmetry && index == 1 ) {
+                    // switch strands, index unchanged
+                    level++;// continue downwards
+               }
+               else {
+                    index--;// strand moves to the left
+                    level++;// continue downwards
+               };
+               return 'U';// under strand
+          }
+          else {
+               // index unchanged
+               level++;// continue downwards
+          };
+          break;
      case 'y':
           if ( slices[level].second == index ) {
-               index++ ;
-               level++;
-               // still go down
+               index++;// strand moves to the right
+               level++;// continue downwards
+               return 'U';// under strand
           }
           else if ( slices[level].second == index-1 ) {
                if ( symmetry && index == 1 ) {
                     // index unchanged
-                    level--;
-                    // still go down
+                    level++;// continue downwards
                }
                else {
-                    index-- ;
-                    level++;
-                    // still go down
+                    index--;// strand moves to the left
+                    level++;// continue downwards
                };
+               return 'O';// over strand
           }
           else {
                // index unchanged
-               level++;
-               // still go down
+               level++;// continue downwards
           };
           break;
      case 'l':
@@ -864,40 +893,36 @@ char follow_strand_down( const std::vector<Slice> &slices,
           if ( slices[level].second < index+1 ) {
                index++;
                index++;
-               level++;
-               // still go down
+               level++;// continue downwards
           }
           else {
                // index unchanged
-               level++;
-               // still go down
+               level++;// continue downwards
           };
           break;
      case 'u':
           if ( slices[level].second == index ) {
-               index++ ;
+               index++;//strand returns on the right
                // level unchanged
-               return 'u';//signal 'go up now'
+               return 'u';//reverse direction
           }
           else if ( slices[level].second == index-1 ) {
-               index-- ;
+               index--;//strand returns on the left
                // level unchanged
-               return 'u';//signal 'go up now'
+               return 'u';//reverse direction
           }
           else if ( slices[level].second < index-1 ) {
                index--;
                index--;
-               level++;
-               // still go down
+               level++;// continue downwards
           }
           else {
                // index unchanged
-               level++;
-               // still go down
+               level++;// continue downwards
           };
           break;
      };
-     return 'a';//default
+     return 'a';//default return value
 };
 
 void Tangle::flip_orient_at_index ( int i )
@@ -910,13 +935,13 @@ void Tangle::flip_orient_at_index ( int i )
      while ( true ) {
           if ( go_up ) {
 				follow_char = follow_strand_up(slices,symmetry,level,i);
-				if ( follow_char != 'a' ){
+				if ( follow_char == 'l' || follow_char == 'r' ){
 					go_up = false;
-					slices[level].first = follow_char;
+					slices[level-1].first = follow_char;
 				};
           } else {
 				follow_char = follow_strand_down(slices,symmetry,level,i);
-				if ( follow_char != 'a' ){
+				if ( follow_char == 'u' ){
 					go_up = true;
 				};
 		  };
@@ -1684,13 +1709,15 @@ std::string simplify ( std::string tanglestring,
      //
      while ( counter < maxloops ) {
           ++counter;
+          while ( global_move ( slices ) ) {
+               counter = 0;// reset
+          };
           for ( size_t iter = 0; iter < maxit; ++iter ) {
                wiggle_move ( slices );
           };
           while ( simplification_move ( slices ) ) {
                counter = 0;// reset
           };
-          // to be effective for complicated examples, need to add some move that looks for long strands that remain below or above others for a long time.
      };
      cleanup_move (slices);
      return slices_to_string ( slices );
@@ -1812,15 +1839,373 @@ void cleanup_move ( std::vector<Slice> &slices )
      };
 };
 
-void global_move ( std::vector<Slice> &slices )
+bool ou_helper(char &c1, const char &c2){
+	if (c1 == 'O'){
+		return c2 != 'U';
+	}
+	else if (c1 == 'U'){
+		return c2 != 'O';
+	}
+	else{
+		c1 = c2;
+		return true;
+	};
+};
+
+std::pair<size_t,int> find_cap( const std::vector<Slice> &slices,
+								size_t level,
+							    int index,
+								char &ou_char,
+							    const size_t &uptolevel)
 {
-     for ( size_t iter = 1; iter < slices.size(); ++iter ) {
-          if ( slices[iter].first == 'u' ) {
-               // follow left
-
+     char follow_char {'a'};
+     while ( follow_char != 'l' && follow_char != 'r' && level > uptolevel) {
+          follow_char = follow_strand_up(slices,false,level,index);
+          //std::cout << "find_cap level" << level << ou_char << follow_char << "\n";
+          if ( !ou_helper(ou_char,follow_char) ) {
+               // ignore this path in search for caps
+               // if there are both over and under crossings
+               return {0,0};
           };
-
+          if (level == 0) {
+			  // only reached if we have found no caps.
+               return {0,0};
+          };
      };
+     return {level,index};
+};
+
+std::pair<size_t,int> find_cup( const std::vector<Slice> &slices,
+								size_t level,
+							    int index,
+								char &ou_char,
+							    const size_t &uptolevel)
+{
+     char follow_char {'a'};
+     while ( follow_char != 'u' && level < uptolevel ) {
+          follow_char = follow_strand_down(slices,false,level,index);
+          //std::cout << "find_cup level" << level << ou_char << follow_char << "\n";
+          if ( !ou_helper(ou_char,follow_char) ) {
+               // ignore this path in search for caps
+               // if there are both over and under crossings
+               return {slices.size(),0};
+          };
+          if ( level == slices.size() ) {
+			  // only reached if we have found no caps.
+               return {slices.size(),0};
+          };
+     };
+     return {level,index};
+};
+
+bool erase_x_or_y ( std::vector<Slice> &slices,
+                   size_t &level,
+                   int &i,
+                   int &j )
+{
+     if ( slices[level].second == i-1 ) {
+          //   X
+          //  k k+1=i
+          i--;
+          slices.erase(slices.begin() + level);
+          return true;
+     }
+     else if ( slices[level].second == i && i == j-1 ) {
+          //     X
+          //  i=k k+1=j
+          slices.erase(slices.begin() + level);
+          return true;
+     }
+     else if ( slices[level].second == i ) {
+          //     X
+          //  i=k k+1!=j
+          i++;// preserves i<j
+          slices.erase(slices.begin() + level);
+          return true;
+     }
+     else if ( slices[level].second == j-1 ) {
+          //      X
+          //  i!=k k+1=j
+          j--;// preserves i<j
+          slices.erase(slices.begin() + level);
+          return true;
+     }
+     else if ( slices[level].second == j ) {
+          //        X
+          //     j=k
+          j++;
+          slices.erase(slices.begin() + level);
+          return true;
+     }
+     else if ( slices[level].second > j ) {
+          //              X
+          //     i < j < k
+          slices[level].second--;
+          slices[level].second--;
+          return false;
+     }
+     else if ( slices[level].second < j-1 && slices[level].second > i ) {
+          //          X
+          //     i < k k+1 < j
+          slices[level].second--;
+          return false;
+     };
+     // remaining case:
+     //     X
+     //    k k+1 < i < j
+     // unchanged
+     return false;
+};
+
+bool erase_cup_down_or_cap_up ( std::vector<Slice> &slices,
+                                size_t &level,
+                                int &i,
+                                int &j )
+{
+     if ( slices[level].second == i-1 ) {
+          //   /\
+          //  k  k+1=i < j
+          i--;
+          j--;
+          j--;
+          slices.erase(slices.begin() + level);
+          return true;
+     }
+     else if ( slices[level].second == i && i == j-1 ) {
+          //     /\
+          //  i=k k+1=j
+          slices.erase(slices.begin() + level);
+          // add closed component at the bottom of the tangle
+          slices.push_back(Slice({'l',0}));
+          slices.push_back(Slice({'u',0}));
+          i = j; // do not add any crossings after the while loop
+          return true;
+     }
+     else if ( slices[level].second == i ) {
+          //     /\
+          //  i=k k+1!=j
+          j--;
+          j--;
+          slices.erase(slices.begin() + level);
+          return true;
+     }
+     else if ( slices[level].second == j-1 ) {
+          //      /\
+          //  i!=k k+1=j
+          j--;
+          j--;
+          slices.erase(slices.begin() + level);
+          return true;
+     }
+     else if ( slices[level].second == j ) {
+          //        /\
+          // i < j=k
+          j--;
+          slices.erase(slices.begin() + level);
+          return true;
+     }
+     else if ( slices[level].second > j ) {
+          //              /\
+          //     i < j < k
+          slices[level].second--;
+          slices[level].second--;
+          return false;
+     }
+     else if ( slices[level].second < j-1 && slices[level].second > i ) {
+          //          /\
+          //     i < k k+1 < j
+          slices[level].second--;
+          j--;
+          j--;
+          return false;
+     };
+     // remaining case
+     //     /\
+     //    k  k+1 < i < j
+     i--;
+     i--;
+     j--;
+     j--;
+     return false;
+};
+
+void erase_cup_up_or_cap_down( std::vector<Slice> &slices,
+                               size_t &level,
+                               int &i,
+                               int &j )
+{
+     if ( slices[level].second <= i ) {
+          //   U
+          //  k <= i <j
+          i++;
+          i++;
+          j++;
+          j++;
+     }
+     else if ( slices[level].second <= j ) {
+          //       U
+          //  i < k <= j
+          j++;
+          j++;
+          slices[level].second--;
+     }
+     else {
+          // remaining case:
+          //             U
+          //    i < j < k
+          slices[level].second--;
+          slices[level].second--;
+     };
+};
+
+void push_cap ( std::vector<Slice> &slices,
+                size_t level )
+{
+     //std::cout << " push_cap called at level " << level << ".\n";
+     int i {slices[level].second};
+     int j {i+1};
+     slices.erase(slices.begin() + level);
+     bool cont {true};
+     while ( cont ) {
+          // assume throughout that i<j.
+          switch ( slices[level].first ) {
+          case 'x':
+          case 'y':
+               if ( !erase_x_or_y(slices,level,i,j) ) {
+                    level++;
+               };
+               break;
+          case 'u':
+               cont = !erase_cup_down_or_cap_up(slices,level,i,j);
+               if ( cont ) {
+                    level++;
+               };
+               break;
+          case 'r':
+          case 'l':
+               erase_cup_up_or_cap_down(slices,level,i,j);
+               level++;
+               break;
+          };
+     };
+     for ( int k = j-i; k > 0 ; k-- ) {
+          slices.emplace(slices.begin() + level, Slice({'x',i+k-1}) );
+     };
+     //std::cout<< slices_to_string(slices) << "\n" << std::flush;
+};
+
+void push_cup ( std::vector<Slice> &slices,
+                size_t level )
+{
+     //std::cout << " push_cup called at level " << level << ".\n";
+     int i {slices[level].second};
+     int j {i+1};
+     slices.erase(slices.begin() + level);
+     level--;
+     bool cont {true};
+     while ( cont ) {
+          // assume throughout that i<j.
+          switch ( slices[level].first ) {
+          case 'x':
+          case 'y':
+               erase_x_or_y(slices,level,i,j);
+               break;
+          case 'u':
+               erase_cup_up_or_cap_down(slices,level,i,j);
+               break;
+          case 'r':
+          case 'l':
+			   cont = !erase_cup_down_or_cap_up(slices,level,i,j);
+               break;
+          };
+          level--;
+     };
+     level++;
+     for ( int k = j-i; k > 0 ; k-- ) {
+          slices.emplace(slices.begin() + level, Slice({'x',i+k-1}) );
+     };
+     //std::cout<< slices_to_string(slices) << "\n" << std::flush;
+};
+
+
+bool global_move ( std::vector<Slice> &slices )
+{
+     for ( size_t level = 1; level < slices.size(); ++level ) {
+          if ( slices[level].first == 'u' ) {
+               // 1) follow right end of cup up to a cap
+               //
+               //       /\
+               //      |
+               //     U
+               //
+               int i = slices[level].second;
+               char ou {'a'};
+               auto cap = find_cap( slices, level, i+1, ou, 0 );
+               if ( cap.first != 0 ) {
+                    char ou_copy {ou};
+                    // 1.1) follow left end cup upwards up to the level of the cap
+                    //
+                    //    |  /\
+                    //    | |
+                    //     U
+                    //
+                    auto end = find_cap( slices, level, i, ou_copy, cap.first );
+                    if ( end.first != 0 ) {
+                         //std::cout << "\n1.1)";
+                         push_cup( slices, level );
+                         return true;
+                    };
+                    // 1.2) follow cap downwards
+                    //
+                    //       /\
+                    //      |  |
+                    //     U   |
+                    //
+                    end = find_cup( slices, cap.first, cap.second, ou, level );
+                    if ( end.first != slices.size() ) {
+                         //std::cout << "\n1.2)";
+                         push_cap( slices, cap.first-1 );
+                         return true;
+                    };
+               };
+               // 2) follow left end of cup up to a cap
+               //
+               //    /\
+               //      |
+               //       U
+               //
+               ou = 'a';
+               cap = find_cap( slices, level, i, ou, 0 );
+               if ( cap.first != 0 ) {
+                    char ou_copy {ou};
+                    // 2.1) follow right end cup upwards up to the level of the cap
+                    //
+                    //    /\  |
+                    //      | |
+                    //       U
+                    //
+                    auto end = find_cap( slices, level, i+1, ou_copy, cap.first );
+                    if ( end.first != 0 ) {
+                         //std::cout << "\n2.1)";
+                         push_cup( slices, level );
+                         return true;
+                    };
+                    // 2.2) follow cap downwards
+                    //
+                    //    /\
+                    //   |  |
+                    //   |   U
+                    //
+                    end = find_cup( slices, cap.first, cap.second, ou, level );
+                    if ( end.first !=  slices.size() ) {
+                         //std::cout << "\n2.2)";
+                         push_cap( slices, cap.first-1 );
+                         return true;
+                    };
+               };
+          };
+     };
+     return false;
 };
 
 void wiggle_move ( std::vector<Slice> &slices )

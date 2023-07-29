@@ -217,8 +217,10 @@ void cleanup_move( std::vector<Slice> &slices );
 
 /// follows a strand at a given level and index one step up
 ///
-/// returns 'r' or 'l' if there is a cap at the next level and index, or 'a' otherwise.
-/// level and index are updated
+/// returns 'r' or 'l' if there is a cap at the next level and index,
+/// or 'a' otherwise. 'l' is returned iff the cap is 'r'.
+/// Level and index are updated
+/// input level must be > 0
 char follow_strand_up( const std::vector<Slice> &slices,
 					   const bool &symmetry,
 					   size_t &level,
@@ -226,17 +228,105 @@ char follow_strand_up( const std::vector<Slice> &slices,
 
 /// follows a strand at a given level and index one step down
 ///
-/// returns 'u' if there is a cup at the next level and index, or 'a' otherwise.
+/// returns 'u' if there is a cup at the next level and index,
+///         'U' or 'O' if the strand is involved in an under/over
+///             crossing, respectively, and
+///         'a' otherwise.
 /// level and index are updated
+/// input level must be at most slices.size()-1
 char follow_strand_down( const std::vector<Slice> &slices,
 					     const bool &symmetry,
 					     size_t &level,
 					     int &index);
 
-/// removes cap-cup pairs
-void global_move( std::vector<Slice> &slices );
+/// helper function to keep track of over/under strands
+///
+/// if c1 in {O,U}, true if and only if c2=c1 or c1 not in {O,U}.
+/// if c1 not in {O,U}, c1=c2
+bool ou_helper(char &c1,const char &c2);
 
 
-void flip_slices(std::vector<Slice> &slices, const int &level );///< interchange two slices; this function does not check whether the move preserves the tangle type. It is only used in wiggle_move().
+/// returns level and index of the strand coming out of the
+/// first cap that we meet along the upwards path from the point
+/// a given level and index, if the strand remains always above or
+/// always below all other strands; returns (0,0) otherwise.
+/// This function is only used in global_move;
+std::pair<size_t,int> find_cap( const std::vector<Slice> &slices,
+								size_t level,
+								int index,
+								char &ou_char,
+								const size_t &uptolevel );
 
+
+/// returns level and index of the strand coming out of the
+/// first cup that we meet along the downwards path from the point
+/// a given level and index, if the strand remains always above or
+/// always below all other strands; returns (0,0) otherwise.
+/// This function is only used in global_move;
+std::pair<size_t,int> find_cup( const std::vector<Slice> &slices,
+								size_t level,
+								int index,
+								char &ou_char,
+								const size_t &uptolevel );
+
+/// erases the strands at indices i and j at a slice x or y.
+
+/// Returns true if slice was erased and updates all inputs;
+/// The relation i<j is assumed as for input and guaranteed for output.
+/// This function does not check if the move preserves the tangle type.
+/// It is only used in push_cup and push_cap;
+bool erase_x_or_y ( std::vector<Slice> &slices,
+                  size_t &level,
+                  int &i,
+                  int &j );
+
+/// erases the strands at indices i and j at the top of a cup/bottom of a cap.
+
+/// Returns true if slice was erased and updates all inputs.
+/// The relation i<j is assumed as for input and guaranteed for output.
+/// This function does not check if the move preserves the tangle type.
+/// It is only used in push_cup and push_cap;
+bool erase_cup_down_or_cap_up ( std::vector<Slice> &slices,
+                  size_t &level,
+                  int &i,
+                  int &j );
+
+/// erases the strands at indices i and j at the bottom of a cup/top of a cap.
+
+/// This function never erases a slice.
+/// The relation i<j is assumed as for input and guaranteed for output.
+/// This function does not check if the move preserves the tangle type.
+/// It is only used in push_cup and push_cap;
+void erase_cup_up_or_cap_down  ( std::vector<Slice> &slices,
+                  size_t &level,
+                  int &i,
+                  int &j );
+
+/// eliminate cup-cap pair by pushing cup upwards through the tangle.
+
+/// If cup-cap pair gives closed component, we add a single cap and cup
+/// below the whole tangle afterwards.
+/// This function does not check if the move preserves the tangle type.
+/// It is only used in global_move.
+void push_cup ( std::vector<Slice> &slices,
+				size_t level );
+
+/// eliminate cup-cap pair by pushing cap downwards through the tangle.
+
+/// If cup-cap pair gives closed component, we add a single cap and cup
+/// below the whole tangle afterwards.
+/// This function does not check if the move preserves the tangle type.
+/// It is only used in global_move.
+void push_cap ( std::vector<Slice> &slices,
+				size_t level );
+
+/// attempts to remove a cap-cup pair
+bool global_move( std::vector<Slice> &slices );
+
+/// interchange two slices
+///
+/// This function does not check if the move preserves the tangle type.
+/// It is only used in wiggle_move().
+
+void flip_slices(std::vector<Slice> &slices, const int &level );
 #endif
