@@ -974,58 +974,57 @@ Tangle Tangle::quotient ( ) const
      Cut new_top;
      bool orient = cuts.front().back();
      new_top.push_back ( !orient );
-     new_top.push_back ( !orient );
      if ( orient ) {
-          tanglestring += "r2.r3.";
+          tanglestring += "r1.r2.";
      } else {
-          tanglestring += "l2.l3.";
+          tanglestring += "l1.l2.";
      };
      //
      for ( const Slice &slice : slices ) {
           switch ( slice.first ) {
           case 'x':
                if ( slice.second == 0 ) {
-                    tanglestring += "x1.x2.x2.x1.";
+                    tanglestring += "x0.x1.x1.x0.";
                     break;
                }
           case 'y':
                if ( slice.second == 0 ) {
-                    tanglestring += "y1.y2.y2.y1.";
+                    tanglestring += "y0.y1.y1.y0.";
                     break;
                } else {
+                    tanglestring += slice.first +
+                                    std::to_string ( 2*slice.second ) + ".";
+                    tanglestring += slice.first +
+                                    std::to_string ( 2*slice.second-1 ) + ".";
                     tanglestring += slice.first +
                                     std::to_string ( 2*slice.second+1 ) + ".";
                     tanglestring += slice.first +
                                     std::to_string ( 2*slice.second ) + ".";
-                    tanglestring += slice.first +
-                                    std::to_string ( 2*slice.second+2 ) + ".";
-                    tanglestring += slice.first +
-                                    std::to_string ( 2*slice.second+1 ) + ".";
                     break;
                }
           case 'l':
           case 'r':
                tanglestring += slice.first +
-                               std::to_string ( 2*slice.second ) + ".";
+                               std::to_string ( 2*slice.second-1 ) + ".";
                tanglestring += slice.first +
-                               std::to_string ( 2*slice.second+1 ) + ".";
+                               std::to_string ( 2*slice.second ) + ".";
                break;
           case 'u':
                tanglestring += slice.first +
-                               std::to_string ( 2*slice.second+1 ) + ".";
-               tanglestring += slice.first +
                                std::to_string ( 2*slice.second ) + ".";
+               tanglestring += slice.first +
+                               std::to_string ( 2*slice.second-1 ) + ".";
                break;
           };
      };
-     tanglestring += "u1.u0.";
+     tanglestring += "u0.";
      // fix framing
      int twists {this->writhe() };
      std::string twiststring;
      if ( twists > 0 ) {
-          twiststring = "x0.x0.";
+          twiststring = "x1.x1.";
      } else {
-          twiststring = "y0.y0.";
+          twiststring = "y1.y1.";
           twists *= -1;
      };
      for ( int i = 0; i<twists ; ++i ) {
@@ -1034,11 +1033,11 @@ Tangle Tangle::quotient ( ) const
      tanglestring.pop_back();
      //
      Tangle TempT {tanglestring, new_top};
-     if ( TempT.bot_orient().front() != orient ) {
-          TempT.flip_orient_at_index ( 0 );
-     };
-     if ( TempT.bot_orient().back() != orient ) {
+     if ( TempT.bot_orient()[1] != orient ) {
           TempT.flip_orient_at_index ( 1 );
+     };
+     if ( TempT.bot_orient()[2] != orient ) {
+          TempT.flip_orient_at_index ( 2 );
      };
      //
      return TempT;
