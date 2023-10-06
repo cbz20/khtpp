@@ -266,7 +266,7 @@ std::string Tangle::to_string ( const int &index,const bool &orient ) const
           };
      } else if ( slice.first=='r' || slice.first=='l' ) {
           for ( size_t j=slice.second+2; j<bot.size(); ++j ) {
-               output+=" ⟍";
+               output+="⟍ ";
           };
      } else {
           for ( size_t j=slice.second+2; j<top.size(); ++j ) {
