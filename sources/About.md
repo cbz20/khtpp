@@ -1,3 +1,5 @@
+### About
+
 This is kht++, a program for computing Khovanov invariants for links and tangles.
 
 An installation guide and some documentation are available at the [kht++ homepage](https://cbz20.raspberryip.com/code/khtpp/docs/).
