@@ -1,5 +1,4 @@
 
-
 kht++ was written by __[Claudius Zibrowius](https://cbz20.raspberryip.com/)__ while being supported through the following grants:
 
 * __[Lukas Lewark](https://people.math.ethz.ch/~llewark/)__'s Emmy Noether Grant of the DFG, project number 412851057
@@ -12,4 +11,5 @@ The following people have contributed to this project in one form or another:
 * __[Artem Kotelskiy](https://artofkot.github.io/)__, <i>co-author of \cite KWZ, \cite KWZ_comparison, \cite KWZ_strong_inversions, and \cite KWZ_thin </i>
 * __[Lukas Lewark](https://people.math.ethz.ch/~llewark/)__, _advice and moral support_
 * __[Liam Watson](https://www.math.ubc.ca/~liam/)__, <i>co-author of \cite KWZ, \cite KWZ_comparison, \cite KWZ_strong_inversions, and \cite KWZ_thin </i>
+
 
