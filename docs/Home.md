@@ -42,8 +42,8 @@ While it is reasonably fast and resource friendly, kht++ has not been optimized 
 \section OtherPages Other pages
 
 - \ref HowToCite
+- \ref sources/Acknowledgements.md
 - \ref LICENSE.md
-- \ref sources/Contributors.md
 - \ref citelist
 - \ref todo
 - \ref Impressum
