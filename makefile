@@ -36,7 +36,6 @@ docs :
 	sed -i 's/MY_GIT_LATEST_COMMIT/'$(GIT_LATEST_COMMIT)'/g' conf.py
 	sed -i 's/MY_DOXYGEN_VERSION/'$(DOXYGEN_VERSION)'/g' conf.py
 	./docs/m.css/documentation/doxygen.py conf.py
-	(cat sources/About.md && echo "\n### Acknowledgements" && cat sources/Acknowledgements.md) > README.md
 	mv conf.py.tmp conf.py
 
 .PHONY: clean
