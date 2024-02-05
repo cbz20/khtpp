@@ -63,7 +63,7 @@ and open the file \c makefile in a text editor. The first line should read as fo
 
     PATH_EIGEN = ../libraries/Eigen
 
-Replace the path \code{.sh}../libraries/Eigen\endcode as appropriate, such that it points to the folder containing the Eigen Template Library. If you want to compile using g++ instead of clang++, you also need to comment/uncomment the relevant lines in the \c makefile setting the variable \c CXX. Then run 
+Replace the path \code{.sh}../libraries/Eigen\endcode as appropriate, such that it points to the folder containing the Eigen Template Library. (This is the folder containing various subfolders and files such as 'bench', 'cmake', 'INSTALL', 'README.md', etc.) If you want to compile using g++ instead of clang++, you also need to comment/uncomment the relevant lines in the \c makefile setting the variable \c CXX. Then run 
 
     make
 
