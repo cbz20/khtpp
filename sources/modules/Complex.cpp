@@ -189,12 +189,15 @@ void Complex<CobObj,CobMor,Coeff>::view (
           std::vector<size_t> totals_h_current ( max_h-min_h + 1,0 );
           std::vector<Coords> coords;
           int x,y;
+          int objectcounter {0};
           for ( auto & object : this->objects ){
                x =  50 + xstretchfactor * 100 * (object.get_h() - min_h);
                y = 150 + 100 * totals_h_current[ object.get_h() - min_h ] + (max_total - totals_h[ object.get_h() - min_h ]) * 50;
                coords.push_back({x,y});
-               file << "<g transform=\"translate(" << x << " " << y << ")\">\n";
+               file << "<g transform=\"translate(" << x-25 << " " << y << ")\">\n";
                file << object.to_svg();
+               file << svg_text({25,-30},"("+std::to_string(objectcounter)+")");
+               ++objectcounter; 
                file << "</g>\n";
                totals_h_current[ object.get_h() - min_h ] += 1;
           };

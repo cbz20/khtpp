@@ -682,9 +682,45 @@ std::string CobObj::to_svg( const bool &with_grading ) const {
      std::string output {};
      Arcs arcs {PCA::gens[strands][index]};
      arcs.rotate( top );     
-     output+=svg_text({0,0},arcs.to_string());
+	 int scaling {static_cast<int>(arcs.pairs().size())-top};
+	 if ( top > scaling ){
+	 	scaling = top;
+	 };
+	 if (scaling > 1 ){
+	 	scaling -=1;
+	 };
+	 // scaling = max(#tangle ends at the top,bottom)-1
+	 output += "<g transform=\"scale(" + std::to_string( static_cast<float>(1) / scaling ) + ")\">\n";
+	 output += svg_line({-10,20*scaling},{50*scaling+10,20*scaling},"gray",1);
+	 output += svg_line({-10,-20*scaling},{50*scaling+10,-20*scaling},"gray",1);
+     for ( auto pair : arcs.pairs() ){
+		std::pair<int,int> level {1,1};
+     	if ( pair.first < top ){
+			level.first = -1;
+		} else {
+     		pair.first -= top;
+		};
+     	if ( pair.second < top ){
+			level.second = -1;
+		} else {
+     		pair.second -= top;
+		};
+		int diff { pair.first - pair.second };
+		if ( diff < 0 ){
+			diff *= -1;
+		};
+		pair.first *= 50;
+		pair.second *= 50;
+     	output += svg_bezier (
+     				{pair.first, 20 * scaling * level.first},
+     				{pair.first, 20 * ( scaling - diff ) * level.first},
+     				{pair.second, 20 * ( scaling - diff ) * level.second},
+     				{pair.second, 20 * scaling * level.second});
+     };
+	 output += "</g>";
+//     output+=svg_text({0,20},arcs.to_string());
      if ( with_grading ) {
-          output += svg_text({0,20},"q="+std::to_string(q));
+          output += svg_text({25,40},"q="+std::to_string(q));
      };
      return output;
 }
