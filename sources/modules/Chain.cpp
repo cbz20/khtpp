@@ -703,10 +703,10 @@ Khr_curve Chain<Coeff>::to_Khr_curve () const
           };
      };
      // 6) Work out if the curve is special or rational. 
-     // Specials of slope > 0 contain a curve segment x=⬮—>⬮~>⬯—>⬯=y such that the curve segments starting at x and y are identical (same idempotents and directions of arrows) until they meet in a fourth curve segment similar to the first. For specials of slope <0, swap ⬮ and ⬯. The first curve segment corresponds to wrapping around the special puncture, so this can tell all rationals and specials of slope ≠ 0,∞ apart. 
+     // Specials of slope < 0 contain a curve segment x=⬮—>⬮~>⬯—>⬯=y such that the curve segments starting at x and y are identical (same idempotents and directions of arrows) until they meet in a fourth curve segment similar to the first. For specials of slope > 0, swap ⬮ and ⬯. The first curve segment corresponds to wrapping around the special puncture, so this can tell all rationals and specials of slope ≠ 0,∞ apart. 
      //
      // first take care of 'short' curves; they are always rational:
-     if ( N < 9 ) {
+     if ( N < 7 ) {
           return Khr_curve ( -length,slope_p,slope_q,clinks.front().object.get_delta(),q );
      };
      //
