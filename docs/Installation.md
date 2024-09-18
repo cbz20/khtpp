@@ -50,7 +50,7 @@ If you have a [github](https://github.com/) account, you clone the repository in
 
 If you do not have a github account, you can clone the repository with the following command
 
-    git clone git://github.com/cbz20/khtpp.git
+    git clone https://github.com/cbz20/khtpp.git
 
 You can also download the source files [directly](https://github.com/cbz20/khtpp/archive/main.zip), but this is not recommended. 
 </li>
