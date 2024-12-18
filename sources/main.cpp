@@ -531,6 +531,7 @@ int main ( int argc, char **argv )
           if ( T0.is_symmetric() ) {
                if ( q_flag ) {
                     T0 = T0.quotient();
+                    T0.to_svg ( metadata,file.fullname() + "/" + file.name() + "-q" );
                } else {
                     T0 = T0.complete_symmetry();
                };
