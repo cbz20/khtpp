@@ -1708,9 +1708,12 @@ std::string simplify ( std::string tanglestring,
      //
      while ( counter < maxloops ) {
           ++counter;
-          while ( global_move ( slices ) ) {
-               counter = 0;// reset
-          };
+          //std::vector<Slice> old_slices {slices};
+          //while ( global_move ( slices ) ) {
+          //     counter = 0;// reset
+          //     std::cout << "\n\n" << "old tangle: " << slices_to_string ( old_slices ) 
+          //               << "\n" << "new tangle: " << slices_to_string ( slices )<< "\n";
+          //};
           for ( size_t iter = 0; iter < maxit; ++iter ) {
                wiggle_move ( slices );
           };
